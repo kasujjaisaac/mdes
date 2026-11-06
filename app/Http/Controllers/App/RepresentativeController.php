@@ -1,0 +1,139 @@
+<?php
+
+namespace App\Http\Controllers\App;
+
+use App\Actions\RecordAuditEvent;
+use App\Http\Controllers\Controller;
+use App\Models\District;
+use App\Models\Parish;
+use App\Models\ReportingPeriod;
+use App\Models\School;
+use App\Models\SchoolReturn;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\Rule;
+
+class RepresentativeController extends Controller
+{
+    public function home(Request $request)
+    {
+        abort_unless($request->user()->isSchoolRepresentative(), 403);
+        $school = $request->user()->school?->load('parish', 'district');
+        $request->validate(['stats_return_id' => ['nullable', 'integer']]);
+        $statisticReturns = $school ? $school->schoolReturns()->whereNotNull('statistical_form')->with('reportingPeriod')->get()->sortByDesc(fn ($r) => sprintf('%04d-%020d', $r->reportingPeriod?->year ?? 0, $r->id))->values() : collect();
+        $statisticReturn = $request->filled('stats_return_id') ? $statisticReturns->firstWhere('id', $request->integer('stats_return_id')) : $statisticReturns->first();
+        if ($request->filled('stats_return_id') && ! $statisticReturn) {
+            abort(404);
+        }
+        $schoolForm = $statisticReturn?->statistical_form ?? [];
+        $enrolmentRows = collect($schoolForm['enrolment']['classes'] ?? [])->merge($schoolForm['enrolment']['nursery'] ?? []);
+        $schoolBoys = $enrolmentRows->sum(fn ($r) => (int) ($r['boys'] ?? 0));
+        $schoolGirls = $enrolmentRows->sum(fn ($r) => (int) ($r['girls'] ?? 0));
+        $schoolStatistics = [
+            ['label' => 'Learners', 'icon' => 'users', 'value' => isset($schoolForm['enrolment']) ? $schoolBoys + $schoolGirls : null],
+            ['label' => 'Teaching staff', 'icon' => 'staff', 'value' => isset($schoolForm['teaching']) ? count($schoolForm['teaching']['members'] ?? []) : null],
+            ['label' => 'Support staff', 'icon' => 'users', 'value' => isset($schoolForm['support']) ? count($schoolForm['support']['members'] ?? []) : null],
+            ['label' => 'Permanent classrooms', 'icon' => 'school', 'value' => $schoolForm['facilities']['items']['permanent_classrooms']['quantity'] ?? null],
+            ['label' => 'Library books', 'icon' => 'document', 'value' => $schoolForm['facilities']['items']['library_books']['quantity'] ?? null],
+            ['label' => 'Computers', 'icon' => 'building', 'value' => $schoolForm['facilities']['items']['computers']['quantity'] ?? null],
+        ];
+
+        return view('representative.home', ['title' => 'My School Dashboard', 'school' => $school, 'schoolStatistics' => $schoolStatistics, 'statisticReturn' => $statisticReturn, 'statisticReturns' => $statisticReturns, 'schoolForm' => $schoolForm, 'schoolBoys' => $schoolBoys, 'schoolGirls' => $schoolGirls,
+            'periods' => $school ? ReportingPeriod::whereHas('schools', fn ($q) => $q->where('schools.id', $school->id))->with(['schoolReturns' => fn ($q) => $q->where('school_id', $school->id)])->orderByDesc('year')->orderByDesc('id')->get() : collect()]);
+    }
+
+    public function profile(Request $request)
+    {
+        abort_unless($request->user()->isSchoolRepresentative(), 403);
+        $school = $request->user()->school?->load('parish', 'district');
+        if ($school) {
+            Gate::authorize('view', $school);
+        }
+
+        return view('representative.profile', ['title' => 'School Profile', 'school' => $school]);
+    }
+
+    public function editProfile(Request $request)
+    {
+        abort_unless($request->user()->isSchoolRepresentative(), 403);
+        $school = $request->user()->school;
+        abort_unless($school, 403);
+        Gate::authorize('view', $school);
+
+        return view('representative.edit-profile', ['title' => 'Edit School Profile', 'school' => $school, 'parishes' => Parish::orderBy('name')->get(), 'districts' => District::orderBy('name')->get()]);
+    }
+
+    public function updateProfile(Request $request)
+    {
+        abort_unless($request->user()->isSchoolRepresentative(), 403);
+        $school = $request->user()->school;
+        abort_unless($school, 403);
+        Gate::authorize('view', $school);
+        $data = $request->validate([
+            'parish_id' => ['required', 'exists:parishes,id'], 'district_id' => ['required', 'exists:districts,id'],
+            'ministry_registration_number' => ['nullable', 'string', 'max:80', Rule::unique('schools')->ignore($school->id)],
+            'emis_number' => ['nullable', 'string', 'max:60', Rule::unique('schools')->ignore($school->id)],
+            'school_level' => ['required', 'in:nursery,primary,secondary,vocational_technical,tertiary'],
+            'funding_classification' => ['required', 'in:Government,Private'], 'gender_classification' => ['required', 'in:Boys,Girls,Mixed'],
+            'boarding_status' => ['required', 'in:Day,Boarding,Both day and boarding'],
+        ]);
+        DB::transaction(function () use ($request, $school, $data) {
+            $locked = School::whereKey($school->id)->lockForUpdate()->firstOrFail();
+            $before = $locked->toArray();
+            $locked->update([...$data, 'diocese_id' => Parish::findOrFail($data['parish_id'])->diocese_id, 'updated_by' => $request->user()->id]);
+            // Submitted snapshots remain immutable. Drafts must confirm the corrected profile.
+            SchoolReturn::where('school_id', $school->id)->whereIn('status', ['draft', 'returned_for_correction'])->whereNull('submitted_at')->update(['profile_confirmed_at' => null, 'profile_confirmed_by' => null, 'profile_snapshot' => null]);
+            app(RecordAuditEvent::class)->handle($request, 'school_profile.updated', $locked, $before, $locked->fresh()->toArray());
+        });
+
+        return redirect()->route('representative.profile')->with('status', 'School profile updated. Confirm the corrected details when continuing a draft form.');
+    }
+
+    public function confirm(Request $request, SchoolReturn $return)
+    {
+        Gate::authorize('view', $return);
+        abort_unless($request->user()->isSchoolRepresentative(), 403);
+        if ($return->profile_confirmed_at) {
+            return redirect()->route('returns.form.show', $return);
+        }
+
+        return view('representative.confirm', ['title' => 'Confirm School Profile', 'return' => $return, 'school' => $return->school, 'parishes' => Parish::orderBy('name')->get(), 'districts' => District::orderBy('name')->get()]);
+    }
+
+    public function saveConfirmation(Request $request, SchoolReturn $return)
+    {
+        Gate::authorize('update', $return);
+        abort_unless($request->user()->isSchoolRepresentative(), 403);
+        $school = $return->school;
+        $data = $request->validate([
+            'confirmed' => ['accepted'], 'parish_id' => ['required', 'exists:parishes,id'], 'district_id' => ['required', 'exists:districts,id'],
+            'ministry_registration_number' => ['nullable', 'string', 'max:80', Rule::unique('schools')->ignore($school->id)],
+            'emis_number' => ['nullable', 'string', 'max:60', Rule::unique('schools')->ignore($school->id)],
+            'school_level' => ['required', 'in:nursery,primary,secondary,vocational_technical,tertiary'],
+            'funding_classification' => ['required', 'in:Government,Private'], 'gender_classification' => ['required', 'in:Boys,Girls,Mixed'],
+            'boarding_status' => ['required', 'in:Day,Boarding,Both day and boarding'],
+        ]);
+        DB::transaction(function () use ($request, $return, $data, $school) {
+            School::whereKey($school->id)->lockForUpdate()->firstOrFail();
+            $locked = SchoolReturn::whereKey($return->id)->lockForUpdate()->firstOrFail();
+            Gate::authorize('update', $locked);
+            if ($locked->profile_confirmed_at) {
+                return;
+            }
+            unset($data['confirmed']);
+            $school->update([...$data, 'diocese_id' => Parish::findOrFail($data['parish_id'])->diocese_id, 'updated_by' => $request->user()->id]);
+            $school->load('parish', 'district');
+            $snapshot = ['school_name' => $school->official_name, 'registration_number' => $school->ministry_registration_number, 'emis_code' => $school->emis_number, 'parish' => $school->parish->name, 'district' => $school->district->name,
+                'level' => match ($school->school_level) {
+                    'nursery' => 'Pre-primary','primary' => 'Primary','secondary' => 'Secondary','tertiary' => 'Tertiary',default => 'Vocational/Technical'
+                }, 'funding' => $school->funding_classification, 'gender' => $school->gender_classification, 'boarding' => $school->boarding_status];
+            $form = $locked->statistical_form ?? [];
+            $form['identity'] = [...($form['identity'] ?? []), ...$snapshot];
+            $locked->forceFill(['profile_confirmed_by' => $request->user()->id, 'profile_confirmed_at' => now(), 'profile_snapshot' => $snapshot, 'statistical_form' => $form])->save();
+            app(RecordAuditEvent::class)->handle($request, 'school_profile.confirmed', $locked, null, ['school_id' => $school->id]);
+        });
+
+        return redirect()->route('returns.form.show',$return)->with('status','School profile confirmed. Continue with the form sections.');
+    }
+}

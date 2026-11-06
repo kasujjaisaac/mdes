@@ -1,0 +1,493 @@
+{
+  "identity": {
+    "title": "1-2. School particulars",
+    "page": "1",
+    "fields": {
+      "date": {
+        "label": "Date",
+        "type": "date"
+      },
+      "school_name": {
+        "label": "Name of school",
+        "type": "text"
+      },
+      "registration_number": {
+        "label": "Registration number",
+        "type": "text"
+      },
+      "emis_code": {
+        "label": "EMIS code",
+        "type": "text"
+      },
+      "parish": {
+        "label": "Catholic parish",
+        "type": "text"
+      },
+      "district": {
+        "label": "District",
+        "type": "text"
+      },
+      "headteacher_name": {
+        "label": "Headteacher name",
+        "type": "text"
+      },
+      "headteacher_phone": {
+        "label": "Headteacher telephone",
+        "type": "text"
+      },
+      "first_deputy_name": {
+        "label": "1st deputy headteacher name",
+        "type": "text"
+      },
+      "first_deputy_phone": {
+        "label": "1st deputy telephone",
+        "type": "text"
+      },
+      "second_deputy_name": {
+        "label": "2nd deputy headteacher name",
+        "type": "text"
+      },
+      "second_deputy_phone": {
+        "label": "2nd deputy telephone",
+        "type": "text"
+      },
+      "level": {
+        "label": "Type of school",
+        "type": "select",
+        "options": [
+          "Pre-primary",
+          "Primary",
+          "Secondary",
+          "Vocational/Technical",
+          "Tertiary"
+        ]
+      },
+      "funding": {
+        "label": "Government or private",
+        "type": "select",
+        "options": [
+          "Government",
+          "Private"
+        ]
+      },
+      "gender": {
+        "label": "Gender classification",
+        "type": "select",
+        "options": [
+          "Boys",
+          "Girls",
+          "Mixed"
+        ]
+      },
+      "boarding": {
+        "label": "Day or boarding",
+        "type": "select",
+        "options": [
+          "Day",
+          "Boarding",
+          "Both day and boarding"
+        ]
+      }
+    }
+  },
+  "enrolment": {
+    "title": "3. Enrolment",
+    "page": "1",
+    "tables": {
+      "classes": {
+        "label": "3(a). Form / Year 1-7",
+        "columns": {
+          "boys": {
+            "label": "Boys",
+            "type": "integer"
+          },
+          "girls": {
+            "label": "Girls",
+            "type": "integer"
+          }
+        },
+        "rows": {
+          "year_1": "Form / Year 1",
+          "year_2": "Form / Year 2",
+          "year_3": "Form / Year 3",
+          "year_4": "Form / Year 4",
+          "year_5": "Form / Year 5",
+          "year_6": "Form / Year 6",
+          "year_7": "Form / Year 7"
+        }
+      },
+      "nursery": {
+        "label": "3(b). Nursery section",
+        "columns": {
+          "boys": {
+            "label": "Boys",
+            "type": "integer"
+          },
+          "girls": {
+            "label": "Girls",
+            "type": "integer"
+          }
+        },
+        "rows": {
+          "baby": "Baby",
+          "middle": "Middle",
+          "top": "Top"
+        }
+      }
+    }
+  },
+  "religion": {
+    "title": "Religious affiliation",
+    "page": "2",
+    "tables": {
+      "community": {
+        "label": "Members of the school community",
+        "columns": {
+          "catholics": {
+            "label": "Catholics",
+            "type": "integer"
+          },
+          "anglicans": {
+            "label": "Anglicans",
+            "type": "integer"
+          },
+          "muslims": {
+            "label": "Muslims",
+            "type": "integer"
+          },
+          "others": {
+            "label": "Others",
+            "type": "integer"
+          }
+        },
+        "rows": {
+          "learners": "Learners",
+          "teachers": "Teachers",
+          "support_staff": "Support staff"
+        }
+      }
+    }
+  },
+  "academic": {
+    "title": "4. Academic performance - 2025 examinations",
+    "page": "2",
+    "tables": {
+      "ple": {
+        "label": "PLE 2025 ? candidate counts",
+        "columns": {
+          "candidates": {
+            "label": "Candidates",
+            "type": "integer"
+          }
+        },
+        "rows": {
+          "division_1": "Division 1",
+          "division_2": "Division 2",
+          "division_3": "Division 3",
+          "division_4": "Division 4",
+          "division_u": "Division U",
+          "division_x": "Division X"
+        }
+      },
+      "uce_scores": {
+        "label": "UCE 2025 ? scores by grade (not candidate counts)",
+        "columns": {
+          "scores": {
+            "label": "Number of scores",
+            "type": "integer"
+          }
+        },
+        "rows": {
+          "A": "A",
+          "B": "B",
+          "C": "C",
+          "D": "D",
+          "E": "E"
+        }
+      },
+      "uce_results": {
+        "label": "UCE 2025 ? description of results",
+        "columns": {
+          "students": {
+            "label": "Number of students",
+            "type": "integer"
+          }
+        },
+        "rows": {
+          "result_1": "Result 1",
+          "result_2": "Result 2",
+          "result_3": "Result 3",
+          "result_4": "Result 4"
+        }
+      },
+      "uace": {
+        "label": "UACE 2025 ? principal passes",
+        "columns": {
+          "candidates": {
+            "label": "Candidates",
+            "type": "integer"
+          }
+        },
+        "rows": {
+          "passes_3": "3 principal passes",
+          "passes_2": "2 principal passes",
+          "passes_1": "1 principal passes",
+          "passes_0": "0 principal passes"
+        }
+      },
+      "vocational": {
+        "label": "Vocational / technical 2025 ? school grading system",
+        "columns": {
+          "grade": {
+            "label": "Grade",
+            "type": "text"
+          },
+          "candidates": {
+            "label": "Candidates",
+            "type": "integer"
+          }
+        },
+        "repeatable": true
+      }
+    }
+  },
+  "utilities": {
+    "title": "5-6. Water and electricity",
+    "page": "2",
+    "fields": {
+      "water_sources": {
+        "label": "Available water sources",
+        "type": "multiple",
+        "options": [
+          "Borehole",
+          "Surface tank",
+          "Underground tank",
+          "National Water Supply",
+          "Source outside school premises"
+        ]
+      },
+      "water_reliable": {
+        "label": "Is the water supply reliable?",
+        "type": "select",
+        "options": [
+          "Yes",
+          "No"
+        ]
+      },
+      "water_explanation": {
+        "label": "Explain water supply reliability",
+        "type": "textarea"
+      },
+      "power_sources": {
+        "label": "Available electric power sources",
+        "type": "multiple",
+        "options": [
+          "Hydro-electricity (national grid)",
+          "Generator",
+          "Solar system",
+          "Power back-up system",
+          "Other"
+        ]
+      },
+      "other_power": {
+        "label": "Other electric power source ? name it",
+        "type": "text"
+      }
+    }
+  },
+  "facilities": {
+    "title": "7. Facilities and quantities",
+    "page": "3",
+    "tables": {
+      "items": {
+        "label": "Quantity and remarks for every facility",
+        "columns": {
+          "quantity": {
+            "label": "Quantity",
+            "type": "decimal"
+          },
+          "remarks": {
+            "label": "Remarks",
+            "type": "textarea"
+          }
+        },
+        "rows": {
+          "land_acres": "A. Acres of land",
+          "permanent_classrooms": "B. Permanent classrooms ? brick and cement",
+          "semi_permanent_classrooms": "C. Semi-permanent classrooms ? brick and mud",
+          "temporary_classrooms": "D. Temporary classrooms",
+          "workshops": "E. Workshop rooms",
+          "offices": "F. Lockable office rooms",
+          "stores": "G. Lockable stores",
+          "gardens": "H. School gardens",
+          "waste_disposal": "I. Waste disposal points / containers",
+          "teacher_tables": "J. Teacher tables in classrooms",
+          "desk_capacity": "K. Total student seating capacity of desks",
+          "library_books": "L. Library books ? exact count from register",
+          "computers": "M. Computers",
+          "staff_housing": "N. Staff residential rooms / units",
+          "boys_dormitories": "O. Boys dormitories",
+          "girls_dormitories": "P. Girls dormitories",
+          "boys_toilets": "Q. Boys toilet stances",
+          "girls_toilets": "R. Girls toilet stances",
+          "staff_toilets": "S. Staff toilet stances",
+          "sports_grounds": "T. Sports grounds"
+        }
+      }
+    }
+  },
+  "teaching": {
+    "title": "Teaching staff particulars",
+    "page": "4?5",
+    "tables": {
+      "members": {
+        "label": "Teaching staff ? add as many rows as needed",
+        "columns": {
+          "name": {
+            "label": "Name",
+            "type": "text"
+          },
+          "gender": {
+            "label": "Gender",
+            "type": "select",
+            "options": [
+              "Male",
+              "Female"
+            ]
+          },
+          "payroll": {
+            "label": "Payroll",
+            "type": "select",
+            "options": [
+              "Government",
+              "Private"
+            ]
+          },
+          "age": {
+            "label": "Age",
+            "type": "age"
+          },
+          "qualification": {
+            "label": "Highest qualification",
+            "type": "text"
+          },
+          "religion": {
+            "label": "Religion",
+            "type": "text"
+          },
+          "responsibility": {
+            "label": "Special responsibility",
+            "type": "text"
+          },
+          "license_number": {
+            "label": "Registration / licence number",
+            "type": "text"
+          }
+        },
+        "repeatable": true
+      }
+    }
+  },
+  "support": {
+    "title": "Support staff particulars",
+    "page": "6",
+    "tables": {
+      "members": {
+        "label": "Support staff ? add as many rows as needed",
+        "columns": {
+          "name": {
+            "label": "Name",
+            "type": "text"
+          },
+          "gender": {
+            "label": "Gender",
+            "type": "select",
+            "options": [
+              "Male",
+              "Female"
+            ]
+          },
+          "payroll": {
+            "label": "Payroll",
+            "type": "select",
+            "options": [
+              "Government",
+              "Private"
+            ]
+          },
+          "age": {
+            "label": "Age",
+            "type": "age"
+          },
+          "qualification": {
+            "label": "Highest qualification",
+            "type": "text"
+          },
+          "religion": {
+            "label": "Religion",
+            "type": "text"
+          },
+          "responsibility": {
+            "label": "Responsibility / current job",
+            "type": "text"
+          }
+        },
+        "repeatable": true
+      }
+    }
+  },
+  "studies": {
+    "title": "Staff study programmes",
+    "page": "7",
+    "tables": {
+      "programmes": {
+        "label": "Staff currently attending study programmes",
+        "columns": {
+          "name": {
+            "label": "Name of staff member",
+            "type": "text"
+          },
+          "course": {
+            "label": "Course title",
+            "type": "text"
+          },
+          "institution": {
+            "label": "Institution responsible for course",
+            "type": "text"
+          }
+        },
+        "repeatable": true
+      }
+    }
+  },
+  "declaration": {
+    "title": "Declaration and sign-off",
+    "page": "7",
+    "fields": {
+      "headteacher_name": {
+        "label": "Headteacher ? signed by (name)",
+        "type": "text"
+      },
+      "headteacher_signature": {
+        "label": "Headteacher signature reference (signed original)",
+        "type": "text"
+      },
+      "school_stamp": {
+        "label": "School stamp reference (signed original)",
+        "type": "text"
+      },
+      "priest_name": {
+        "label": "Father in charge of schools ? name",
+        "type": "text"
+      },
+      "priest_signature": {
+        "label": "Father in charge signature reference (signed original)",
+        "type": "text"
+      },
+      "parish_stamp": {
+        "label": "Parish stamp reference (signed original)",
+        "type": "text"
+      }
+    }
+  }
+}

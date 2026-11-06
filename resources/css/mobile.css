@@ -1,0 +1,849 @@
+/* Mobile portal styles. Loaded after the shared desktop theme. */
+/* Mobile school portal */
+@media(max-width:820px) {
+ .app-body.system-theme.representative-client .app-shell { display:flex; flex-direction:column; min-height:100dvh; grid-template-columns:1fr; grid-template-rows:auto 1fr; }
+ .app-body.system-theme.representative-client .app-shell .app-sidebar { display:none; }
+ .app-body.system-theme.representative-client .app-shell .topbar { position:relative; display:grid; height:auto; min-height:76px; border:0; }
+ .representative-client .topbar .reference-brand { grid-row:1; display:flex; align-items:center; width:auto; min-width:0; margin:0; }
+ .representative-client .topbar .reference-brand img { width:32px; height:36px; object-fit:contain; }
+ .representative-client .topbar .reference-brand strong { display:block; color:#f4f7fc; }
+ .representative-client .topbar .reference-brand small,
+.representative-client .topbar-left,
+.representative-client .topbar-date { display:none; }
+ .representative-client .topbar .topbar-actions { position:static; grid-row:1; display:flex; gap:8px; margin:0; }
+ .app-body.system-theme.representative-client .topbar :is(.topbar-alert-link,.profile-icon-button) { min-width:44px; width:44px; height:44px; padding:10px; border-radius:12px !important; background:#ffffff08; border:1px solid #ffffff20; color:#e6effa; }
+ .representative-client .topbar .profile-chevron { display:none; }
+ .representative-client .topbar .profile-dropdown { right:0; min-width:170px; border-radius:12px; z-index:50; }
+ .representative-client .profile-dropdown :is(a,button) { min-height:44px; padding:12px 16px; font-size:14px; }
+ .representative-client .topbar .school-overview-toolbar { display:flex; flex-direction:column; align-items:stretch; min-width:0; }
+ .representative-client .topbar .school-overview-toolbar > div { min-width:0; }
+ .representative-client .topbar .school-overview-toolbar > div > span { font-size:12px; color:#b1c8df; }
+ .representative-client .topbar .school-overview-toolbar h1 { margin:6px 0 0; color:white; line-height:1.25; letter-spacing:-.5px; overflow-wrap:anywhere; }
+ .representative-client .topbar .school-overview-toolbar form { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:8px; width:100%; }
+ .representative-client .topbar .school-overview-toolbar label { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); }
+ .app-body.system-theme.representative-client .topbar .school-overview-toolbar select { width:100%; max-width:100%; min-width:0; border-radius:10px !important; border:1px solid #ffffff25; color:#f5f8fc; }
+ .representative-client .topbar .overview-snapshot-status { border-radius:10px; }
+ .app-body.system-theme.representative-client .app-shell .app-main { width:100%; min-width:0; min-height:0; flex:1; background:#f3f6fa; }
+ .representative-client .app-main > .content { min-width:0; width:100%; box-sizing:border-box; }
+ .representative-client .submission-window-strip { display:none; }
+
+ .representative-client .content :is(input:not([type=checkbox]):not([type=radio]),select,textarea) { font-size:16px; min-height:44px; max-width:100%; }
+ .representative-client .content .button { border-radius:10px; }
+ .system-theme.representative-client .school-overview-dashboard .overview-next-action { display:grid; grid-template-columns:1fr; margin:0 0 20px; }
+ .representative-client .overview-next-label { display:inline-block; padding:0; background:none; font-weight:700; }
+ .system-theme.representative-client .school-overview-dashboard .overview-next-copy h2 { color:#203e60; margin:9px 0 0; }
+ .system-theme.representative-client .school-overview-dashboard .overview-next-deadline { padding:0; border:0; white-space:normal; }
+ .system-theme.representative-client .school-overview-dashboard .overview-next-button { width:100%; justify-self:stretch; }
+ .representative-client .overview-next-button .button { width:100%; justify-content:center; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metrics { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .system-theme.representative-client .school-overview-dashboard .overview-metric { min-width:0; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metric h2 { margin:0 0 4px; }
+ .system-theme.representative-client .school-overview-dashboard .overview-collections { border:0; background:transparent; padding:0; }
+ .representative-client .overview-collections > header { display:flex; flex-wrap:wrap; gap:8px; border:0; padding:0 !important; }
+ .representative-client .overview-collections > header > a { font-size:12px; min-height:44px; display:inline-flex; align-items:center; margin-left:auto; }
+ .representative-client .overview-collections .table-wrap { overflow:visible; border:0; }
+ .representative-client .overview-collections table { display:block; min-width:0; width:100%; background:transparent; }
+ .representative-client .overview-collections thead { display:none; }
+ .representative-client .overview-collections tbody { display:grid; }
+ .representative-client .overview-collections tr { display:grid; grid-template-columns:1fr 1fr; border:1px solid #e1e8f1; background:white; }
+ .system-theme.representative-client .school-overview-dashboard .overview-collections td { display:block; border:0; padding:0; white-space:normal; min-width:0; }
+ .representative-client .overview-collections td::before { content:attr(data-label); display:block; color:#71849b; }
+ .representative-client .overview-collections td:first-child,
+.representative-client .overview-collections td:last-child { grid-column:1/-1; }
+ .representative-client .overview-collections td:first-child::before,
+.representative-client .overview-collections td:last-child::before { display:none; }
+ .representative-client .overview-collections td:first-child strong { line-height:1.4; color:#294667; }
+ .representative-client .overview-collections td:last-child .button { width:100%; justify-content:center; }
+ .system-theme.representative-client .window-announcement { inset:auto 0 0; margin:0 auto; width:100%; max-width:560px; max-height:calc(100dvh - 20px); border-bottom:0; padding-bottom:env(safe-area-inset-bottom); }
+ .representative-client .window-announcement footer { flex-direction:column-reverse; gap:8px; }
+ .representative-client .window-announcement footer :is(.button,form) { width:100%; text-align:center; justify-content:center; }
+ .representative-client .window-announcement footer .window-announcement-later { padding-left:12px; }
+ .representative-client .topbar .school-overview-toolbar h1 { font-size:20px; }
+ .app-body.system-theme.representative-client .topbar :is(.topbar-alert-link,.profile-icon-button),
+.app-body.system-theme.representative-client .topbar .school-overview-toolbar select { border-radius:0 !important; }
+ .representative-client .topbar .overview-snapshot-status,
+.representative-client .topbar .profile-dropdown,
+.representative-client .content .button { border-radius:0; }
+ .system-theme.representative-client .school-overview-dashboard .overview-next-action { border-radius:0 !important; box-shadow:none; }
+ .representative-client .overview-next-button .button { padding:10px 14px; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metric { flex-direction:row; align-items:center; gap:9px; border-radius:0 !important; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metric-icon { flex-shrink:0; border-radius:0; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metric-icon svg { width:18px; height:18px; }
+ .system-theme.representative-client .overview-collections > header h2 { font-size:16px; }
+ .representative-client .overview-collections > header { margin-bottom:8px !important; }
+ .representative-client .overview-collections tbody { gap:8px; }
+ .representative-client .overview-collections tr { padding:12px; gap:10px 8px; border-radius:0; }
+ .system-theme.representative-client .school-overview-dashboard .overview-collections td { font-size:12px; }
+ .representative-client .overview-collections td:first-child strong { font-size:14px; }
+ .representative-client .overview-collections td small { font-size:11px; margin-top:3px; }
+ .representative-client .overview-collections td::before { font-size:10px; margin-bottom:3px; }
+ .representative-client .overview-collections .overview-entry-state { font-size:11px; padding:3px 6px; border-radius:0; }
+ .representative-client .content .button { font-size:13px; min-height:44px; padding:10px 12px; }
+ .system-theme.representative-client .window-announcement { border-radius:0; }
+ .system-theme.representative-client .window-announcement > header { padding:20px 24px; }
+ .representative-client .window-announcement-emblem { margin:16px 0; width:40px; height:40px; border-radius:0; }
+ .system-theme.representative-client .window-announcement h2 { font-size:26px; }
+ .system-theme.representative-client .window-announcement-body { padding:18px 24px; }
+ .system-theme.representative-client .window-announcement-countdown { padding:14px; border-radius:0; }
+ .representative-client .window-announcement-school-icon,
+.system-theme.representative-client .window-announcement footer .button { border-radius:0; }
+ .system-theme.representative-client .window-announcement-note { margin:12px 0 16px; }
+ .system-theme.representative-client .window-announcement footer { padding-top:16px; }
+}
+/* Compact, square mobile school portal */
+/* Reference-inspired mobile school dashboard */
+.client-welcome-panel,
+.client-shortcuts,
+.client-header-menu { display:none; }
+@media(max-width:820px) {
+ .app-body.system-theme.representative-client .app-shell .topbar { padding:12px 16px 0; gap:12px 8px; background:#092858; }
+ .mobile-portal .client-header-menu { position:relative; color:white; }
+ .client-header-menu summary { display:grid; place-items:center; cursor:pointer; list-style:none; }
+ .client-header-menu summary::-webkit-details-marker { display:none; }
+ .client-header-menu summary svg { width:23px; height:23px; }
+ .client-header-menu nav { position:absolute; top:48px; left:0; width:210px; background:white; border:1px solid #dce5ef; box-shadow:0 8px 24px #071d3930; }
+ .client-header-menu nav a { display:block; padding:13px 16px; font-size:14px; color:#183e6a; text-decoration:none; border-bottom:1px solid #edf1f6; }
+ .representative-client .topbar .reference-brand { gap:8px; }
+ .representative-client .topbar .reference-brand strong { font-size:16px; letter-spacing:.5px; }
+ .representative-client .topbar .school-overview-toolbar { grid-column:1/-1; margin:0 -16px; width:calc(100% + 32px); box-sizing:border-box; position:relative; border-top:1px solid #ffffff22; }
+ .representative-client .topbar .school-overview-identity { display:none; }
+ .representative-client .topbar .client-welcome-panel { display:flex; }
+ .client-avatar { flex-shrink:0; display:grid; place-items:center; width:54px; height:54px; border-radius:50%; border:2px solid #ffffff65; background:#ffffff15; color:#fff; font-size:25px; font-weight:600; }
+ .client-welcome-panel > div { min-width:0; }
+ .client-welcome-panel h2 { margin:0 0 7px; color:white; font-size:18px; line-height:1.3; letter-spacing:-.3px; font-weight:700; }
+ .client-welcome-panel p { margin:0 0 5px; font-size:12px; line-height:1.5; color:#b9cce6; display:flex; align-items:flex-start; gap:6px; }
+ .client-welcome-panel p svg { width:14px; height:14px; margin-top:2px; flex-shrink:0; }
+ .representative-client .topbar .school-overview-toolbar form { position:relative; padding-left:67px; }
+ .app-body.system-theme.representative-client .topbar .school-overview-toolbar select { height:38px; min-height:38px; font-size:11px; padding:7px 23px 7px 8px; background:#0c2e60; }
+ .representative-client .topbar .overview-snapshot-status { min-height:36px; padding:7px; font-size:10px; }
+ .representative-client .app-main > .content { padding:0 16px 20px; }
+ .representative-client .school-overview-dashboard { display:flex; flex-direction:column; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metrics { order:0; position:relative; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metric { position:relative; display:block; border:1px solid #e0e6ef; border-left:3px solid #2159a8; background:white; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metric-icon { position:absolute; background:#eef3fc; color:#225bc1; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metric h2 { line-height:1.4; text-transform:uppercase; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metric strong { color:#2256a4; }
+ .system-theme.representative-client .school-overview-dashboard .metric-1 { border-left-color:#15ad62; }
+ .system-theme.representative-client .school-overview-dashboard .metric-1 strong { color:#12a657; }
+ .system-theme.representative-client .school-overview-dashboard .metric-1 .overview-metric-icon { color:#12a657; background:#eef9f2; }
+ .system-theme.representative-client .school-overview-dashboard .metric-2 { border-left-color:#ed4661; }
+ .system-theme.representative-client .school-overview-dashboard .metric-2 strong { color:#e63e58; }
+ .system-theme.representative-client .school-overview-dashboard .metric-2 .overview-metric-icon { color:#e63e58; background:#fff2f4; }
+ .system-theme.representative-client .school-overview-dashboard .metric-3 { border-left-color:#e9a121; }
+ .system-theme.representative-client .school-overview-dashboard .metric-3 strong { color:#c98612; }
+ .system-theme.representative-client .school-overview-dashboard .metric-3 .overview-metric-icon { color:#d59420; background:#fff8eb; }
+ .client-shortcuts { order:1; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin-bottom:22px; }
+ .client-shortcuts a { display:flex; align-items:center; justify-content:center; flex-direction:column; min-width:0; min-height:126px; padding:14px 9px; box-sizing:border-box; background:white; border:1px solid #e2e8f2; text-align:center; text-decoration:none; color:#102e55; }
+ .client-shortcuts a > span { display:grid; place-items:center; width:44px; height:44px; background:#eaf1ff; color:#205abd; margin-bottom:12px; }
+ .client-shortcuts svg { width:24px; height:24px; }
+ .client-shortcuts small { color:#7b8b9e; font-size:9px; letter-spacing:1px; margin-bottom:7px; }
+ .client-shortcuts strong { font-size:13px; line-height:1.4; font-weight:600; }
+ .client-shortcuts .shortcut-green > span { background:#e7f6ed; color:#11a55b; }
+ .client-shortcuts .shortcut-gold > span { background:#fff7df; color:#db9400; }
+ .client-shortcuts .shortcut-red > span { background:#fff0f3; color:#ef4664; }
+ .client-shortcuts .shortcut-purple > span { background:#f1ebff; color:#8855d8; }
+ .client-shortcuts a:hover { border-color:#9ab6dc; background:#fafcff; }
+ .system-theme.representative-client .school-overview-dashboard .overview-next-action { order:2; scroll-margin-top:16px; }
+ .representative-client .overview-collections { order:3; scroll-margin-top:16px; }
+}
+@media(max-width:360px) {
+ .representative-client .topbar .reference-brand strong { font-size:14px; }
+ .representative-client .topbar .topbar-actions { gap:4px; }
+ .client-welcome-panel h2 { font-size:16px; }
+ .representative-client .app-main > .content { padding-left:12px; padding-right:12px; }
+}
+/* Let the first statistics row overlap the welcome panel. */
+@media(max-width:820px) {
+ .app-body.system-theme.representative-client .app-shell .topbar { z-index:auto; }
+ .app-body.system-theme.representative-client .app-shell .app-main { overflow:visible; }
+ .representative-client .app-main > .content { overflow:visible; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metrics { z-index:5; }
+ .app-body.system-theme.representative-client .app-shell .app-main { padding-bottom:env(safe-area-inset-bottom); }
+ .representative-client .source-entry-content .source-save-bar { bottom:0; }
+}
+
+/* Mobile navigation now lives in the header menu. */
+
+.client-mobile-announcement { display:none; }
+@media(max-width:820px) {
+ .representative-client .topbar .client-mobile-announcement { display:block; grid-column:1/-1; grid-row:2; margin:0 -16px -12px; min-width:0; }
+ .representative-client .client-mobile-announcement .submission-window-strip { display:flex; padding:8px 12px; background:#123b73; color:#dbe9ff; border-top:1px solid #ffffff18; border-bottom:1px solid #ffffff18; font-size:12px; }
+ .representative-client .client-mobile-announcement .submission-window-strip > a { color:#e7ce8d; min-height:28px; display:flex; align-items:center; }
+ .representative-client .client-mobile-announcement .marquee-message-icon { color:#a8c7ef; }
+ .representative-client .topbar .school-overview-toolbar { grid-row:3; }
+}
+
+/* Client header without the navigation menu. */
+/* School and account profile pages */
+.portal-profile-page { max-width:1100px; margin:0 auto; padding-top:16px; }
+.portal-profile-hero { display:flex; align-items:center; gap:20px; padding:30px; background:radial-gradient(circle at 100% 15%,#254e8350 0 30%,transparent 30.2%),linear-gradient(110deg,#0b2d5b,#183f70); color:#fff; border-bottom:3px solid #d9bd7a; }
+.portal-profile-emblem { display:grid; place-items:center; flex-shrink:0; width:66px; height:66px; background:#ffffff0c; border:1px solid #ffffff35; color:#d7e6fc; }
+.portal-profile-emblem svg { width:32px; height:32px; }
+.portal-profile-initial { font-size:30px; font-weight:600; }
+.portal-profile-hero > div { min-width:0; flex:1; }
+.portal-profile-eyebrow { display:block; font-size:10px; font-weight:600; letter-spacing:1.8px; color:#d9c28d; margin-bottom:8px; }
+.system-theme .content .portal-profile-hero h1 { margin:0; color:#fff; font-size:27px; font-weight:650; line-height:1.25; letter-spacing:-.6px; overflow-wrap:anywhere; }
+.system-theme .content .portal-profile-hero p { color:#bfd0e6; font-size:13px; margin:10px 0 0; overflow-wrap:anywhere; }
+.portal-profile-status { display:inline-flex; align-items:center; gap:7px; padding:6px 10px; border:1px solid #a7dfc13d; background:#89d2a911; color:#c2e8cf; font-size:11px; }
+.portal-profile-status::before { content:''; width:6px; height:6px; background:currentColor; border-radius:50%; }
+.portal-profile-status.is-inactive { color:#ffd0ab; border-color:#ffd0ab40; }
+.portal-profile-actions { display:flex; justify-content:space-between; align-items:center; gap:12px; padding:16px 0; }
+.portal-profile-actions > a:first-child { font-size:13px; color:#5d7591; text-decoration:none; min-height:44px; display:inline-flex; align-items:center; }
+.portal-profile-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.portal-profile-card { background:#fff; border:1px solid #dfe6ef; min-width:0; }
+.portal-profile-card > header { display:flex; align-items:center; gap:12px; padding:18px 20px; background:#fafbfd; border-bottom:1px solid #e7edf4; }
+.portal-profile-card > header > span { display:grid; place-items:center; width:34px; height:34px; flex-shrink:0; background:#edf3fc; color:#2e609e; }
+.portal-profile-card > header svg { width:19px; height:19px; }
+.system-theme .portal-profile-card h2 { margin:0; font-size:15px; color:#234363; font-weight:600; }
+.system-theme .portal-profile-card header p { font-size:12px; color:#7c8da1; line-height:1.5; margin:4px 0 0; }
+.portal-profile-card dl { padding:0 20px; margin:0; }
+.portal-profile-card dl > div { padding:14px 0; border-bottom:1px solid #edf1f6; }
+.portal-profile-card dl > div:last-child { border-bottom:0; }
+.portal-profile-card dt { font-size:11px; color:#76879b; margin-bottom:5px; }
+.portal-profile-card dd { margin:0; font-size:14px; color:#2c4562; font-weight:500; line-height:1.5; overflow-wrap:anywhere; }
+.portal-profile-card dd.portal-profile-missing { color:#98a3b0; font-weight:400; }
+.system-theme .content .portal-profile-footnote { display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:12px; color:#7c8da1; margin:20px 0; }
+.portal-profile-footnote svg { width:15px; height:15px; flex-shrink:0; }
+.portal-profile-footnote a { color:#315f99; }
+@media(max-width:820px) {
+ .portal-profile-page { padding-top:16px; }
+ .portal-profile-hero { flex-wrap:wrap; }
+ .portal-profile-emblem { width:48px; height:48px; }
+ .portal-profile-emblem svg { width:25px; height:25px; }
+ .portal-profile-eyebrow { font-size:9px; margin-bottom:6px; }
+ .portal-profile-status { margin-left:62px; font-size:10px; }
+ .portal-profile-actions { padding:10px 0; }
+ .portal-profile-actions .button { font-size:12px; }
+ .portal-profile-grid { grid-template-columns:1fr; gap:12px; }
+ .portal-profile-card > header { padding:14px 16px; }
+ .portal-profile-card dl { padding:0 16px; }
+ .portal-profile-card dl > div { display:grid; grid-template-columns:minmax(90px,.8fr) minmax(0,1.2fr); gap:12px; align-items:baseline; padding:12px 0; }
+ .portal-profile-card dt { margin:0; font-size:12px; }
+ .portal-profile-card dd { font-size:13px; }
+ .portal-profile-card header p { font-size:11px; }
+ .app-body.system-theme.representative-client .app-shell .topbar { grid-template-columns:36px minmax(0,1fr) auto; }
+ .representative-client .topbar .reference-brand { grid-column:2; }
+ .representative-client .topbar .topbar-actions { grid-column:3; }
+ .mobile-portal .client-header-menu { display:block; grid-column:1; grid-row:1; z-index:60; }
+ .client-header-menu summary { width:36px; min-height:44px; color:#d6e7ff; transition:background .15s; }
+ .client-header-menu[open] summary { background:#ffffff18; color:white; }
+ .client-header-menu summary:focus-visible { outline:2px solid #e3ca8b; outline-offset:2px; }
+ .mobile-portal .client-header-menu nav { width:min(290px,calc(100vw - 32px)); max-height:calc(100dvh - 92px); overflow:auto; top:54px; left:0; border:1px solid #d8e2ef; border-top:3px solid #d9bd7a; background:white; box-shadow:0 16px 45px #071e4b35; }
+ .client-header-menu nav header { padding:17px 18px; background:#f5f8fc; border-bottom:1px solid #e4ebf4; }
+ .client-header-menu nav header > span { display:block; font-size:9px; letter-spacing:1.5px; font-weight:700; color:#8292a7; margin-bottom:6px; }
+ .client-header-menu nav header strong { display:block; font-size:14px; color:#243f60; overflow-wrap:anywhere; }
+ .mobile-portal .client-header-menu nav a { display:flex; align-items:center; gap:12px; min-height:49px; padding:12px 17px; box-sizing:border-box; font-size:13px; font-weight:500; border-bottom:1px solid #f0f3f8; color:#526a86; border-left:3px solid transparent; }
+ .client-header-menu nav a > svg { width:19px; height:19px; color:#7890ad; flex-shrink:0; }
+ .client-header-menu .client-menu-arrow { margin-left:auto; font-size:19px; color:#a6b6c9; }
+ .mobile-portal .client-header-menu nav a[aria-current] { background:#edf4fd; color:#214f88; border-left-color:#346cb2; font-weight:650; }
+ .client-header-menu nav a[aria-current] > svg { color:#346cb2; }
+ .client-header-menu nav a:hover { background:#f4f7fc; }
+ .client-header-menu nav form { margin:0; padding:7px 0; background:#fafbfd; }
+ .client-header-menu nav form button { display:flex; align-items:center; gap:12px; width:100%; min-height:44px; padding:10px 20px; font-size:13px; border:0; color:#9a5060; background:transparent; cursor:pointer; text-align:left; }
+ .client-header-menu nav form svg { width:18px; height:18px; }
+ .client-header-menu nav :is(a,button):focus-visible { outline:2px solid #4779b4; outline-offset:-3px; }
+ .representative-client { --ui-navy:#092858; --ui-primary:#24558e; --ui-line:#dfe6ef; --ui-text:#243f60; --ui-muted:#71839a; }
+ .representative-client .content { background:#f3f6fa; color:var(--ui-text); line-height:1.5; }
+ .representative-client .content :is(.card,.overview-panel,.school-profile-panel,.alerts-inbox-panel,.support-ticket,.source-entry-sidebar,.source-entry-content,.submission-section-card,.submission-review-panel,.portal-profile-card) { border:1px solid var(--ui-line); border-radius:0 !important; box-shadow:none; background:#fff; }
+ .representative-client .content :is(.button,.window-open,.submission-status,.window-status,.source-form-tabs a,.school-profile-nav a) { border-radius:0 !important; }
+ .representative-client .content .button-primary { background:var(--ui-primary); border-color:var(--ui-primary); color:#fff; }
+ .representative-client .content :is(h1,h2,h3) { color:#243f60; }
+ .representative-client .content :is(input:not([type=checkbox]):not([type=radio]),select,textarea) { border:1px solid #ccd8e7; border-radius:0; background:#fff; color:#294563; padding:10px 12px; }
+ .representative-client .content :is(input,select,textarea):focus-visible { outline:2px solid #7398c6; outline-offset:2px; }
+ .representative-client .content .form-actions { display:flex; flex-wrap:wrap; gap:8px; padding-top:14px; border-top:1px solid #e6ecf4; }
+ .representative-client .content .form-actions .button { flex:1; justify-content:center; }
+ .representative-client .topbar > :is(.topbar-filters,.profile-topbar-actions,.school-view-toolbar,.school-view-toolbar-header) { grid-column:1/-1; grid-row:3; width:100%; min-width:0; margin:0; box-sizing:border-box; }
+ .representative-client .topbar > .topbar-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; padding:14px 0 18px; }
+ .representative-client .topbar > .topbar-filters label { display:flex; flex-direction:column; gap:5px; min-width:0; color:#b9cce5; font-size:11px; }
+ .representative-client .topbar > .topbar-filters .registry-search { grid-column:1/-1; }
+ .representative-client .topbar > .topbar-filters :is(input,select) { box-sizing:border-box; width:100%; min-width:0; max-width:100%; min-height:44px; background:#123768; border:1px solid #ffffff30; color:#fff; font-size:16px; border-radius:0; padding:9px; }
+ .representative-client .topbar > .topbar-filters :is(input,select)::placeholder { color:#aebfd6; }
+ .representative-client .topbar > .topbar-filters option { background:white; color:#243f60; }
+ .representative-client .topbar > .topbar-filters .button { min-height:44px; font-size:12px; justify-content:center; border-radius:0; }
+ .representative-client .topbar > .profile-topbar-actions { padding:12px 0 16px; justify-content:flex-start; flex-wrap:wrap; }
+ .representative-client .content > :first-child:not(.school-overview-dashboard) { margin-top:16px; }
+ .representative-client .page-heading { margin:16px 0; }
+ .representative-client .page-heading h1,
+.representative-client .school-editor-heading h1 { font-size:22px; }
+ .representative-client .support-workspace { display:grid; grid-template-columns:1fr; gap:18px; }
+ .representative-client .support-request-form { padding:18px 16px; }
+ .representative-client .support-request-form h1 { font-size:21px; margin-bottom:8px; }
+ .representative-client .support-request-form > p { font-size:13px; line-height:1.6; }
+ .representative-client .support-request-form .resource-form { display:grid; grid-template-columns:1fr; gap:14px; }
+ .representative-client .support-request-form label { display:flex; flex-direction:column; gap:6px; font-size:12px; color:#617992; }
+ .representative-client .support-ticket { padding:16px; margin-bottom:10px; }
+ .representative-client .support-ticket header { display:flex; flex-wrap:wrap; gap:8px; font-size:13px; }
+ .representative-client .support-ticket time { flex-basis:100%; color:#8492a5; font-size:11px; }
+ .representative-client .support-ticket p { font-size:13px; overflow-wrap:anywhere; }
+ .representative-client .support-reply { padding:12px; border-left:3px solid #d8bd7c; background:#f5f8fc; margin-top:12px; }
+ .representative-client .alerts-page-heading,
+.representative-client .alerts-panel-title { border-radius:0; background:#fff; }
+ .representative-client .school-alert { border-radius:0; box-shadow:none; }
+ .representative-client .source-form-tabs a { min-height:44px; border:1px solid #e1e8f2; background:white; }
+ .representative-client .source-form-tabs a.is-active,
+.representative-client .school-profile-nav a.is-active { color:#204d86; background:#eaf1fc; border-left:3px solid #315f99; }
+ .representative-client .table-wrap { max-width:100%; overflow-x:auto; }
+ .representative-client .content .data-table th { background:#123768; color:#e7eef9; font-size:11px; }
+ .representative-client .content .data-table td { font-size:12px; border-color:#e5ebf3; }
+ .representative-client .registry-results { padding:14px 12px; font-size:12px; flex-wrap:wrap; gap:6px; }
+ .representative-client .content .source-save-bar { border-radius:0; border-top:2px solid #d8bd7c; }
+ .representative-client .workspace-footer { font-size:10px; text-align:center; }
+ .portal-profile-hero { display:grid; grid-template-columns:48px minmax(0,1fr); align-items:start; gap:12px 14px; padding:22px 18px; }
+ .portal-profile-hero > .portal-profile-emblem { grid-column:1; grid-row:1; margin-top:3px; }
+ .portal-profile-hero > div { grid-column:2; grid-row:1; width:100%; min-width:0; }
+ .system-theme .content .portal-profile-hero h1 { font-size:22px; line-height:1.25; overflow-wrap:normal; word-break:normal; text-wrap:balance; }
+ .system-theme .content .portal-profile-hero p { font-size:12px; line-height:1.5; overflow-wrap:anywhere; word-break:normal; margin-top:8px; }
+ .portal-profile-hero > .portal-profile-status { grid-column:2; grid-row:2; justify-self:start; margin:0; padding:5px 9px; font-size:10px; }
+ .app-body.system-theme.representative-client .topbar .submission-topbar-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); align-items:end; gap:12px; padding:16px 0 20px; }
+ .app-body.system-theme.representative-client .topbar .submission-topbar-filters > label { display:flex; flex-direction:column; height:auto; min-height:0; max-height:none; padding:0; gap:7px; background:none; border:0; color:#c4d4e9; font-size:11px; line-height:1.4; }
+ .app-body.system-theme.representative-client .topbar .submission-topbar-filters .registry-search > div { height:auto; min-height:44px; }
+ .app-body.system-theme.representative-client .topbar .submission-topbar-filters :is(input,select) { height:44px; min-height:44px; max-height:none; padding:10px 11px; margin:0; border:1px solid #47658c; background:#13396c; color:white; font-size:14px; line-height:1.4; box-sizing:border-box; }
+ .app-body.system-theme.representative-client .topbar .submission-topbar-filters .button { display:flex; align-items:center; justify-content:center; gap:7px; min-height:44px; height:auto; padding:10px 8px; font-size:12px; white-space:normal; }
+ .representative-client .submission-records { background:transparent !important; border:0 !important; padding:0; }
+ .representative-client .submission-records .registry-results { background:white; border:1px solid #e0e7f1; padding:14px; margin-bottom:12px; }
+ .representative-client .submission-records .registry-results-note { display:none; }
+ .representative-client .submission-records .table-wrap { overflow:visible; }
+ .representative-client .submission-records .submission-table { display:block; width:100%; min-width:0; border:0; background:transparent; }
+ .representative-client .submission-table thead { display:none; }
+ .representative-client .submission-table tbody { display:grid; gap:12px; }
+ .representative-client .submission-table tr { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px 12px; padding:16px; border:1px solid #dce5f1; border-top:3px solid #24558e; background:white; }
+ .system-theme.representative-client .content .submission-table td { display:block; padding:0; border:0; white-space:normal; min-width:0; font-size:12px; overflow-wrap:anywhere; }
+ .representative-client .submission-table td::before { content:attr(data-label); display:block; margin-bottom:5px; color:#8190a4; font-size:10px; text-transform:uppercase; letter-spacing:.7px; }
+ .representative-client .submission-table td.registry-row-number { display:none; }
+ .representative-client .submission-table td[data-label=School],
+.representative-client .submission-table td[data-label=Collection],
+.representative-client .submission-table td[data-label=Action],
+.representative-client .submission-table td[colspan] { grid-column:1/-1; }
+ .representative-client .submission-table td[data-label=School]::before,
+.representative-client .submission-table td[data-label=Action]::before { display:none; }
+ .representative-client .submission-table .window-title { display:block; font-size:15px; font-weight:600; color:#234d7c; line-height:1.4; }
+ .representative-client .submission-table td small { display:block; font-size:11px; color:#8695a8; margin-top:4px; }
+ .representative-client .submission-table .window-participation { width:100%; min-width:0; }
+ .representative-client .submission-table progress { width:100%; height:5px; accent-color:#2b649e; }
+ .representative-client .submission-table .submission-actions { display:block; }
+ .representative-client .submission-table .window-open { display:flex; justify-content:center; align-items:center; min-height:44px; width:100%; padding:10px 12px; box-sizing:border-box; color:white; background:#24558e; border:1px solid #24558e; font-size:13px; text-decoration:none; }
+ .representative-client .submission-table .submission-status { display:inline-block; padding:5px 8px; font-size:11px; background:#edf3fc; color:#35618d; }
+ .representative-client .submission-records .native-pagination { margin-top:12px; }
+}
+/* Refined mobile navigation */
+/* Shared mobile theme for every school portal page. */
+/* Account/profile identity: preserve space for names and email on phones. */
+/* Mobile submission filters and readable record cards. */
+/* School submissions workspace */
+.client-submissions { max-width:1100px; margin:20px auto; }
+.client-submissions-heading > a { color:#647d9c; font-size:12px; text-decoration:none; display:inline-flex; min-height:36px; align-items:center; }
+.client-submissions-heading h1 { font-size:26px; margin:8px 0; letter-spacing:-.5px; }
+.client-submissions-heading p { font-size:13px; margin:0 0 22px; }
+.client-submission-summary { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border:1px solid #dfe6ef; border-top:3px solid #d3b775; background:white; margin-bottom:18px; }
+.client-submission-summary > div { padding:16px 20px; border-right:1px solid #e6ecf4; }
+.client-submission-summary > div:last-child { border:0; }
+.client-submission-summary strong { display:block; font-size:25px; color:#254e7d; }
+.client-submission-summary span { display:block; color:#798b9f; font-size:11px; margin-top:4px; }
+.client-submission-filters { display:flex; align-items:end; flex-wrap:wrap; gap:12px; padding:16px; background:#fff; border:1px solid #dfe6ef; }
+.client-submission-filters label { display:flex; flex:1; min-width:160px; flex-direction:column; gap:7px; color:#657d97; font-size:12px; }
+.client-submission-filters select { min-height:44px; padding:10px; background:white; border:1px solid #ccd8e7; border-radius:0; font-size:14px; width:100%; }
+.client-submission-filters .button { min-height:44px; border-radius:0; }
+.client-filter-reset { display:inline-flex; align-items:center; min-height:44px; font-size:12px; color:#657d97; }
+.client-submission-list-heading { display:flex; align-items:center; justify-content:space-between; margin:24px 0 12px; }
+.client-submission-list-heading h2 { font-size:16px; margin:0; }
+.client-submission-list-heading > span { font-size:12px; color:#7e8fa4; }
+.client-submission-list { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.client-return-card { background:#fff; border:1px solid #dfe6ef; border-top:3px solid #28588e; padding:20px; min-width:0; }
+.client-return-card > header { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+.client-return-year { display:flex; align-items:center; gap:7px; color:#8391a4; font-size:10px; letter-spacing:1px; }
+.client-return-year svg { width:16px; height:16px; color:#527aa8; }
+.client-return-status { font-size:10px; padding:4px 8px; background:#edf3fc; color:#3c6797; }
+.client-return-status.is-returned_for_correction { background:#fff3df; color:#946820; }
+.client-return-status:is(.is-approved,.is-locked,.is-certified) { background:#eaf6ee; color:#3d7c55; }
+.client-return-card h3 { font-size:17px; margin:16px 0; line-height:1.4; }
+.client-return-card dl { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:0 0 20px; }
+.client-return-card dt { font-size:11px; color:#8090a5; margin-bottom:5px; }
+.client-return-card dd { font-size:13px; color:#365674; margin:0; }
+.client-return-progress > span { display:flex; justify-content:space-between; color:#647c95; font-size:12px; }
+.client-return-progress strong { color:#315d8b; font-weight:600; }
+.client-return-progress progress { display:block; width:100%; height:5px; margin:9px 0; accent-color:#315f99; border:0; }
+.client-return-progress small { color:#8b99aa; font-size:10px; line-height:1.5; }
+.client-return-card footer { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; border-top:1px solid #e8edf5; margin-top:18px; padding-top:16px; }
+.client-return-card footer > span { font-size:11px; color:#8594a7; }
+.client-return-card footer .button { border-radius:0; }
+.system-theme .content .client-return-feedback { padding:12px; background:#fff8eb; border-left:3px solid #d9b66c; color:#8b6c36; font-size:12px; overflow-wrap:anywhere; }
+.client-return-feedback strong { display:block; margin-bottom:5px; }
+.client-submission-empty { grid-column:1/-1; padding:35px 20px; text-align:center; background:white; border:1px solid #dfe6ef; }
+.client-submission-empty > svg { width:30px; height:30px; color:#7794b6; margin:auto; }
+.client-submission-empty p { font-size:13px; }
+@media(max-width:820px) {
+ .client-submissions { margin:18px auto; }
+ .client-submissions-heading h1 { font-size:23px; }
+ .client-submission-summary { margin-bottom:12px; }
+ .client-submission-summary > div { padding:13px 10px; }
+ .client-submission-summary strong { font-size:23px; }
+ .client-submission-summary span { font-size:10px; line-height:1.4; }
+ .client-submission-filters { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); padding:14px; gap:12px; }
+ .client-submission-filters label { min-width:0; font-size:11px; }
+ .client-submission-filters > button { grid-column:1/-1; justify-content:center; }
+ .client-filter-reset { grid-column:1/-1; justify-content:center; min-height:32px; }
+ .client-submission-list { grid-template-columns:1fr; gap:12px; }
+ .client-return-card { padding:16px; }
+ .client-return-card footer { align-items:stretch; }
+ .client-return-card footer > span { flex-basis:100%; }
+ .client-return-card footer .button { width:100%; justify-content:center; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar { display:grid; grid-template-columns:36px minmax(0,1fr) auto; min-height:76px; height:auto; padding:12px 16px 0; gap:12px 8px; background:#092858; overflow:visible; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar .reference-brand { grid-column:2; grid-row:1; display:flex; align-items:center; width:auto; min-width:0; height:44px; padding:0; margin:0; gap:8px; background:transparent; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar .reference-brand strong { display:block; font-size:16px; color:#f4f7fc; letter-spacing:.5px; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar .reference-brand .system-logo { width:32px; height:36px; object-fit:contain; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar .topbar-actions { grid-column:3; grid-row:1; position:static; display:flex; align-items:center; gap:8px; margin:0; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar .client-header-menu { display:block; grid-column:1; grid-row:1; position:relative; z-index:60; margin:0; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar .client-header-menu summary { display:grid; place-items:center; width:36px; height:44px; margin:0; padding:0; color:#d6e7ff; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar :is(.profile-icon-button,.topbar-alert-link) { box-sizing:border-box; width:44px; min-width:44px; height:44px; padding:10px; border:1px solid #ffffff20; border-radius:0 !important; background:#ffffff08; color:#e6effa; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar .profile-chevron { display:none; }
+ .app-body.system-theme.mobile-portal .app-shell .app-sidebar { display:none; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar .client-header-menu nav { top:54px; left:0; width:min(290px,calc(100vw - 32px)); background:#fff; border:1px solid #d8e2ef; border-top:3px solid #d9bd7a; box-shadow:0 16px 45px #071e4b35; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar .client-header-menu nav a { font-family:'Segoe UI',Arial,sans-serif; font-size:13px; text-transform:none; letter-spacing:normal; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar .client-header-menu nav form button { border-radius:0; font-family:inherit; font-size:13px; }
+}
+/* One mobile header and navigation across dashboard and inner pages. */
+@media(max-width:360px) {
+ .app-body.system-theme.mobile-portal .app-shell .topbar .reference-brand strong { font-size:14px; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar .topbar-actions { gap:4px; }
+}
+
+@media(max-width:820px) {
+ .app-body.system-theme.mobile-portal .app-shell { display:flex; flex-direction:column; }
+ .mobile-portal .topbar-left,
+.mobile-portal .topbar-date,
+.mobile-portal .reference-brand small { display:none; }
+ .mobile-portal .topbar .profile-menu { position:relative; }
+ .mobile-portal .topbar > :is(.topbar-filters,.profile-topbar-actions,.school-view-toolbar) { grid-column:1/-1; grid-row:3; width:100%; min-width:0; }
+ .mobile-portal .app-main { width:100%; min-width:0; }
+}
+/* Responsive layout boundaries: preserve the desktop workspace. */
+.mobile-only-layout { display:none !important; }
+@media(max-width:820px) {
+ .mobile-only-layout { display:block !important; }
+ .desktop-only-layout,
+.representative-client .desktop-submission-layout { display:none !important; }
+ .representative-client:has(.client-submissions) .topbar > .submission-topbar-filters { display:none !important; }
+ .app-body.system-theme.representative-client:has(.school-overview-dashboard) .app-main { background:#f3f6fb; }
+ .app-body.system-theme.representative-client:has(.school-overview-dashboard) .app-main > .content { padding:0 14px 22px; }
+ .representative-client .topbar .school-overview-toolbar { padding:0 18px 56px; gap:0; background:radial-gradient(circle at 108% 15%,#28558c60 0 39%,transparent 39.4%),linear-gradient(110deg,#0b3067,#153e74); }
+ .representative-client .topbar .client-welcome-panel { padding-top:25px; padding-bottom:5px; gap:14px; align-items:center; }
+ .representative-client .client-welcome-panel .client-avatar { width:50px; height:54px; box-sizing:border-box; border:1px solid #9ebcdd60; background:#ffffff0b; color:#eaf2fc; font-size:25px; }
+ .representative-client .client-welcome-panel h2 { margin-bottom:8px; font-size:19px; line-height:1.3; font-weight:650; letter-spacing:-.3px; }
+ .representative-client .client-welcome-panel p { font-size:12px; color:#c1d3eb; line-height:1.6; margin:0; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metrics { margin-top:-34px; gap:10px; margin-bottom:20px; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metric { min-height:108px; padding:15px 13px 14px; border-color:#dfe6f0; border-left-width:3px; box-shadow:0 2px 5px #173a6503; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metric h2 { min-height:29px; margin-bottom:12px; max-width:calc(100% - 30px); font-size:9px; font-weight:650; letter-spacing:.65px; color:#77869a; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metric-icon { right:11px; top:13px; width:28px; height:28px; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metric strong { font-size:27px; line-height:1; font-weight:700; letter-spacing:-.6px; font-variant-numeric:tabular-nums; }
+ .representative-client .school-overview-dashboard .client-shortcuts { gap:10px; margin-bottom:20px; }
+ .representative-client .school-overview-dashboard .client-shortcuts::before { content:'School services'; grid-column:1/-1; font-size:14px; line-height:1.5; font-weight:600; color:#28466a; margin-bottom:1px; }
+ .representative-client .client-shortcuts a { min-height:124px; padding:16px 10px; border-color:#dfe6f0; transition:background .15s,border-color .15s; }
+ .representative-client .client-shortcuts a > span { width:40px; height:40px; margin-bottom:10px; }
+ .representative-client .client-shortcuts a svg { width:22px; height:22px; }
+ .representative-client .client-shortcuts a small { font-size:8px; letter-spacing:1.2px; margin-bottom:6px; color:#8594a7; }
+ .representative-client .client-shortcuts a strong { font-size:13px; font-weight:600; color:#244367; }
+ .representative-client .client-shortcuts a:active { background:#eef3fa; border-color:#9fb5d0; }
+ .representative-client .client-shortcuts a:focus-visible { outline:2px solid #4779b4; outline-offset:2px; }
+ .system-theme.representative-client .school-overview-dashboard .overview-next-action { padding:17px 16px 16px; gap:12px; border:1px solid #dbe5f2; border-top:2px solid #bdcfe6; background:linear-gradient(115deg,#eaf1fc,#f5f8fe); margin-bottom:0; }
+ .representative-client .overview-next-label { color:#6c85a5; font-size:9px; letter-spacing:1.5px; }
+ .system-theme.representative-client .school-overview-dashboard .overview-next-copy h2 { margin-top:7px; font-size:17px; line-height:1.4; font-weight:600; letter-spacing:-.2px; }
+ .system-theme.representative-client .school-overview-dashboard .overview-next-deadline { color:#7187a0; font-size:12px; gap:8px; }
+ .representative-client .overview-next-button .button { min-height:46px !important; font-size:13px !important; font-weight:600; background:#26558d; border-color:#26558d; }
+}
+/* Final mobile dashboard polish: retain the established layout and square geometry. */
+@media(max-width:360px) {
+ .representative-client .client-welcome-panel h2 { font-size:17px; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metric { padding:13px 10px; }
+ .system-theme.representative-client .school-overview-dashboard .overview-metric h2 { font-size:8px; }
+}
+@media(max-width:820px) {
+ .portal-profile-page:has(.mobile-school-details) { padding-top:0; margin-top:8px; }
+ .mobile-school-details { width:100%; table-layout:fixed; border-collapse:collapse; background:#fff; border:1px solid #dce5f0; border-top:3px solid #28578b; }
+ .mobile-school-details th,
+.mobile-school-details td { padding:13px 12px; text-align:left; vertical-align:top; overflow-wrap:anywhere; line-height:1.55; }
+ .mobile-school-details th { width:42%; font-size:12px; font-weight:500; background:#f7f9fc; border-right:1px solid #e4ebf3; }
+ .mobile-school-details td { font-size:13px; color:#2c4969; font-weight:500; }
+ .mobile-school-details tr:first-child td { color:#224e81; font-weight:650; }
+ .mobile-school-details td.is-missing { color:#96a3b2; font-weight:400; font-size:12px; }
+ .mobile-school-details { border-color:#ccdbee; }
+ .mobile-school-details th,
+.mobile-school-details td { background:#fff; border-right:0; border-bottom:2px solid #c5d7ee; }
+ .mobile-school-details th { color:#527194; }
+ .mobile-school-details tr:nth-child(even) th,
+.mobile-school-details tr:nth-child(even) td { background:#f5f8fd; }
+ .mobile-school-details tr:last-child th,
+.mobile-school-details tr:last-child td { border-bottom:0; }
+ .mobile-profile-editor { margin:16px auto 0; max-width:700px; }
+ .mobile-profile-editor .school-editor-heading { padding:18px 16px; margin:0 0 14px; background:#123768; border-bottom:3px solid #d5bc80; }
+ .system-theme .mobile-profile-editor .school-editor-heading h1 { color:#fff; margin:0 0 7px; font-size:21px; font-weight:600; letter-spacing:-.3px; }
+ .system-theme .mobile-profile-editor .school-editor-heading p { color:#bdcfe7; margin:0; font-size:12px; line-height:1.5; }
+ .system-theme .mobile-profile-editor > form.card { padding:16px !important; }
+ .mobile-profile-editor .school-fieldset { min-width:0; padding:0 0 18px; margin:0 0 18px; border:0; border-bottom:2px solid #c5d7ee; }
+ .mobile-profile-editor .school-fieldset:last-of-type { margin-bottom:0; }
+ .mobile-profile-editor .mobile-edit-legend { width:100%; padding:0 0 14px; color:#345b89; font-size:12px; font-weight:650; letter-spacing:.2px; }
+ .mobile-profile-editor .school-field-grid,
+.mobile-profile-editor .school-classification-grid { display:grid; grid-template-columns:1fr; gap:15px; }
+ .mobile-profile-editor .school-field-grid > label { display:flex; flex-direction:column; gap:7px; min-width:0; grid-column:auto; }
+ .mobile-profile-editor .school-capture-label { color:#647d99; font-size:12px; font-weight:500; }
+ .system-theme .mobile-profile-editor .school-field-grid :is(input,select) { width:100%; box-sizing:border-box; min-height:46px; height:auto; font-size:16px; border:1px solid #ccd9e9; background:#fff; padding:11px 12px; border-radius:0; }
+ .system-theme .mobile-profile-editor .school-field-grid input[readonly] { background:#eef3f9; color:#72849b; border-color:#e0e7f1; }
+ .system-theme .mobile-profile-editor .school-field-grid [aria-invalid=true] { border-color:#bb5665; background:#fff8f9; }
+ .mobile-profile-editor .required-mark { color:#b15a62; }
+ .system-theme .mobile-profile-editor .school-edit-guidance { font-size:11px; line-height:1.7; color:#7d8da3; margin:16px 0; padding:12px; background:#f4f7fc; border-left:2px solid #d5bc80; }
+ .mobile-profile-editor .form-actions { position:sticky; bottom:0; z-index:4; background:#fff; padding:14px 0 0; margin-top:16px; gap:10px; }
+ .mobile-profile-editor .form-actions .button { min-height:46px; font-size:13px; }
+ .mobile-profile-editor .school-form-errors { padding:12px; font-size:12px; border-left:3px solid #b65765; background:#fff5f6; }
+}
+/* Mobile school profile: horizontal row separators. */
+/* Mobile school profile editor */
+/* Keep desktop selector positioning identical to the original toolbar. */
+@media(min-width:821px) {
+ .school-overview-toolbar > .desktop-only-layout { display:contents; }
+}
+/* Mobile confirmation: one clean form with horizontal group dividers. */
+@media(max-width:820px) {
+ .mobile-confirmation-page { margin:18px auto 0; max-width:700px; padding-bottom:8px; }
+ .mobile-confirmation-page .school-editor-heading { margin-bottom:18px; padding:0; }
+ .mobile-confirmation-page .school-editor-heading a { min-height:36px; display:inline-flex; align-items:center; font-size:12px; color:#7186a0; }
+ .mobile-confirmation-page .confirmation-step { color:#7b91ad; letter-spacing:1.4px; font-size:9px; font-weight:650; margin:10px 0 8px; }
+ .system-theme .mobile-confirmation-page .school-editor-heading h1 { font-size:23px; line-height:1.3; letter-spacing:-.5px; margin:0 0 8px; color:#243f60; }
+ .system-theme .mobile-confirmation-page .school-editor-heading p { font-size:12px; line-height:1.6; color:#7b8fa8; margin:0; }
+ .system-theme .mobile-confirmation-page #profile-confirmation { padding:0; background:transparent; border:0; box-shadow:none; }
+ .mobile-confirmation-page #profile-confirmation > form { display:block; }
+ .mobile-confirmation-page .school-fieldset { border:0; border-bottom:2px solid #c5d7ee; padding:0 0 20px; margin:0 0 20px; min-width:0; background:transparent; }
+ .mobile-confirmation-page .school-field-grid,
+.mobile-confirmation-page .school-classification-grid { display:grid; grid-template-columns:1fr; gap:15px; }
+ .mobile-confirmation-page .school-field-grid label { display:flex; flex-direction:column; gap:7px; min-width:0; grid-column:auto; }
+ .mobile-confirmation-page .school-capture-label { font-size:12px; color:#5d7694; font-weight:500; }
+ .system-theme .mobile-confirmation-page .school-field-grid :is(input,select) { width:100%; box-sizing:border-box; height:46px; min-height:46px; font-size:16px; padding:10px 12px; border:1px solid #cad8e9; border-radius:0; background:#fff; color:#2d4d72; }
+ .system-theme .mobile-confirmation-page .school-name-field input[readonly] { padding:0; height:auto; min-height:28px; border:0; background:transparent; font-size:17px; font-weight:600; color:#24496f; box-shadow:none; }
+ .mobile-confirmation-page .confirmation-name-help { font-size:11px; line-height:1.6; color:#8b9aae; }
+ .mobile-confirmation-page .confirmation-name-help a { color:#406b9d; }
+ .mobile-confirmation-page .checkbox-row { display:flex; align-items:flex-start; gap:10px; padding:14px; border:1px solid #dbe5f1; background:#eaf1fb; font-size:12px; line-height:1.7; color:#506e90; }
+ .mobile-confirmation-page .checkbox-row input { width:18px; height:18px; flex-shrink:0; margin-top:2px; accent-color:#28588e; }
+ .mobile-confirmation-page .form-actions { position:sticky; bottom:0; z-index:6; margin:16px -2px 0; padding:12px 2px calc(12px + env(safe-area-inset-bottom)); background:#f3f6fa; border-top:1px solid #dbe5f1; }
+ .mobile-confirmation-page .form-actions .button { width:100%; min-height:48px; justify-content:center; font-size:14px; font-weight:600; }
+ .mobile-confirmation-page .school-form-errors { padding:14px; margin-bottom:18px; border:1px solid #edcdd3; border-left:3px solid #b95d6b; background:#fff5f6; font-size:12px; }
+ .system-theme .mobile-confirmation-page [aria-invalid=true] { border-color:#bb5d6b !important; }
+ .app-body.system-theme.mobile-portal { --mobile-font:'Segoe UI',Arial,sans-serif; font-family:var(--mobile-font); font-size:14px; line-height:1.5; -webkit-font-smoothing:antialiased; }
+ .app-body.system-theme.mobile-portal *,
+.app-body.system-theme.mobile-portal *::before,
+.app-body.system-theme.mobile-portal *::after { font-family:var(--mobile-font) !important; }
+ .app-body.system-theme.mobile-portal .content h1 { font-size:22px; line-height:1.3; font-weight:600; letter-spacing:-.35px; }
+ .app-body.system-theme.mobile-portal .content h2 { font-size:17px; line-height:1.4; font-weight:600; letter-spacing:normal; }
+ .app-body.system-theme.mobile-portal .content h3 { font-size:15px; line-height:1.4; font-weight:600; letter-spacing:normal; }
+ .app-body.system-theme.mobile-portal .content :is(input:not([type=checkbox]):not([type=radio]),select,textarea) { font-size:16px; line-height:1.5; font-weight:400; letter-spacing:normal; }
+ .app-body.system-theme.mobile-portal .content :is(.school-capture-label,.school-field-grid > label,.form-grid > label) { font-size:13px; line-height:1.5; font-weight:500; }
+ .app-body.system-theme.mobile-portal .content .button { font-size:13px !important; line-height:1.4; font-weight:600; letter-spacing:normal; }
+ .app-body.system-theme.mobile-portal .client-header-menu nav a { font-size:13px; font-weight:500; }
+ .app-body.system-theme.mobile-portal .client-header-menu nav a[aria-current] { font-weight:600; }
+ .app-body.system-theme.mobile-portal .client-welcome-panel h2 { font-size:19px; font-weight:600; line-height:1.35; }
+ .app-body.system-theme.mobile-portal .school-overview-dashboard .overview-metric h2 { font-size:10px; line-height:1.4; font-weight:600; letter-spacing:.4px; }
+ .app-body.system-theme.mobile-portal .school-overview-dashboard .overview-metric strong { font-size:26px; font-weight:650; line-height:1.1; font-variant-numeric:tabular-nums; }
+ .app-body.system-theme.mobile-portal .client-shortcuts strong { font-size:13px; font-weight:600; }
+ .app-body.system-theme.mobile-portal .mobile-school-details th { font-size:12px; font-weight:500; }
+ .app-body.system-theme.mobile-portal .mobile-school-details td { font-size:13px; font-weight:500; }
+ .app-body.system-theme.mobile-portal .school-name-field input[readonly] { font-size:16px; font-weight:500; }
+ .app-body.system-theme.mobile-portal .content :is(input:not([type=checkbox]):not([type=radio]),select,textarea),
+.app-body.system-theme.mobile-portal .content .school-name-field input[readonly] { font-size:14px; }
+ .representative-client .client-submissions { margin:10px auto 14px; }
+ .representative-client .client-submissions-heading > a { min-height:28px; font-size:11px; }
+ .app-body.system-theme.mobile-portal .client-submissions-heading h1 { margin:7px 0 5px; font-size:21px; }
+ .representative-client .client-submissions-heading p { font-size:12px; line-height:1.5; margin:0 0 14px; }
+ .representative-client .client-submission-summary { margin-bottom:10px; border-top-width:2px; }
+ .representative-client .client-submission-summary > div { padding:10px 11px; }
+ .representative-client .client-submission-summary strong { font-size:21px; line-height:1.2; font-weight:600; }
+ .representative-client .client-submission-summary span { margin-top:4px; font-size:10px; }
+ .representative-client .client-submission-filters { padding:12px; gap:9px; }
+ .representative-client .client-submission-filters label { font-size:11px; gap:5px; }
+ .app-body.system-theme.mobile-portal .client-submission-filters select { min-height:40px; height:40px; font-size:13px; padding:8px 9px; }
+ .app-body.system-theme.mobile-portal .client-submission-filters > .button { min-height:42px; padding:9px 12px; }
+ .representative-client .client-submission-list-heading { margin:17px 0 9px; }
+ .app-body.system-theme.mobile-portal .client-submission-list-heading h2 { font-size:15px; }
+ .representative-client .client-submission-list-heading > span { font-size:11px; }
+ .representative-client .client-submission-list { gap:10px; }
+ .representative-client .client-return-card { padding:13px; border-top-width:2px; }
+ .representative-client .client-return-year { font-size:9px; letter-spacing:.8px; gap:6px; }
+ .representative-client .client-return-year svg { width:14px; height:14px; }
+ .representative-client .client-return-status { padding:3px 7px; font-size:10px; }
+ .app-body.system-theme.mobile-portal .client-return-card h3 { font-size:15px; margin:12px 0; line-height:1.4; }
+ .representative-client .client-return-card dl { margin-bottom:14px; gap:10px; }
+ .representative-client .client-return-card dt { font-size:10px; margin-bottom:4px; }
+ .representative-client .client-return-card dd { font-size:12px; }
+ .representative-client .client-return-progress > span { font-size:11px; }
+ .representative-client .client-return-progress progress { height:4px; margin:7px 0; }
+ .representative-client .client-return-progress small { display:block; font-size:10px; line-height:1.5; }
+ .representative-client .client-return-card footer { gap:8px; margin-top:12px; padding-top:11px; }
+ .representative-client .client-return-card footer > span { font-size:10px; }
+ .app-body.system-theme.mobile-portal .client-return-card footer .button { min-height:44px; padding:10px 12px; }
+ .representative-client .client-return-feedback { margin:10px 0; padding:10px; }
+ .mobile-portal .reference-form-page .reference-section-navigation > .source-form-tabs,
+.mobile-portal .reference-form-page .reference-section-navigation > .reference-progress-caption { display:none; }
+ .mobile-portal .reference-form-page .reference-section-navigation { border:1px solid #dce5f0; background:#fff; }
+ .mobile-progress-heading { display:flex; justify-content:space-between; align-items:center; font-size:12px; color:#627b99; }
+ .mobile-progress-heading strong { font-size:17px; font-weight:600; color:#24558e; }
+ .mobile-section-progress progress { display:block; width:100%; border:0; appearance:none; background:#e7edf5; accent-color:#2a6599; }
+ .mobile-section-progress progress::-webkit-progress-bar { background:#e7edf5; }
+ .mobile-section-progress progress::-webkit-progress-value { background:#2a6599; }
+ .mobile-section-progress progress::-moz-progress-bar { background:#2a6599; }
+ .system-theme .content .mobile-section-progress p { margin:0; font-size:10px; color:#8293a9; }
+ .mobile-portal .reference-form-page { margin-top:8px; }
+ .mobile-portal .reference-form-page .source-form-heading { margin:0 0 10px; }
+ .mobile-portal .reference-form-page .source-form-heading h2 { margin:0; }
+ .mobile-portal .reference-form-page .source-entry-layout { gap:10px; }
+ .mobile-portal .reference-form-page .reference-section-navigation { padding:10px 12px; margin:0; min-height:0; height:auto; }
+ .mobile-portal .reference-form-page .mobile-section-progress { margin:0; }
+ .mobile-section-progress progress { margin:7px 0 5px; height:6px; }
+ .mobile-portal .reference-form-page .source-entry-content { padding:0; margin:0; min-width:0; }
+ .mobile-portal .reference-form-page .reference-form-header { padding:10px 12px; gap:3px; }
+ .mobile-portal .reference-form-page .source-form { padding:0 12px 10px; }
+ .mobile-portal .reference-form-page .form-grid { gap:0 10px; }
+ .mobile-portal .reference-form-page .source-field,
+.mobile-portal .reference-form-page .profile-capture-inline .source-field { padding:8px 0; gap:4px; }
+ .mobile-portal .reference-form-page .source-form > section { margin-top:12px; margin-bottom:0; }
+ .mobile-portal .reference-form-page .source-form > section > h3 { margin:0 0 7px; }
+ .mobile-portal .reference-form-page .source-form > section > .muted { margin:7px 0; font-size:11px; }
+ .mobile-portal .reference-form-page .source-save-bar { margin-top:10px; padding-top:10px; padding-bottom:10px; }
+ .mobile-form-bottom-actions { width:100%; }
+ .mobile-form-bottom-actions > .button { width:100%; justify-content:center; }
+ .mobile-bottom-navigation { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; margin-top:10px; }
+ .mobile-bottom-navigation > span { font-size:11px; color:#8395ab; text-align:center; }
+ .mobile-bottom-navigation .button { justify-content:center; padding:9px 8px; min-height:44px; font-size:12px !important; }
+ .mobile-portal .reference-form-page .mobile-completion-pending { display:none; }
+ .system-theme .content .mobile-completion-note { font-size:12px; line-height:1.6; color:#788da7; padding:12px; border-left:2px solid #d4b878; background:#fffaf0; }
+ .mobile-three-actions { display:grid; gap:8px; width:100%; }
+ .mobile-three-actions .button { display:flex; justify-content:center; align-items:center; min-height:44px; padding:9px 6px; font-size:12px !important; white-space:nowrap; }
+ .mobile-three-actions .button:disabled { opacity:.4; cursor:default; }
+ .mobile-three-actions { grid-template-columns:repeat(3,minmax(0,1fr)); }
+ .mobile-three-actions:has(> :last-child:nth-child(2)) { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .mobile-form-bottom-actions .mobile-three-actions,
+.mobile-form-bottom-actions .mobile-three-actions:has(> :last-child:nth-child(2)) { display:flex; justify-content:center; align-items:center; gap:8px; width:100%; }
+ .app-body.system-theme.mobile-portal .reference-form-page .mobile-three-actions .button { flex:0 0 auto; width:auto; min-height:36px; min-width:62px; padding:8px 12px; font-size:12px !important; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-save-bar { display:flex; justify-content:center; align-items:center; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-save-bar > .mobile-form-bottom-actions { flex:1 1 100%; width:100%; max-width:none; margin:0 auto; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-save-bar .mobile-three-actions { display:flex; justify-content:center; align-items:center; width:100%; margin:0 auto; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-save-bar .mobile-three-actions .button { flex:0 0 auto; width:auto; margin:0; }
+ .app-body.system-theme.mobile-portal .reference-form-page,
+.app-body.system-theme.mobile-portal .reference-form-page .source-entry-layout,
+.app-body.system-theme.mobile-portal .reference-form-page .source-entry-content,
+.app-body.system-theme.mobile-portal .reference-form-page .reference-form-card,
+.app-body.system-theme.mobile-portal .reference-form-page .source-form,
+.app-body.system-theme.mobile-portal .reference-form-page [data-source-table] { min-width:0; max-width:100%; box-sizing:border-box; }
+ .mobile-portal .reference-form-page .source-entry-layout { display:flex; flex-direction:column; }
+ .mobile-portal .reference-form-page .source-entry-content { width:100%; }
+ .mobile-portal .reference-form-page .source-form-heading { padding-bottom:10px; margin-bottom:10px; gap:8px; flex-wrap:wrap; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-form-heading h2 { font-size:16px; margin:0; }
+ .mobile-portal .reference-form-page .source-form-heading > .button { min-height:34px; padding:7px 10px; font-size:11px !important; }
+ .mobile-portal:has(.reference-form-page) .content > .alert { padding:9px 12px; font-size:12px; margin-bottom:12px; }
+ .mobile-portal .reference-form-page .source-form { padding-left:12px; padding-right:12px; }
+ .mobile-portal .reference-form-page [data-source-table] .table-wrap { display:block; width:100%; max-width:100%; overflow-x:auto; overscroll-behavior-x:contain; position:relative; isolation:isolate; scrollbar-width:thin; scrollbar-color:#93accb #eaf0f7; border:1px solid #dce5f0; }
+ .mobile-portal .reference-form-page .source-data-table { width:max-content; min-width:100%; max-width:none; border-collapse:separate; border-spacing:0; }
+ .mobile-portal .reference-form-page .source-data-table :is(th,td) { padding:6px; font-size:11px; border-bottom:1px solid #dfe7f2; border-right:1px solid #e3eaf3; }
+ .mobile-portal .reference-form-page .source-data-table thead tr:first-child > :first-child,
+.mobile-portal .reference-form-page .source-data-table tbody tr > :first-child,
+.mobile-portal .reference-form-page .source-data-table tfoot tr > :first-child { position:sticky; left:0; z-index:2; background:#edf3fb; color:#42638d; box-shadow:2px 0 0 #c5d5e9; }
+ .mobile-portal .reference-form-page .source-data-table thead tr:first-child > :first-child { z-index:3; background:#153a69; color:#fff; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table :is(input:not([type=checkbox]):not([type=radio]),select) { box-sizing:border-box; min-height:40px; height:40px; padding:7px 8px; font-size:13px; min-width:100px; width:100px; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table input[type=number] { min-width:62px; width:62px; text-align:center; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table textarea { min-width:170px; font-size:13px; }
+ .mobile-portal .reference-form-page .mobile-table-swipe-hint { text-align:right; }
+ .mobile-portal .reference-form-page .source-save-bar { box-sizing:border-box; max-width:100%; width:100%; margin-left:0; margin-right:0; padding-left:0; padding-right:0; }
+}
+/* Consistent typography across the mobile portal only. */
+/* Compact text inside mobile form controls. */
+/* Compact mobile submissions workspace; desktop stays unchanged. */
+/* Mobile form progress replaces the section grid. */
+/* Reduce unused space in mobile forms and the progress panel. */
+/* Compact, centered mobile form navigation buttons. */
+/* Center the entire button group within the mobile save bar. */
+/* Mobile tables scroll within the form, never outside the viewport. */
+.mobile-table-swipe-hint { display:none; }
+@media(max-width:820px) { .mobile-portal .reference-form-page .mobile-table-swipe-hint { display:block; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table thead th { position:static; left:auto; top:auto; z-index:auto; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table thead tr:first-child > th:first-child { position:sticky; left:0; z-index:3; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table tbody th[scope=row],
+.app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table thead th[rowspan] { box-sizing:border-box; min-width:60px; width:60px; max-width:60px; padding:8px 5px; font-size:10px; white-space:normal; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table td { box-sizing:border-box; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table thead th:not([rowspan]) { padding:8px 5px; font-size:10px; white-space:nowrap; text-align:center; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-save-bar { position:static; margin:12px 0 0; }
+ .mobile-portal .reference-form-page .mobile-table-swipe-hint[hidden] { display:none; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table :is(td,th) { line-height:1.4; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table td { background:#fff; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table thead th[scope=colgroup] { background:#e3edf9; color:#315d8e; padding:9px 6px; font-weight:600; letter-spacing:.4px; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table thead tr:nth-child(2) th { box-sizing:border-box; background:#f1f5fc; color:#6881a0; font-size:9px; padding:7px 5px; font-weight:500; letter-spacing:.5px; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table td input[type=number] { display:block; min-height:40px; padding:7px 4px; margin:0; text-align:center; color:#2d527d; background:#fbfdff; border:1px solid #d4e0ef; font-size:13px; font-variant-numeric:tabular-nums; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table td input:focus { background:#fff; border-color:#5e89bb; outline:2px solid #c8daf0; outline-offset:-1px; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table td:focus-within { background:#edf4fd; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table .source-total { background:#eaf3ee; color:#397354; font-weight:600; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table tbody th[scope=row] { background:#f1f5fb; color:#7b91ad; font-size:10px; }
+ .mobile-portal .reference-form-page [data-source-table]:has(.paper-enrolment-table) { margin-top:18px; }
+ .app-body.system-theme.mobile-portal .reference-form-page [data-source-table]:has(.paper-enrolment-table) h3 { font-size:14px; margin:0 0 6px; line-height:1.4; font-weight:600; }
+ .mobile-portal .reference-form-page [data-source-table] .table-wrap { scrollbar-gutter:stable; }
+ .mobile-portal .reference-form-page .mobile-table-swipe-hint { margin:0 0 6px; font-size:10px; color:#8b9db4; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table { table-layout:fixed; width:var(--enrolment-table-width); min-width:var(--enrolment-table-width); max-width:var(--enrolment-table-width); }
+ .paper-enrolment-table col.enrolment-label-column { width:60px; }
+ .paper-enrolment-table col.enrolment-number-column { width:76px; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table :is(th,td) { box-sizing:border-box; width:auto; min-width:0; max-width:none; border:0; vertical-align:middle; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table thead tr:nth-child(2) th { width:auto; min-width:0; max-width:none; height:30px; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table td { width:auto; min-width:0; max-width:none; padding:5px; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table td input[type=number] { box-sizing:border-box; width:100%; min-width:0; max-width:100%; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table :is(th,td) { border-right:1px solid #9eb7d6; border-bottom:1px solid #bdcee3; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table thead th[scope=colgroup] { border-right:2px solid #8eacd0; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table thead tr:nth-child(2) th:nth-child(even),
+.app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table tbody td:nth-child(odd) { border-right:2px solid #8eacd0; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table thead th[rowspan],
+.app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table tbody th[scope=row] { border-right:2px solid #8eacd0; box-shadow:none; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table tbody tr > :is(th,td) { border-right:1px solid #829fc3; border-bottom:1px solid #a9bfdc; }
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table tbody tr > td:nth-child(odd),
+.app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table tbody tr > th { border-right:2px solid #829fc3; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) { table-layout:auto; width:max-content; min-width:100%; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) tbody th[scope=row],
+.app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) thead tr:first-child > th:first-child { box-sizing:border-box; width:120px; min-width:120px; max-width:120px; white-space:normal; overflow-wrap:anywhere; font-size:11px; line-height:1.5; padding:9px 8px; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) tbody th[scope=row] { vertical-align:middle; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) td { min-width:92px; padding:7px; vertical-align:middle; border-right:1px solid #a8bdd8; border-bottom:1px solid #bdcfe4; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) td:has(textarea) { min-width:220px; width:220px; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) textarea { display:block; box-sizing:border-box; width:220px; min-width:220px; max-width:none; min-height:78px; padding:8px 10px; font-size:13px; line-height:1.5; resize:vertical; white-space:pre-wrap; overflow:auto; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) input[type=number] { width:76px; min-width:76px; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar:has(.client-header-menu[open]),
+.app-body.system-theme.mobile-portal .app-shell .topbar:has(.profile-menu.is-open) { position:relative; z-index:100; overflow:visible; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar .client-header-menu[open] { z-index:110; }
+ .app-body.system-theme.mobile-portal .app-shell .topbar .client-header-menu[open] nav { z-index:120; }
+ .app-body.system-theme.mobile-portal { --mobile-surface:#fff; --mobile-background:#f3f6fa; --mobile-border:#dce5f0; --mobile-muted:#7186a0; }
+ .mobile-portal .app-shell,.mobile-portal .app-main,.mobile-portal .content { box-sizing:border-box; min-width:0; max-width:100%; }
+ .mobile-portal .content > *, .mobile-portal .form-grid > *, .mobile-portal .resource-form > * { min-width:0; }
+ .mobile-portal .content :is(p,dd,h1,h2,h3,.alert,.support-reply) { overflow-wrap:anywhere; }
+ .mobile-portal .content :is(input,select,textarea,button) { box-sizing:border-box; }
+ .mobile-portal .content input[type=checkbox],.mobile-portal .content input[type=radio] { accent-color:#28588e; }
+ .mobile-portal .content input[type=number] { font-variant-numeric:tabular-nums; }
+ .mobile-portal .content textarea { resize:vertical; line-height:1.6; }
+ .mobile-portal .content :is(input,select,textarea):disabled { opacity:1; color:#657d99; background:#f2f5fa; }
+ .mobile-portal .content :is(button,.button):disabled { opacity:.5; cursor:default; }
+ .mobile-portal .content [aria-invalid=true] { border-color:#b85665 !important; background:#fff7f8; }
+ .mobile-portal .content .source-inline-error,.mobile-portal .content .school-field-error { display:block; font-size:11px; line-height:1.5; color:#a44b5b; margin-top:4px; white-space:normal; }
+ .mobile-validation-summary { padding:12px; background:#fff4f6; border:1px solid #edcbd2; border-left:3px solid #ad5262; color:#8c4351; font-size:12px; margin:12px 0; }
+ .mobile-validation-summary ul { margin:6px 0 0; padding-left:18px; }
+ .mobile-portal .content .alert { border-radius:0; line-height:1.5; }
+ .mobile-portal .content > .alert { margin:12px 0; padding:10px 12px; font-size:12px; }
+ .mobile-portal .content :is(.alerts-workspace,.support-workspace,.submitted-record-page,.school-editor) { min-width:0; width:100%; box-sizing:border-box; }
+ .mobile-portal .alerts-workspace { margin-top:16px; gap:12px; }
+ .mobile-portal .alerts-panel-title > div { flex-wrap:wrap; min-width:0; }
+ .app-body.system-theme.mobile-portal .alerts-panel-title h1 { font-size:20px; }
+ .mobile-portal .alerts-inbox-header nav { display:flex; gap:8px; }
+ .mobile-portal .alerts-inbox-header nav a { min-height:44px; display:flex; align-items:center; padding:8px 12px; }
+ .mobile-portal .school-alert { padding:13px 12px; gap:9px; }
+ .mobile-portal .school-alert-content { min-width:0; }
+ .app-body.system-theme.mobile-portal .school-alert h2 { font-size:14px; line-height:1.45; }
+ .mobile-portal .school-alert-content p { font-size:13px; line-height:1.65; margin:10px 0; white-space:pre-line; }
+ .mobile-portal .school-alert footer { display:flex; flex-wrap:wrap; gap:8px; }
+ .mobile-portal .school-alert footer a { display:inline-flex; align-items:center; min-height:36px; font-size:12px; }
+ .mobile-portal .school-alert footer .button { min-height:36px; padding:8px 10px; font-size:11px !important; }
+ .mobile-portal .support-history > h2 { font-size:16px; margin:0 0 12px; }
+ .mobile-portal .support-request-form .resource-form > .button { width:100%; justify-content:center; }
+ .mobile-portal .support-ticket .support-reply { margin-top:10px; }
+ .mobile-portal .alerts-empty,.mobile-portal .school-identity-empty { padding:28px 16px; border:1px solid var(--mobile-border); background:white; text-align:center; }
+ .mobile-portal .alerts-empty p,.mobile-portal .school-identity-empty p { font-size:12px; line-height:1.6; }
+ .mobile-portal .submitted-record-page { margin-top:16px; }
+ .mobile-portal .submitted-record-summary { display:grid; grid-template-columns:54px minmax(0,1fr); padding:16px 12px; gap:12px; }
+ .mobile-portal .submitted-record-school { min-width:0; }
+ .app-body.system-theme.mobile-portal .submitted-record-school h1 { font-size:18px; }
+ .mobile-portal .submitted-record-school p { font-size:12px; line-height:1.5; }
+ .mobile-portal .submitted-record-date { grid-column:1/-1; display:flex; flex-wrap:wrap; gap:10px; align-items:center; padding-top:10px; border-top:1px solid #dce5f0; }
+ .mobile-portal .submitted-record-nav { display:flex; flex-wrap:nowrap; overflow-x:auto; max-width:100%; scrollbar-width:thin; gap:6px; padding:10px 0; }
+ .mobile-portal .submitted-record-nav a { flex-shrink:0; min-height:40px; display:flex; align-items:center; padding:8px 12px; font-size:11px; border:1px solid #dce5f0; background:#fff; }
+ .mobile-portal .submitted-data-section { scroll-margin-top:12px; margin-bottom:12px; }
+ .mobile-portal .submitted-section-heading { padding:12px; gap:8px; }
+ .app-body.system-theme.mobile-portal .submitted-section-heading h2 { font-size:15px; }
+ .mobile-portal .submitted-section-body { padding:12px; overflow-x:auto; }
+ .mobile-portal .submitted-section-body table { min-width:460px; }
+ .mobile-portal .submitted-section-body .profile-values-table { min-width:0; width:100%; table-layout:fixed; }
+ .mobile-portal .submitted-section-body .profile-values-table :is(th,td) { overflow-wrap:anywhere; padding:10px; font-size:12px; }
+ .mobile-portal .native-pagination { max-width:100%; margin-top:12px; }
+ .mobile-portal .native-pagination nav { flex-wrap:wrap; gap:10px; }
+ .mobile-portal .native-pagination a { min-height:40px; }
+ .mobile-portal .submission-confirm-dialog { box-sizing:border-box; width:calc(100% - 24px); max-width:460px; max-height:calc(100dvh - 24px); overflow:auto; padding:18px; border:1px solid #dce5f0; border-top:3px solid #d5bd82; border-radius:0; }
+ .mobile-portal .submission-confirm-dialog h2 { font-size:20px; line-height:1.3; color:#244367; }
+ .mobile-portal .submission-confirm-dialog p,.mobile-portal .submission-confirm-dialog label { font-size:13px; line-height:1.6; }
+ .mobile-portal .submission-confirm-dialog .checkbox-row { display:flex; align-items:flex-start; gap:10px; }
+ .mobile-portal .submission-confirm-dialog .checkbox-row input { flex-shrink:0; width:18px; height:18px; margin-top:4px; }
+ .mobile-portal .submission-confirm-dialog .form-actions { display:flex; flex-wrap:wrap; gap:8px; }
+ .mobile-portal .submission-confirm-dialog .button { flex:1; min-height:44px; border-radius:0; }
+ .mobile-portal :is(.table-wrap,.client-header-menu nav,.submitted-record-nav):focus-visible { outline:2px solid #6089bd; outline-offset:2px; }
+ .mobile-portal .client-header-menu nav { overscroll-behavior:contain; }
+ .mobile-portal .topbar .profile-dropdown { max-width:calc(100vw - 32px); } }
+/* Correct mobile enrolment header overlap and frozen-column sizing. */
+/* Refined mobile enrolment tables: compact cells and a clear header hierarchy. */
+/* Exact shared widths keep grouped enrolment headings and inputs aligned. */
+/* Clearly delineated mobile enrolment columns. */
+/* Continue strong column separators through the number-entry row. */
+/* Keep descriptive row labels from covering mobile quantity and remarks fields. */
+/* Raise the header only while a mobile menu is open so cards cannot cover it. */
+/* Shared mobile finishing rules: predictable sizing, feedback and touch controls. */
+@media(max-width:820px) and (prefers-reduced-motion:reduce) {
+ .mobile-portal *, .mobile-portal *::before, .mobile-portal *::after { scroll-behavior:auto !important; transition:none !important; }
+}
+/* Readability, readiness and mobile control improvements. */
+.mobile-required-mark,.mobile-announcement-toggle,.mobile-announcement-full { display:none; }
+@media(max-width:820px) {
+ .mobile-required-mark { display:inline; color:#b15a62; }
+ .app-body.system-theme.mobile-portal .content :is(.mobile-table-swipe-hint,.reference-progress-caption,.mobile-section-progress > p,.client-return-progress small,.client-submission-summary span,.client-return-card dt,.client-return-card footer > span,.client-return-year) { font-size:11px; line-height:1.5; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table thead th,
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table thead tr:nth-child(2) th,
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table thead th[rowspan],
+ .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table tbody th[scope=row] { font-size:11px; letter-spacing:0; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) tbody th[scope=row],
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) thead tr:first-child > th:first-child { width:128px; min-width:128px; max-width:128px; font-size:12px; }
+ .app-body.system-theme.mobile-portal .reference-form-page [data-source-table=items] .source-data-table tbody th[scope=row],
+ .app-body.system-theme.mobile-portal .reference-form-page [data-source-table=items] .source-data-table thead tr:first-child > th:first-child { width:144px; min-width:144px; max-width:144px; }
+ .app-body.system-theme.mobile-portal .reference-form-page [data-source-table=members] .source-data-table tbody th[scope=row],
+ .app-body.system-theme.mobile-portal .reference-form-page [data-source-table=members] .source-data-table thead tr:first-child > th:first-child { width:44px; min-width:44px; max-width:44px; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-save-bar .mobile-three-actions .button { min-height:44px; padding:11px 12px; }
+ .app-body.system-theme.mobile-portal .content .mobile-save-indicator { text-align:center; color:#6c829c; font-size:11px; margin:0 0 5px; }
+ .app-body.system-theme.mobile-portal .content .mobile-save-indicator.is-dirty { color:#95681d; }
+ .app-body.system-theme.mobile-portal .content .mobile-navigation-help { font-size:11px; color:#8193aa; text-align:center; margin:0 0 9px; line-height:1.5; }
+ .mobile-readiness { display:block; padding-top:9px; font-size:12px; color:#976e2d; }
+ .mobile-readiness.is-ready { color:#3c7c56; }
+ .mobile-readiness-details { margin-top:4px; border-top:1px solid #e5ebf3; font-size:12px; }
+ .mobile-readiness-details summary { min-height:44px; padding:12px 0; box-sizing:border-box; cursor:pointer; color:#516e90; }
+ .mobile-readiness-details ul { padding-left:18px; margin:0 0 8px; }
+ .mobile-readiness-details li { padding:6px 0; line-height:1.6; }
+ .mobile-readiness-details a { color:#3a6495; text-decoration:underline; text-underline-offset:3px; }
+ .mobile-announcement-toggle { display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; min-height:44px; padding:8px; border:0; background:transparent; color:#e2c88d; font-family:inherit; font-size:11px; cursor:pointer; }
+ .mobile-announcement-full:not([hidden]) { display:block; padding:12px 16px; font-size:13px; line-height:1.6; color:#cbdcf2; background:#13396b; border-bottom:1px solid #ffffff20; }
+ .submission-window-strip.is-notice-open .window-strip-loop { animation-play-state:paused; }
+ .client-mobile-announcement .submission-window-strip > a { display:none !important; }
+}
+/* Larger announcement text in a slimmer mobile strip. */
+@media(max-width:820px) {
+ .app-body.system-theme.mobile-portal .client-mobile-announcement .submission-window-strip { padding:2px 12px; gap:8px; min-height:32px; font-size:13px; line-height:1.3; }
+ .app-body.system-theme.mobile-portal .client-mobile-announcement .window-strip-copy > span { font-size:13px; line-height:1.3; }
+ .app-body.system-theme.mobile-portal .client-mobile-announcement .mobile-announcement-toggle { min-height:30px; padding:5px 6px; font-size:11px; }
+}
+@media(max-width:820px) {
+ .app-body.system-theme.mobile-portal .school-overview-dashboard .overview-next-copy h2 { font-size:16px; }
+}
+/* Outstanding submission checks are always visible mobile error messages. */
+@media(max-width:820px) {
+ .mobile-readiness-errors { margin-top:12px; background:#fff5f6; border:1px solid #e9bdc5; border-left:3px solid #bd4056; }
+ .mobile-readiness-errors > header { display:flex; align-items:flex-start; gap:9px; padding:12px; border-bottom:1px solid #efd3d9; }
+ .mobile-error-symbol { display:grid; place-items:center; flex-shrink:0; width:20px; height:20px; color:#fff; background:#b83e54; font-size:13px; font-weight:700; border-radius:50%; }
+ .app-body.system-theme.mobile-portal .content .mobile-readiness-errors h3 { margin:0; font-size:14px; line-height:1.5; font-weight:650; color:#9c2d41; }
+ .app-body.system-theme.mobile-portal .content .mobile-readiness-errors header p { margin:3px 0 0; color:#9b5866; font-size:11px; line-height:1.5; }
+ .mobile-readiness-errors ul { padding:0 12px; margin:0; list-style:none; }
+ .mobile-readiness-errors li { padding:0; border-bottom:1px solid #efd9de; color:#962f43; font-size:12px; line-height:1.6; }
+ .mobile-readiness-errors li:last-child { border-bottom:0; }
+ .mobile-readiness-errors li > a { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:44px; padding:10px 0; color:#962f43; text-decoration:none; }
+ .mobile-readiness-errors li > span { display:block; padding:10px 0; }
+ .mobile-readiness-errors .mobile-error-action { flex-shrink:0; font-size:11px; font-weight:600; text-decoration:underline; text-underline-offset:3px; }
+ .mobile-readiness-errors a:focus-visible { outline:2px solid #b83e54; outline-offset:2px; }
+}
+@media(max-width:820px) {
+ .app-body.system-theme.mobile-portal .school-overview-dashboard .dashboard-metric-description { margin-top:6px; font-size:10px; line-height:1.4; color:#8193a9; }
+}
+/* Slightly tighter mobile dashboard statistic cards. */
+@media(max-width:820px) {
+ .app-body.system-theme.mobile-portal .school-overview-dashboard .overview-metrics { gap:8px; }
+ .app-body.system-theme.mobile-portal .school-overview-dashboard .overview-metric { min-height:100px; padding:11px 10px; }
+ .app-body.system-theme.mobile-portal .school-overview-dashboard .overview-metric h2 { min-height:26px; margin-bottom:8px; }
+ .app-body.system-theme.mobile-portal .school-overview-dashboard .overview-metric strong { font-size:24px; }
+ .app-body.system-theme.mobile-portal .school-overview-dashboard .dashboard-metric-description { margin-top:4px; }
+}

@@ -1,0 +1,115 @@
+<?php
+
+namespace App\Http\Controllers\App;
+
+use App\Actions\RecordAuditEvent;
+use App\Actions\StartSchoolReturn;
+use App\Actions\TransitionSchoolReturn;
+use App\Http\Controllers\Controller;
+use App\Models\ReportingPeriod;
+use App\Models\School;
+use App\Models\SchoolReturn;
+use App\Support\Navigation;
+use DomainException;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\View\View;
+
+class SchoolReturnController extends Controller
+{
+    public function index(Request $request): View
+    {
+        $request->validate([
+            'period_id' => ['nullable', 'integer'],
+            'status' => ['nullable', 'in:not_started,draft,submitted,certified,returned_for_correction,approved,locked'],
+            'search' => ['nullable', 'string', 'max:200'],
+        ]);
+        $scope = SchoolReturn::query()
+            ->whereHas('reportingPeriod', fn ($q) => $q->where('is_archived', false))
+            ->whereHas('school', fn ($q) => $q->visibleTo($request->user()));
+        $counts = (clone $scope)->selectRaw('status, COUNT(*) as total')->groupBy('status')->pluck('total', 'status');
+        $returns = SchoolReturn::query()
+            ->with(['school.parish', 'reportingPeriod'])
+            ->whereHas('reportingPeriod', fn ($q) => $q->where('is_archived', false))
+            ->whereHas('school', fn ($query) => $query->visibleTo($request->user()))
+            ->when($request->filled('search'), fn ($q) => $q->whereHas('school', fn ($s) => $s->where('official_name', 'like', '%'.$request->string('search')->toString().'%')))
+            ->when($request->filled('period_id'), fn ($q) => $q->where('reporting_period_id', $request->integer('period_id')))
+            ->when(in_array($request->input('status'), ['not_started', 'draft', 'submitted', 'certified', 'returned_for_correction', 'approved', 'locked']), fn ($q) => $q->where('status', $request->input('status')))
+            ->latest('updated_at')
+            ->paginate(15)->withQueryString();
+
+        return view('returns.index', [
+            'title' => Navigation::submissionLabel(),
+            'breadcrumbs' => [['label' => 'school statistics'], ['label' => Navigation::submissionLabel()]],
+            'returns' => $returns,
+            'submissionCounts' => $counts,
+            'periods' => ReportingPeriod::query()->where('is_archived', false)->whereHas('schools', fn ($q) => $q->visibleTo($request->user()))->latest()->get(),
+            'schools' => School::query()->visibleTo($request->user())->orderBy('official_name')->get(),
+        ]);
+    }
+
+    public function start(Request $request, ReportingPeriod $reportingPeriod, School $school, StartSchoolReturn $start): RedirectResponse
+    {
+        Gate::authorize('view', $school);
+
+        try {
+            $return = $start->handle($reportingPeriod, $school, $request->user());
+        } catch (DomainException $exception) {
+            return back()->withErrors(['return' => $exception->getMessage()]);
+        }
+
+        return redirect()->route($request->user()->isSchoolRepresentative() ? 'representative.confirm' : 'returns.show', $return);
+    }
+
+    public function show(SchoolReturn $return): View|RedirectResponse
+    {
+        Gate::authorize('view', $return);
+
+        if (auth()->user()->isSchoolRepresentative()) {
+            if (in_array($return->status, ['draft', 'returned_for_correction'])) {
+                return redirect()->route('returns.form.show', $return);
+            }
+
+            return view('returns.submitted', ['title' => 'Submitted school data', 'return' => $return->load('school', 'reportingPeriod')]);
+        }
+
+        return view('returns.show', [
+            'title' => 'Submission for '.$return->school->official_name,
+            'breadcrumbs' => [['label' => 'school statistics'], ['label' => Navigation::submissionLabel(), 'url' => route('returns.index')], ['label' => $return->school->official_name]],
+            'return' => $return->load(['school', 'reportingPeriod', 'sections', 'enrolmentStatistics', 'attendanceWelfareStatistic', 'staffStatistic']),
+        ]);
+    }
+
+    public function transition(Request $request, SchoolReturn $return, TransitionSchoolReturn $transition): RedirectResponse
+    {
+        Gate::authorize(in_array($request->input('action'), ['certify', 'approve', 'lock', 'return_for_correction']) ? 'review' : 'update', $return);
+
+        if ($request->input('action') === 'submit' && $request->user()->isSchoolRepresentative()) {
+            $request->validate(['acknowledged' => ['accepted']]);
+        }
+
+        $request->validate(['action' => ['required', 'in:submit,certify,return_for_correction,approve,lock'], 'reason' => ['required_if:action,return_for_correction', 'nullable', 'string', 'max:3000']]);
+        try {
+            DB::transaction(function () use ($request, $return, $transition) {
+                School::whereKey($return->school_id)->lockForUpdate()->firstOrFail();
+                $locked = SchoolReturn::whereKey($return->id)->lockForUpdate()->firstOrFail();
+                Gate::authorize(in_array($request->input('action'), ['certify', 'approve', 'lock', 'return_for_correction']) ? 'review' : 'update', $locked);
+                $oldStatus = $locked->status;
+                match ($request->input('action')) {
+                    'submit' => $transition->submit($locked, $request->user()),
+                    'certify' => $transition->certify($locked, $request->user()),
+                    'return_for_correction' => $transition->returnForCorrection($locked, $request->user(), $request->string('reason')->toString()),
+                    'approve' => $transition->approve($locked, $request->user()),
+                    'lock' => $transition->lock($locked, $request->user()),
+                };
+                app(RecordAuditEvent::class)->handle($request, 'submission.'.$request->input('action'), $locked, ['status' => $oldStatus], ['status' => $locked->fresh()->status], $request->input('reason'));
+            });
+        } catch (DomainException $exception) {
+            return back()->withErrors(['return' => $exception->getMessage()]);
+        }
+
+        return redirect()->route('returns.show', $return)->with('status', 'return updated.');
+    }
+}
