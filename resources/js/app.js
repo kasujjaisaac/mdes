@@ -13,12 +13,6 @@ document.addEventListener('click', (event) => {
     }
 });
 
-document.querySelectorAll('[data-modal-close]').forEach((button) => {
-    button.addEventListener('click', () => {
-        button.closest('.modal')?.setAttribute('hidden', '');
-    });
-});
-
 document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
         profileMenu?.classList.remove('is-open');

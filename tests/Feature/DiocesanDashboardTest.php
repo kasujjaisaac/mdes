@@ -46,7 +46,7 @@ class DiocesanDashboardTest extends TestCase
         $this->school($period, 'Approved school');
         $this->school($period, 'Draft school', 'draft', 90);
         $response = $this->actingAs($user)->get(route('dashboard', ['year' => 2026]));
-        $response->assertOk()->assertViewHas('boys', 20)->assertViewHas('coverage', 50.0)->assertDontSee('Overdue: Not submitted')->assertDontSee('id="schools-needing-attention"', false);
+        $response->assertOk()->assertViewHas('boys', 20)->assertViewHas('submittedCount', 1)->assertDontSee('Overdue: Not submitted')->assertDontSee('id="schools-needing-attention"', false);
         $this->assertSame(20, $response->viewData('summary')['shortfall']['value']);
         $this->get(route('dashboard', ['year' => 2026, 'basis' => 'provisional']))->assertOk()->assertViewHas('boys', 20);
         $this->get('/schools-needing-attention')->assertNotFound();
@@ -129,7 +129,7 @@ class DiocesanDashboardTest extends TestCase
             ->assertOk()->assertViewHas('detailCount', 1)->assertSee(route('returns.form.show', [$approved, 'utilities']));
     }
 
-    public function test_trend_matches_schools_and_excludes_unassigned_returns(): void
+    public function test_dashboard_excludes_previous_year_and_unassigned_returns(): void
     {
         [$user, $period] = $this->context();
         $r = $this->school($period, 'Matched school');
@@ -143,7 +143,7 @@ class DiocesanDashboardTest extends TestCase
         $period->schools()->detach($orphan->school_id);
         $response = $this->actingAs($user)->get(route('dashboard', ['year' => 2026]));
         $response->assertOk()->assertViewHas('boys', 520);
-        $this->assertSame(['year' => 2025, 'schools' => 1, 'current' => 20, 'previous' => 10], $response->viewData('comparison'));
+        $response->assertViewHas('submittedCount', 2)->assertDontSee('Comparable enrolment change');
         $this->assertCount(2, $response->viewData('expected'));
     }
 
@@ -158,7 +158,7 @@ class DiocesanDashboardTest extends TestCase
         $this->assertSame(22, $response->viewData('detailRows')->total());
         $this->assertCount(2, $response->viewData('detailRows'));
         $empty = $this->get(route('dashboard', ['year' => 2026, 'level' => 'secondary']));
-        $empty->assertOk()->assertViewHas('boys', null)->assertViewHas('coverage', null);
+        $empty->assertOk()->assertViewHas('boys', null)->assertViewHas('submittedCount', 0);
         $empty->assertSee('Reporting scope not configured');
     }
 

@@ -18,7 +18,6 @@ $detailLink = fn($params=[]) => route('dashboard.details',array_merge(request()-
 $stageKeys = ['Registered schools'=>'expected','Submitted / locked'=>'submitted','Outstanding'=>'outstanding'];
 $parishLinks = fn($metric,$stage='expected') => $parishRows->mapWithKeys(fn($r)=>[$r['name']=>$detailLink(['metric'=>$metric,'stage'=>$stage,'parish'=>$r['parish_id'] ?? 0])])->all();
 
-$ratioDisplay = fn($v) => $v === null ? 'Not calculable' : $display($v);
 @endphp
 <div class="insight-dashboard reference-dashboard hr-dashboard diocesan-dashboard dashboard-polished">
 <header class="diocesan-heading"><div><span class="diocesan-eyebrow">Masaka Diocesan Education Secretariat</span><h1>Diocesan education overview</h1><p class="dashboard-period-label"><span class="dashboard-period-dot" aria-hidden="true"></span>{{ $year }} school statistics</p></div></header>

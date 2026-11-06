@@ -33,10 +33,10 @@ class StatisticalFormTest extends TestCase
         $response=$this->actingAs($user)->get(route('dashboard',['year'=>2026,'basis'=>'provisional']));
         $response->assertOk()->assertDontSee('<footer class="hr-insights">', false)->assertDontSee('Schools needing attention')->assertDontSee('Learners and staffing by school level')->assertDontSee('Comparable enrolment change')->assertDontSee('Academic outcomes')->assertViewHas('boys',12)->assertViewHas('girls',8);
         $this->assertSame(20,$response->viewData('summary')['learners']['value']);
-        $this->assertCount(1, $response->viewData('records'));
+        $this->assertSame(1, $response->viewData('summary')['learners']['reported']);
         $this->get(route('dashboard',['year'=>2025,'basis'=>'provisional']))->assertOk()->assertViewHas('boys',900);
         $empty=$this->get(route('dashboard',['year'=>2024]));
-        $empty->assertOk()->assertViewHas('coverage',null)->assertSee('Reporting scope not configured');
+        $empty->assertOk()->assertSee('Reporting scope not configured');
         $this->assertNull($empty->viewData('summary')['learners']['value']);
         $this->get(route('dashboard',['year'=>2026,'parish'=>999999]))->assertOk()->assertViewHas('boys',null)->assertViewHas('girls',null);
         $this->get(route('dashboard',['metric'=>'finance']))->assertSessionHasErrors('metric');
@@ -55,10 +55,10 @@ class StatisticalFormTest extends TestCase
         $return->reportingPeriod->schools()->sync([$return->school_id, $second->id]);
         $return->update(['statistical_form'=>['enrolment'=>['classes'=>['year_1'=>['boys'=>12,'girls'=>8]]]]]);
         $response = $this->actingAs($user)->get(route('dashboard', ['year'=>2026]));
-        $response->assertOk()->assertViewHas('coverage', 0.0)->assertViewHas('submittedCount', 0)->assertViewHas('outstandingCount', 2);
+        $response->assertOk()->assertViewHas('submittedCount', 0)->assertViewHas('outstandingCount', 2);
         $this->assertCount(2, $response->viewData('expected'));
         $return->update(['status'=>'approved']);
-        $this->get(route('dashboard', ['year'=>2026]))->assertOk()->assertViewHas('coverage', 50.0)->assertViewHas('submittedCount', 1)->assertViewHas('outstandingCount', 1);
+        $this->get(route('dashboard', ['year'=>2026]))->assertOk()->assertViewHas('submittedCount', 1)->assertViewHas('outstandingCount', 1);
     }
 
     public function test_unassigned_return_does_not_create_a_reporting_scope(): void
@@ -66,7 +66,7 @@ class StatisticalFormTest extends TestCase
         [$user, $return] = $this->context();
         $return->update(['status'=>'submitted']);
         $response = $this->actingAs($user)->get(route('dashboard', ['year'=>2026]));
-        $response->assertOk()->assertViewHas('coverage', null)->assertViewHas('submittedCount', 0)->assertSee('Reporting scope not configured')->assertDontSee('reporting completeness: 0%');
+        $response->assertOk()->assertViewHas('submittedCount', 0)->assertSee('Reporting scope not configured')->assertDontSee('reporting completeness: 0%');
         $this->assertCount(0, $response->viewData('expected'));
     }
 

@@ -61,7 +61,7 @@ class AlertController extends Controller
             $query->where('user_id', $user->id)->whereNull('read_at');
         }
 
-        return view('alerts.index', ['title' => 'Announcements', 'messageCount' => $messageCount, 'unreadCount' => $unreadCount, 'alerts' => $query->latest()->paginate(15)->withQueryString(), 'canSend' => $canSend, 'schools' => $canSend ? School::visibleTo($user)->orderBy('official_name')->get() : collect(), 'selectedSchoolId' => $selectedSchoolId]);
+        return view('alerts.index', ['title' => 'Announcements', 'messageCount' => $messageCount, 'unreadCount' => $unreadCount, 'alerts' => $query->latest()->paginate(15)->withQueryString(), 'canSend' => $canSend, 'selectedSchoolId' => $selectedSchoolId]);
     }
 
     public function store(Request $request)

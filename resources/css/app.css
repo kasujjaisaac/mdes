@@ -790,26 +790,6 @@ select {
     text-decoration: none;
 }
 
-.loading-state {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    color: var(--md-muted);
-}
-
-.loader {
-    width: 16px;
-    height: 16px;
-    border: 2px solid #c5d5e7;
-    border-top-color: var(--md-blue);
-    border-radius: 50%;
-    animation: spin .9s linear infinite;
-}
-
-@keyframes spin {
-    to { transform: rotate(360deg); }
-}
-
 .progress-row {
     margin-top: 16px;
 }
@@ -826,55 +806,6 @@ select {
     display: block;
     height: 100%;
     background: var(--md-green);
-}
-
-.modal {
-    position: fixed;
-    inset: 0;
-    z-index: 60;
-    display: grid;
-    place-items: center;
-    padding: 20px;
-    background: rgba(10, 20, 35, .45);
-}
-
-.modal[hidden] {
-    display: none;
-}
-
-.modal-panel {
-    width: min(520px, 100%);
-    background: #fff;
-    border-radius: var(--md-radius);
-    box-shadow: 0 24px 70px rgba(0, 0, 0, .24);
-    padding: 18px;
-}
-
-.modal-panel header,
-.modal-actions {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.modal-panel h2 {
-    margin: 0;
-    font-size: 18px;
-}
-
-.icon-close {
-    width: 34px;
-    height: 34px;
-    border: 1px solid var(--md-line);
-    border-radius: 7px;
-    background: #fff;
-    cursor: pointer;
-}
-
-.modal-actions {
-    justify-content: flex-end;
-    margin-top: 18px;
 }
 
 @media (max-width: 1120px) {
