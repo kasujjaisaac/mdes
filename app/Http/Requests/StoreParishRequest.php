@@ -2,8 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Diocese;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class StoreParishRequest extends FormRequest
 {
@@ -12,12 +12,16 @@ class StoreParishRequest extends FormRequest
         return $this->user()?->can('diocesan-structure.manage') ?? false;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $this->merge(['diocese_id' => Diocese::where('code', 'MD')->firstOrFail()->getKey()]);
+    }
+
     public function rules(): array
     {
         return [
             'diocese_id' => ['required', 'integer', 'exists:dioceses,id'],
             'name' => ['required', 'string', 'max:255'],
-            'code' => ['required', 'string', 'max:30', 'unique:parishes,code'],
             'telephone' => ['nullable', 'string', 'max:40'],
             'email' => ['nullable', 'email', 'max:255'],
             'contact_person' => ['nullable', 'string', 'max:255'],

@@ -54,16 +54,16 @@ class ReportExportService
             return [['School', 'Diocesan code', 'Parish', 'District', 'Level', 'Status'], $rows];
         }
         $rows = [];
-        $returns = SchoolReturn::where('status', 'locked')->whereHas('school', fn ($q) => $q->visibleTo($user))->whereHas('reportingPeriod', fn ($q) => $q->where('is_archived', false)->when(isset($filters['year']), fn ($q) => $q->where('year', $filters['year'])))->with('school', 'reportingPeriod')->get();
+        $returns = SchoolReturn::whereIn('status', SchoolReturn::SUBMITTED_STATUSES)->whereHas('school', fn ($q) => $q->visibleTo($user))->whereHas('reportingPeriod', fn ($q) => $q->where('is_archived', false)->when(isset($filters['year']), fn ($q) => $q->where('year', $filters['year'])))->with('school', 'reportingPeriod')->get();
         foreach ($returns as $return) {
             foreach (self::SECTIONS[$type] as $section) {
                 foreach ($this->flatten($return->statistical_form[$section] ?? []) as $field => $value) {
-                    $rows[] = [$return->school->official_name, $return->reportingPeriod->year, $section, $field, $value];
+                    $rows[] = [$return->school->official_name, $return->reportingPeriod->year, $return->statusLabel(), $section, $field, $value];
                 }
             }
         }
 
-        return [['School', 'Reporting year', 'Section', 'Field', 'Value'], $rows];
+        return [['School', 'Reporting year', 'Review status', 'Section', 'Field', 'Value'], $rows];
     }
 
     private function flatten(array $values, string $prefix = ''): array
@@ -127,7 +127,7 @@ class ReportExportService
             throw ValidationException::withMessages(['format' => 'Use CSV or Excel for reports exceeding 5,000 rows.']);
         }
         $pdf = new Dompdf(['isRemoteEnabled' => false, 'isJavascriptEnabled' => false]);
-        $html = '<html><head><meta charset="utf-8"><style>body{font-family:DejaVu Sans;font-size:9px}table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px solid #ccd6e3;padding:5px;word-wrap:break-word}th{background:#eaf0fa}thead{display:table-header-group}</style></head><body><h1>'.e(ucfirst($title)).'</h1><p>Generated '.e(now()->toIso8601String()).' | Statistical reports contain locked returns only.</p><table><thead><tr>';
+        $html = '<html><head><meta charset="utf-8"><style>body{font-family:DejaVu Sans;font-size:9px}table{border-collapse:collapse;width:100%;table-layout:fixed}th,td{border:1px solid #ccd6e3;padding:5px;word-wrap:break-word}th{background:#eaf0fa}thead{display:table-header-group}</style></head><body><h1>'.e(ucfirst($title)).'</h1><p>Generated '.e(now()->toIso8601String()).' | Statistical reports include submitted and approved returns; drafts and returned forms are excluded.</p><table><thead><tr>';
         foreach ($headers as $header) {
             $html .= '<th>'.e($header).'</th>';
         }

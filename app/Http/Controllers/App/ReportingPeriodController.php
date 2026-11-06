@@ -19,12 +19,14 @@ class ReportingPeriodController extends Controller
 {
     public function index(Request $request): View
     {
+        $request->validate(['search' => ['nullable', 'string', 'max:200'], 'status' => ['nullable', 'in:draft,open,closed,locked'], 'year' => ['nullable', 'integer', 'between:2000,2100']]);
+
         return view('reporting-periods.index', [
             'title' => 'Submission Windows',
             'breadcrumbs' => [['label' => 'school statistics'], ['label' => 'reporting periods']],
             'actions' => [['label' => 'create reporting period', 'url' => route('reporting-periods.create')]],
-            'periods' => ReportingPeriod::query()->when(auth()->user()->isSchoolRepresentative(), fn ($q) => $q->whereHas('schools', fn ($s) => $s->visibleTo(auth()->user())))->withCount(['schools', 'schoolReturns'])->when($request->filled('search'), fn ($q) => $q->where('title', 'like', '%'.$request->string('search')->toString().'%'))->when(in_array($request->input('status'), ['draft', 'open', 'closed', 'locked']), fn ($q) => $q->where('status', $request->input('status')))->when($request->filled('year'), fn ($q) => $q->where('year', $request->integer('year')))->latest()->paginate(15)->withQueryString(),
-            'years' => ReportingPeriod::distinct()->orderByDesc('year')->pluck('year'),
+            'periods' => ReportingPeriod::query()->when(auth()->user()->isSchoolRepresentative(), fn ($q) => $q->whereHas('schools', fn ($s) => $s->visibleTo(auth()->user())))->withCount(['schools' => fn ($q) => $q->visibleTo(auth()->user()), 'schoolReturns' => fn ($q) => $q->whereHas('school', fn ($s) => $s->visibleTo(auth()->user())), 'schoolReturns as submitted_count' => fn ($q) => $q->whereNotNull('submitted_at')->whereHas('school', fn ($s) => $s->visibleTo(auth()->user()))])->when($request->filled('search'), fn ($q) => $q->where('title', 'like', '%'.$request->string('search')->toString().'%'))->when(in_array($request->input('status'), ['draft', 'open', 'closed', 'locked']), fn ($q) => $q->where('status', $request->input('status')))->when($request->filled('year'), fn ($q) => $q->where('year', $request->integer('year')))->latest()->paginate(15)->withQueryString(),
+            'years' => ReportingPeriod::whereHas('schools', fn ($q) => $q->visibleTo(auth()->user()))->distinct()->orderByDesc('year')->pluck('year'),
         ]);
     }
 

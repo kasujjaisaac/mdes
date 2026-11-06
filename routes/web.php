@@ -22,10 +22,12 @@ Route::get('/', function () {
 });
 
 Route::get('/login', [LoginController::class, 'create'])->name('login');
-Route::post('/login', [LoginController::class, 'store'])->name('login.store');
+Route::post('/login', [LoginController::class, 'store'])->middleware(['guest','throttle:30,1'])->name('login.store');
 Route::post('/logout', [LoginController::class, 'destroy'])->middleware('auth')->name('logout');
 
 Route::middleware('guest')->group(function(){
+ Route::get('/register-school',[\App\Http\Controllers\Auth\SchoolRegistrationController::class,'create'])->name('schools.register');
+ Route::post('/register-school',[\App\Http\Controllers\Auth\SchoolRegistrationController::class,'store'])->middleware('throttle:5,1')->name('schools.register.store');
  Route::get('/forgot-password',[\App\Http\Controllers\Auth\PasswordResetController::class,'request'])->name('password.request');
  Route::post('/forgot-password',[\App\Http\Controllers\Auth\PasswordResetController::class,'email'])->middleware('throttle:5,1')->name('password.email');
  Route::get('/reset-password/{token}',[\App\Http\Controllers\Auth\PasswordResetController::class,'edit'])->name('password.reset');
@@ -34,6 +36,7 @@ Route::middleware('guest')->group(function(){
 
 Route::middleware(['auth', 'active'])->group(function (): void {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/dashboard/details', DashboardController::class)->middleware('can:returns.view')->name('dashboard.details');
     Route::get('/administration/users', [UserController::class, 'index'])
         ->middleware('can:users.view')
         ->name('administration.users.index');
@@ -92,7 +95,14 @@ Route::middleware(['auth', 'active'])->group(function (): void {
     Route::get('/support',[\App\Http\Controllers\App\SupportController::class,'index'])->name('support.index');
     Route::post('/support',[\App\Http\Controllers\App\SupportController::class,'store'])->middleware('throttle:10,1')->name('support.store');
     Route::post('/support/{ticket}/reply',[\App\Http\Controllers\App\SupportController::class,'reply'])->name('support.reply');
-    Route::get('/alerts',[\App\Http\Controllers\App\AlertController::class,'index'])->name('alerts.index');
+    Route::get('/announcements',[\App\Http\Controllers\App\AnnouncementController::class,'index'])->name('announcements.index');
+    Route::get('/announcements/create',[\App\Http\Controllers\App\AnnouncementController::class,'create'])->name('announcements.create');
+    Route::post('/announcements/preview',[\App\Http\Controllers\App\AnnouncementController::class,'preview'])->name('announcements.preview');
+    Route::post('/announcements/publish',[\App\Http\Controllers\App\AnnouncementController::class,'publish'])->middleware('throttle:10,1')->name('announcements.publish');
+    Route::get('/alerts',fn () => redirect()->route('announcements.index'));
+    Route::get('/announcements/inbox',[\App\Http\Controllers\App\AlertController::class,'index'])->name('alerts.index');
+    Route::get('/administration/schools/{school}/message',[\App\Http\Controllers\App\AlertController::class,'composeSchool'])->name('schools.message');
+    Route::post('/administration/schools/{school}/message',[\App\Http\Controllers\App\AlertController::class,'storeSchool'])->middleware('throttle:20,1')->name('schools.message.store');
     Route::post('/alerts',[\App\Http\Controllers\App\AlertController::class,'store'])->middleware('throttle:20,1')->name('alerts.store');
     Route::post('/alerts/{alert}/read',[\App\Http\Controllers\App\AlertController::class,'read'])->name('alerts.read');
     Route::get('/school-statistics/reporting-periods/{reportingPeriod}/edit',[ReportingPeriodController::class,'edit'])->middleware('can:reporting-periods.manage')->name('reporting-periods.edit');
@@ -152,6 +162,8 @@ Route::middleware(['auth', 'active'])->group(function (): void {
         ->middleware('can:reports.view')
         ->name('production-readiness.index');
     Route::get('/profile', [SystemController::class, 'profile'])->name('profile.show');
+    Route::get('/profile/password', [\App\Http\Controllers\App\ChangePasswordController::class,'edit'])->name('profile.password.edit');
+    Route::put('/profile/password', [\App\Http\Controllers\App\ChangePasswordController::class,'update'])->middleware('throttle:5,1')->name('profile.password.update');
     Route::get('/system/settings', [SystemController::class, 'settings'])
         ->middleware('can:settings.view')
         ->name('settings.index');

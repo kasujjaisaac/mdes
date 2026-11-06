@@ -4,7 +4,7 @@
 @source '../views/**/*.blade.php';
 
 @theme {
-    --font-sans: 'Segoe UI', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
@@ -21,7 +21,7 @@
     --md-surface: #ffffff;
     --md-bg: #f4f7fb;
     --md-radius: 8px;
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: 'Poppins', Arial, sans-serif;
 }
 
 * {
@@ -33,7 +33,7 @@ body.app-body {
     min-height: 100vh;
     background: var(--md-bg);
     color: var(--md-ink);
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: 'Poppins', Arial, sans-serif;
 }
 
 a {
@@ -1473,8 +1473,8 @@ a:focus-visible,button:focus-visible { outline-color:#85a9dc; }
 
 /* Locally served interface typography. */
 
-:root { font-family:'Segoe UI',Arial,sans-serif; }
-body.app-body { font-family:'Segoe UI',Arial,sans-serif; font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased; }
+:root { font-family:'Poppins',Arial,sans-serif; }
+body.app-body { font-family:'Poppins',Arial,sans-serif; font-size:14px; line-height:1.55; -webkit-font-smoothing:antialiased; }
 button,input,select,textarea { font-family:inherit; }
 .nav-link { font-size:13px; font-weight:400; line-height:1.45; }
 .nav-link.is-active { font-weight:600; }
@@ -1890,7 +1890,7 @@ button,input,select,textarea { font-family:inherit; }
 
 /* System-wide analytics theme: shared geometry, surfaces and navigation. */
 :root { --md-blue:#365f98; --md-blue-strong:#092044; --md-blue-dark:#244f8d; --md-sky:#edf3fb; --md-ink:#20334f; --md-muted:#718097; --md-line:#dfe6f0; --md-bg:#f7f8fc; --md-surface:#fff; --md-radius:0; }
-body.app-body { background:#f7f8fc; font-family:'Segoe UI',Arial,sans-serif; font-size:13px; line-height:1.5; }
+body.app-body { background:#f7f8fc; font-family:'Poppins',Arial,sans-serif; font-size:13px; line-height:1.5; }
 .app-body .app-shell { grid-template-columns:180px minmax(0,1fr); grid-template-rows:52px minmax(0,1fr); }
 .app-body .app-shell .topbar { grid-column:1 / -1; grid-row:1; height:52px; min-height:52px; z-index:60; }
 .app-body .app-shell .app-sidebar { grid-column:1; grid-row:2; top:52px; height:calc(100vh - 52px); background:#092044; border-color:#17365d; scrollbar-color:#496388 transparent; }
@@ -2286,13 +2286,13 @@ body.app-body { background:#f7f8fc; font-family:'Segoe UI',Arial,sans-serif; fon
 .school-toolbar-identity { display:flex; align-items:center; gap:11px; min-width:160px; flex:1; }
 .school-toolbar-back { width:32px; height:34px; display:grid; place-items:center; flex-shrink:0; color:#b3c9e5; text-decoration:none; border:1px solid #365172; background:#ffffff04; }
 .school-toolbar-back svg { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
-.school-view-toolbar h1 { max-width:310px; min-width:0; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:'Segoe UI',Arial,sans-serif; font-size:15px; line-height:1.4; font-weight:600; letter-spacing:-.1px; color:#edf4ff; }
+.school-view-toolbar h1 { max-width:310px; min-width:0; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-family:'Poppins',Arial,sans-serif; font-size:15px; line-height:1.4; font-weight:600; letter-spacing:-.1px; color:#edf4ff; }
 .school-toolbar-controls,.school-period-control,.school-toolbar-links { display:flex; align-items:center; flex-wrap:nowrap; gap:7px; flex-shrink:0; }
 .school-period-control { margin:0; padding-right:14px; border-right:1px solid #304b6e; }
 .school-period-control label { font-size:10px; font-weight:400; color:#95afd1; white-space:nowrap; margin-right:3px; }
 .app-body .topbar .school-period-control select { box-sizing:border-box; width:245px; height:34px; min-height:34px; padding:5px 9px; font-family:inherit; font-size:11px; font-weight:400; background:#173659; border:1px solid #3a597c; color:#e9f1fc; }
 .school-period-control option { background:white; color:#294b70; }
-.app-body .topbar .school-toolbar-button { box-sizing:border-box; height:34px; min-height:34px; padding:0 11px; margin:0; border:1px solid #405c7d; display:inline-flex; align-items:center; justify-content:center; gap:6px; font-family:'Segoe UI',Arial,sans-serif; font-size:11px; font-weight:500; line-height:1; text-decoration:none; white-space:nowrap; background:#ffffff06; color:#dce8f9; cursor:pointer; transition:background .15s,border-color .15s; }
+.app-body .topbar .school-toolbar-button { box-sizing:border-box; height:34px; min-height:34px; padding:0 11px; margin:0; border:1px solid #405c7d; display:inline-flex; align-items:center; justify-content:center; gap:6px; font-family:'Poppins',Arial,sans-serif; font-size:11px; font-weight:500; line-height:1; text-decoration:none; white-space:nowrap; background:#ffffff06; color:#dce8f9; cursor:pointer; transition:background .15s,border-color .15s; }
 .school-toolbar-button svg { width:15px; height:15px; color:#a8c3e5; }
 .app-body .topbar .school-toolbar-button.is-primary { background:#396fac; border-color:#628dbd; color:white; }
 .school-toolbar-button.is-primary svg { color:#e1edff; }
@@ -2454,7 +2454,7 @@ body.app-body { background:#f7f8fc; font-family:'Segoe UI',Arial,sans-serif; fon
 .app-body .app-shell .app-sidebar { background:#0b2345; border-right:1px solid #203957; scrollbar-width:thin; scrollbar-color:#365276 transparent; }
 .app-body .app-shell .sidebar-nav { padding:20px 10px 24px; }
 .sidebar-menu-list { display:grid; gap:5px; list-style:none; margin:0; padding:0; }
-.app-body .app-shell .sidebar-menu-list .nav-link { position:relative; display:grid; grid-template-columns:20px minmax(0,1fr); gap:11px; align-items:center; min-height:44px; padding:11px 12px; border:1px solid transparent; background:transparent; color:#b5c8e1; font-family:'Segoe UI',Arial,sans-serif; font-size:12px; font-weight:400; line-height:1.45; text-decoration:none; transition:background .16s,color .16s,border-color .16s; }
+.app-body .app-shell .sidebar-menu-list .nav-link { position:relative; display:grid; grid-template-columns:20px minmax(0,1fr); gap:11px; align-items:center; min-height:44px; padding:11px 12px; border:1px solid transparent; background:transparent; color:#b5c8e1; font-family:'Poppins',Arial,sans-serif; font-size:12px; font-weight:400; line-height:1.45; text-decoration:none; transition:background .16s,color .16s,border-color .16s; }
 .app-body .app-shell .sidebar-menu-list .nav-icon { width:20px; height:20px; display:grid; place-items:center; background:transparent; color:#8da9ce; }
 .app-body .app-shell .sidebar-menu-list .nav-icon svg { width:18px; height:18px; stroke-width:1.7; }
 .app-body .app-shell .sidebar-menu-list .nav-link:hover { background:#14345d; border-color:#234469; color:#edf4ff; }

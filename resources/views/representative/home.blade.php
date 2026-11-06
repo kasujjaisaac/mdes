@@ -1,10 +1,10 @@
 <x-layouts.app :title="$title" :hide-heading="true">
-<x-slot:topbarFilters><div class="school-overview-toolbar"><div class="client-welcome-panel"><span class="client-avatar" aria-hidden="true">{{ mb_substr(auth()->user()->name,0,1) }}</span><div><h2>Welcome back, {{ auth()->user()->name }}</h2><p><x-ui.nav-icon name="school"/>{{ $school?->official_name ?? 'No school assigned' }}</p></div></div><div class="school-overview-identity"><span>School overview</span><h1>{{ $school?->official_name ?? 'No school assigned' }}</h1></div><div class="desktop-only-layout">@if($statisticReturns->isNotEmpty())<form method="GET"><label for="overview-source">Statistics snapshot</label><select id="overview-source" name="stats_return_id" onchange="this.form.requestSubmit()">@foreach($statisticReturns as $source)<option value="{{ $source->id }}" @selected($statisticReturn?->id===$source->id)>{{ $source->reportingPeriod?->title }}</option>@endforeach</select><noscript><button class="button">View</button></noscript><span class="overview-snapshot-status"><x-ui.nav-icon name="shield"/>{{ ucfirst(str_replace('_',' ',$statisticReturn->status)) }}</span></form>@endif</div></div></x-slot:topbarFilters>
+<x-slot:topbarFilters><div class="school-overview-toolbar"><div class="client-welcome-panel"><span class="client-avatar" aria-hidden="true">{{ mb_substr(auth()->user()->name,0,1) }}</span><div><h2>Welcome back, {{ auth()->user()->name }}</h2><p><x-ui.nav-icon name="school"/>{{ $school?->official_name ?? 'No school assigned' }}</p></div></div><div class="school-overview-identity"><span>School overview</span><h1>{{ $school?->official_name ?? 'No school assigned' }}</h1></div><div class="desktop-only-layout">@if($statisticReturns->isNotEmpty())<form method="GET"><label for="overview-source">Statistics snapshot</label><select id="overview-source" name="stats_return_id" onchange="this.form.requestSubmit()">@foreach($statisticReturns as $source)<option value="{{ $source->id }}" @selected($statisticReturn?->id===$source->id)>{{ $source->reportingPeriod?->title }}</option>@endforeach</select><noscript><button class="button">View</button></noscript><span class="overview-snapshot-status"><x-ui.nav-icon name="shield"/>{{ $statisticReturn->statusLabel() }}</span></form>@endif</div></div></x-slot:topbarFilters>
 <div class="school-overview-dashboard">
 @if(!$school)<x-ui.alert>Please contact the administrator to assign your school.</x-ui.alert>@else
 <?php
  $submittedStates=['submitted','certified','approved','locked'];
- $nextWindow=$periods->first(fn($p)=>$p->isSubmissionOpen() && (!$p->schoolReturns->first() || in_array($p->schoolReturns->first()->status,['draft','returned_for_correction','not_started'])));
+ $nextWindow=$periods->first(fn($p)=>(($p->schoolReturns->first()?->status === 'returned_for_correction' && !$p->is_archived) || $p->isSubmissionOpen()) && (!$p->schoolReturns->first() || in_array($p->schoolReturns->first()->status,['draft','returned_for_correction','not_started'])));
 ?>
 @if($nextWindow && ($nextWindow->extension_date ?? $nextWindow->closing_date))
 @include('representative.window-popup',['period'=>$nextWindow])
@@ -23,7 +23,7 @@ Statistics will appear after you save your school form.
 <nav class="client-shortcuts" aria-label="School services">
 <a href="{{ route('representative.profile') }}" class="shortcut-blue"><span><x-ui.nav-icon name="school"/></span><small>SCHOOL</small><strong>School Profile</strong></a>
 <a href="{{ route('returns.index') }}" class="shortcut-green"><span><x-ui.nav-icon name="clipboard"/></span><small>REPORTING</small><strong>My Submissions</strong></a>
-<a href="{{ route('alerts.index') }}" class="shortcut-red"><span><x-ui.nav-icon name="bell"/></span><small>NOTIFICATIONS</small><strong>School Alerts</strong></a>
+<a href="{{ route('announcements.index') }}" class="shortcut-red"><span><x-ui.nav-icon name="bell"/></span><small>NOTIFICATIONS</small><strong>Announcements</strong></a>
 <a href="{{ route('support.index') }}" class="shortcut-green"><span><x-ui.nav-icon name="help"/></span><small>SUPPORT</small><strong>Get Help</strong></a>
 </nav>
 

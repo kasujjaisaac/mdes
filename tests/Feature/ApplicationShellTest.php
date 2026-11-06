@@ -23,15 +23,16 @@ class ApplicationShellTest extends TestCase
             ->assertOk()
             ->assertSee('MDSISS')
             ->assertSee('Users')
-            ->assertSee('School Registry')
+            ->assertSee('Registered Schools')
             ->assertDontSee('Inspections')
             ->assertDontSee('Financial Statistics')
-            ->assertSee('Submission Windows')
+            ->assertSee('Settings')->assertSee('Change password')->assertSee('Window settings')
             ->assertDontSee('Diocesan Structure')
             ->assertDontSee('Roles &amp; Permissions', false)
             ->assertDontSee('Reference Data')
             ->assertDontSee('Intelligence')
-            ->assertSee('Submission Progress by Parish');
+            ->assertDontSee('Parish comparison')
+            ->assertDontSee('Schools needing attention');
     }
 
     public function test_reference_data_page_is_available_to_authorized_users(): void

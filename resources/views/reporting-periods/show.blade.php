@@ -3,24 +3,26 @@
 <div class="window-detail"><header class="window-detail-heading"><div><a href="{{ route('reporting-periods.index') }}">&larr; Submission Windows</a><h1>{{ $period->title }}</h1><p>{{ $period->year }} collection &middot; {{ ucfirst(str_replace('_',' ',$period->type)) }}</p></div><span class="window-status is-{{ $period->status }}">{{ ucfirst($period->status) }}</span></header>
     <section class="stats-grid">
         <x-ui.stat-card label="schools" :value="$period->schools->count()" meta="selected participants" tone="blue" />
-        <x-ui.stat-card label="draft" :value="$statusCounts->get('draft', 0)" meta="in progress" tone="amber" />
-        <x-ui.stat-card label="submitted" :value="$statusCounts->get('submitted', 0)" meta="awaiting review" tone="green" />
-        <x-ui.stat-card label="locked" :value="$statusCounts->get('locked', 0)" meta="official data" tone="red" />
+        <x-ui.stat-card label="pending review" :value="collect(\App\Models\SchoolReturn::PENDING_REVIEW_STATUSES)->sum(fn($status)=>$statusCounts->get($status,0))" meta="submitted school forms" tone="amber" />
+        <x-ui.stat-card label="approved" :value="$statusCounts->get('approved', 0)" meta="review completed" tone="green" />
+        <x-ui.stat-card label="returned for correction" :value="$statusCounts->get('returned_for_correction', 0)" meta="awaiting school corrections" tone="red" />
     </section>
     <div class="window-detail-grid">
-        <x-ui.card title="participating schools" subtitle="start or inspect returns">
+        <x-ui.card title="participating schools" subtitle="track submitted school forms">
             <x-ui.table :headers="['school', 'parish', 'status', '']">
                 @foreach ($period->schools as $school)
                     @php($return = $returns->firstWhere('school_id', $school->id))
                     <tr>
                         <td>{{ $school->official_name }}</td>
                         <td>{{ $school->parish->name }}</td>
-                        <td><x-ui.badge>{{ $return?->status ?? 'not_started' }}</x-ui.badge></td>
+                        <td><x-ui.badge>{{ $return?->submitted_at ? $return->statusLabel() : 'Not submitted' }}</x-ui.badge></td>
                         <td>
-                            @if ($return)
-                                <a class="table-action" href="{{ route('returns.show', $return) }}">open</a>
+                            @if ($return && ($return->submitted_at || auth()->user()->isSchoolRepresentative()))
+                                <a class="table-action" href="{{ route('returns.show', $return) }}">View</a>
+                            @elseif(auth()->user()->isSchoolRepresentative() && $period->allowsRepresentativeDraft())
+                                <form method="POST" action="{{ route('returns.start', [$period, $school]) }}">@csrf<button class="table-action button-link" type="submit">Start form</button></form>
                             @else
-                                <form method="POST" action="{{ route('returns.start', [$period, $school]) }}">@csrf<button class="table-action button-link" type="submit">start</button></form>
+                                <span class="user-directory-muted">Awaiting school</span>
                             @endif
                         </td>
                     </tr>

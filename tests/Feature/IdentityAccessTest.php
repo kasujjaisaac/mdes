@@ -2,9 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\Permission;
+use App\Models\Parish;
 use App\Models\Role;
+use App\Models\School;
 use App\Models\User;
+use Database\Seeders\DiocesanStructureSeeder;
 use Database\Seeders\IdentityAccessSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -20,7 +22,7 @@ class IdentityAccessTest extends TestCase
 
         $this->assertDatabaseHas('roles', ['slug' => 'system-super-administrator']);
         $this->assertDatabaseHas('roles', ['slug' => 'headteacher']);
-        $this->assertDatabaseHas('roles', ['slug' => 'school-data-officer']);
+        $this->assertDatabaseCount('roles', 2);
         $this->assertDatabaseHas('permissions', ['slug' => 'users.manage']);
         $this->assertDatabaseHas('permissions', ['slug' => 'roles.view']);
     }
@@ -32,7 +34,7 @@ class IdentityAccessTest extends TestCase
         $this->actingAs($admin)
             ->get('/administration/users')
             ->assertOk()
-            ->assertSee('user accounts');
+            ->assertSee('user account');
     }
 
     public function test_user_without_permission_cannot_access_user_administration(): void
@@ -48,19 +50,20 @@ class IdentityAccessTest extends TestCase
     {
         $admin = $this->superAdmin();
         $role = Role::query()->where('slug', 'headteacher')->firstOrFail();
-        $this->seed(\Database\Seeders\DiocesanStructureSeeder::class);
-        $parish=\App\Models\Parish::firstOrFail();
-        $school=\App\Models\School::create(['diocese_id'=>$parish->diocese_id,'parish_id'=>$parish->id,'official_name'=>'Assigned school','diocesan_code'=>'ASSIGNED-1','school_level'=>'primary','ownership'=>'other','operational_status'=>'active']);
+        $this->seed(DiocesanStructureSeeder::class);
+        $parish = Parish::firstOrFail();
+        $school = School::create(['diocese_id' => $parish->diocese_id, 'parish_id' => $parish->id, 'official_name' => 'Assigned school', 'diocesan_code' => 'ASSIGNED-1', 'school_level' => 'primary', 'ownership' => 'other', 'operational_status' => 'active']);
 
         $this->actingAs($admin)
             ->post('/administration/users', [
-                'school_id'=>$school->id,
-                'name' => 'Jane Headteacher',
+                'school_id' => $school->id,
+                'first_name' => 'Jane', 'last_name' => 'Headteacher',
                 'email' => 'jane@example.test',
                 'telephone' => '+256701111111',
                 'designation' => 'Headteacher',
                 'status' => User::STATUS_ACTIVE,
                 'password' => 'secure-password',
+                'password_confirmation' => 'secure-password',
                 'role_ids' => [$role->id],
             ])
             ->assertRedirect('/administration/users');
@@ -80,11 +83,11 @@ class IdentityAccessTest extends TestCase
 
         $this->from('/login')
             ->post('/login', [
-                'email' => 'suspended@example.test',
+                'username' => 'suspended',
                 'password' => 'secure-password',
             ])
             ->assertRedirect('/login')
-            ->assertSessionHasErrors('email');
+            ->assertSessionHasErrors('username');
 
         $this->assertGuest();
     }
@@ -110,7 +113,7 @@ class IdentityAccessTest extends TestCase
         ]);
 
         $this->post('/login', [
-            'email' => 'active@example.test',
+            'username' => 'active',
             'password' => 'secure-password',
         ])->assertRedirect('/dashboard');
 

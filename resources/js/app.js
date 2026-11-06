@@ -287,3 +287,145 @@ document.querySelectorAll('[data-announcement-toggle]').forEach((button,index) =
     });
     mobileViewport.addEventListener('change', closeNotice);
 });
+
+// A single compact contact dialog for the registered-school list.
+const schoolContactPopup = document.querySelector('#school-contact-popup');
+if (schoolContactPopup) {
+    let schoolContactTrigger;
+    document.querySelectorAll('[data-school-contact]').forEach(button => {
+        button.addEventListener('click', () => {
+            schoolContactTrigger = button;
+            schoolContactPopup.querySelector('[data-contact-school]').textContent = button.dataset.school;
+            const head = schoolContactPopup.querySelector('[data-contact-headteacher]');
+            head.textContent = button.dataset.headteacher ? 'Headteacher: ' + button.dataset.headteacher : '';
+            head.hidden = !button.dataset.headteacher;
+            const phone = button.dataset.telephone?.trim() || '';
+            const email = button.dataset.email?.trim() || '';
+            const phoneLink = schoolContactPopup.querySelector('[data-contact-phone]');
+            phoneLink.textContent = phone ? 'Call ' + phone : '';
+            phoneLink.hidden = !phone;
+            if (phone) phoneLink.href = 'tel:' + phone.replace(/[^\d+]/g, '');
+            else phoneLink.removeAttribute('href');
+            schoolContactPopup.querySelector('[data-contact-phone-missing]').hidden = Boolean(phone);
+            const emailLink = schoolContactPopup.querySelector('[data-contact-email]');
+            emailLink.textContent = email;
+            emailLink.hidden = !email;
+            if (email) emailLink.href = 'mailto:' + email;
+            else emailLink.removeAttribute('href');
+            schoolContactPopup.querySelector('[data-contact-email-missing]').hidden = Boolean(email);
+            const messageLink = schoolContactPopup.querySelector('[data-contact-message]');
+            messageLink.hidden = !button.dataset.messageUrl;
+            if (button.dataset.messageUrl) messageLink.href = button.dataset.messageUrl;
+            else messageLink.removeAttribute('href');
+            schoolContactPopup.showModal();
+        });
+    });
+    schoolContactPopup.querySelector('[data-close-school-contact]').addEventListener('click', () => schoolContactPopup.close());
+    schoolContactPopup.addEventListener('click', event => {
+        const box = schoolContactPopup.getBoundingClientRect();
+        if (event.target === schoolContactPopup && (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom)) schoolContactPopup.close();
+    });
+    schoolContactPopup.addEventListener('close', () => schoolContactTrigger?.focus());
+}
+
+// Required school announcements can only be dismissed by submitting acknowledgement.
+const requiredAnnouncement = document.querySelector('[data-required-announcement]');
+if (requiredAnnouncement) {
+    requiredAnnouncement.removeAttribute('open');
+    requiredAnnouncement.showModal();
+    requiredAnnouncement.addEventListener('cancel', event => event.preventDefault());
+}
+
+const announcementSchools = [...document.querySelectorAll('[data-announcement-school]')];
+if (announcementSchools.length) {
+    const updateAnnouncementCategories = () => {
+        const selected = announcementSchools.filter(checkbox => checkbox.checked);
+        const hasSelection = selected.length > 0;
+        const selectionLabel = document.querySelector('[data-school-selection-label]');
+        if (selectionLabel) selectionLabel.textContent = hasSelection ? `${selected.length} school${selected.length === 1 ? '' : 's'} selected` : 'Select schools';
+        document.querySelectorAll('[data-announcement-categories] fieldset[data-announcement-category]').forEach(fieldset => {
+            fieldset.disabled = hasSelection;
+        });
+    };
+    announcementSchools.forEach(checkbox => checkbox.addEventListener('change', updateAnnouncementCategories));
+    updateAnnouncementCategories();
+}
+const announcementSchoolSearch = document.querySelector('[data-announcement-school-search]');
+if (announcementSchoolSearch) {
+    announcementSchoolSearch.addEventListener('input', () => {
+        const query = announcementSchoolSearch.value.trim().toLocaleLowerCase();
+        document.querySelectorAll('.announcement-school-option').forEach(option => {
+            option.hidden = !option.textContent.toLocaleLowerCase().includes(query);
+        });
+    });
+}
+
+const schoolDropdown = document.querySelector('[data-school-dropdown]');
+if (schoolDropdown) {
+    document.addEventListener('click', event => {
+        if (!schoolDropdown.contains(event.target)) schoolDropdown.open = false;
+    });
+    schoolDropdown.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+            schoolDropdown.open = false;
+            schoolDropdown.querySelector('summary').focus();
+        }
+    });
+}
+
+const correctionDialog = document.querySelector('[data-correction-dialog]');
+if (correctionDialog) {
+    const correctionTrigger = document.querySelector('[data-open-correction-dialog]');
+    correctionTrigger?.addEventListener('click', () => correctionDialog.showModal());
+    correctionDialog.querySelectorAll('[data-close-correction-dialog]').forEach(button => {
+        button.addEventListener('click', () => correctionDialog.close());
+    });
+    correctionDialog.addEventListener('close', () => correctionTrigger?.focus());
+    if (correctionDialog.dataset.reopen === 'true') correctionDialog.showModal();
+}
+
+const submittedPage = document.querySelector('.submitted-record-page');
+if (submittedPage) {
+    const summary = submittedPage.querySelector('.submitted-record-summary');
+    const topbar = document.querySelector('.topbar');
+    const sectionLinks = [...submittedPage.querySelectorAll('.submitted-record-nav a')];
+    const sections = [...submittedPage.querySelectorAll('.submitted-data-section')];
+    const resizeSummary = () => {
+        const topbarPosition = topbar ? getComputedStyle(topbar).position : '';
+        const offset = ['fixed', 'sticky'].includes(topbarPosition) ? topbar.getBoundingClientRect().height : 0;
+        submittedPage.style.setProperty('--submitted-sticky-top', `${offset}px`);
+        submittedPage.style.setProperty('--submitted-summary-height', `${summary?.getBoundingClientRect().height || 90}px`);
+    };
+    let sectionUpdateQueued = false;
+    const highlightSubmittedSection = () => {
+        const boundary = (summary?.getBoundingClientRect().bottom || 0) + 40;
+        let current = sections[0];
+        sections.forEach(section => {
+            if (section.getBoundingClientRect().top <= boundary) current = section;
+        });
+        sectionLinks.forEach(link => {
+            if (current && link.hash === `#${current.id}`) link.setAttribute('aria-current', 'location');
+            else link.removeAttribute('aria-current');
+        });
+        sectionUpdateQueued = false;
+    };
+    window.addEventListener('scroll', () => {
+        if (!sectionUpdateQueued) {
+            sectionUpdateQueued = true;
+            requestAnimationFrame(highlightSubmittedSection);
+        }
+    }, { passive: true });
+    window.addEventListener('resize', resizeSummary);
+    if (window.ResizeObserver && summary) {
+        const summaryObserver = new ResizeObserver(resizeSummary);
+        summaryObserver.observe(summary);
+        if (topbar) summaryObserver.observe(topbar);
+    }
+    resizeSummary();
+    highlightSubmittedSection();
+}
+
+// Reload restored authenticated pages so the server rechecks the session after logout.
+window.addEventListener('pageshow', event => {
+    if (event.persisted) window.location.reload();
+});

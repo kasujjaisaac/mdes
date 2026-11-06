@@ -57,7 +57,7 @@ class DocumentController extends Controller
 
         Gate::authorize('view', $document);
         $version = $document->loadMissing('currentVersion')->currentVersion;
-        abort_unless($version, 404);
+        abort_unless($version && Storage::disk($version->disk)->exists($version->path), 404);
 
         return Storage::disk($version->disk)->download($version->path, $version->original_name);
     }

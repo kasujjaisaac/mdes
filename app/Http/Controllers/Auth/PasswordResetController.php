@@ -22,6 +22,9 @@ class PasswordResetController extends Controller
 
     public function email(Request $request)
     {
+        if (is_string($request->input('email'))) {
+            $request->merge(['email' => strtolower(trim($request->input('email')))]);
+        }
         $request->validate(['email' => ['required', 'email', 'max:255']]);
         if (in_array(config('mail.default'), ['log', 'array']) && ! app()->environment('testing')) {
             throw ValidationException::withMessages(['email' => 'Email delivery is not configured yet. Please contact the administrator.']);
@@ -43,12 +46,22 @@ class PasswordResetController extends Controller
 
     public function update(Request $request)
     {
-        $data = $request->validate(['token' => ['required', 'string'], 'email' => ['required', 'email'], 'password' => ['required', 'string', 'min:8', 'confirmed']]);
-        $status = Password::reset([...$data, 'status' => User::STATUS_ACTIVE], function (User $user, string $password) {
-            DB::transaction(function () use ($user, $password) {
-                $user->forceFill(['password' => Hash::make($password), 'remember_token' => Str::random(60)])->save();
+        if (is_string($request->input('email'))) {
+            $request->merge(['email' => strtolower(trim($request->input('email')))]);
+        }
+        $passwordRule = \Illuminate\Validation\Rules\Password::min(12)->mixedCase()->numbers()->symbols();
+        $data = $request->validate(['token' => ['required', 'string', 'max:255'], 'email' => ['required', 'email'], 'password' => ['required', 'string', 'max:4096', 'confirmed', $passwordRule]]);
+        $status = Password::reset([...$data, 'status' => User::STATUS_ACTIVE], function (User $user, string $password) use ($data) {
+            DB::transaction(function () use ($user, $password, $data) {
+                $locked = User::whereKey($user->id)->lockForUpdate()->firstOrFail();
+                if (! $locked->isActive() || $locked->email !== $user->email || ! Password::broker()->tokenExists($locked, $data['token'])) {
+                    throw ValidationException::withMessages(['email' => 'This reset link is no longer valid. Request a new link.']);
+                }
+                Password::broker()->deleteToken($locked);
+                $user->setRawAttributes($locked->getAttributes(), true);
+                $user->forceFill(['password' => Hash::make($password), 'remember_token' => Str::random(60), 'must_change_password' => false, 'session_version' => (int) $user->session_version + 1])->save();
                 if (config('session.driver') === 'database') {
-                    DB::table(config('session.table', 'sessions'))->where('user_id', $user->id)->delete();
+                    DB::connection(config('session.connection'))->table(config('session.table', 'sessions'))->where('user_id', $user->id)->delete();
                 }
             });
             event(new PasswordReset($user));

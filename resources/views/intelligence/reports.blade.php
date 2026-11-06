@@ -2,14 +2,14 @@
     @if($errors->any())<x-ui.alert>{{ $errors->first() }}</x-ui.alert>@endif
     <section class="stats-grid">
         <x-ui.stat-card label="schools" :value="$schools" meta="registry records" tone="blue" />
-        <x-ui.stat-card label="official returns" :value="$lockedReturns" meta="locked approved data" tone="green" />
+        <x-ui.stat-card label="submitted returns" :value="$lockedReturns" meta="pending review and approved" tone="green" />
     </section>
     <div class="module-grid">
-        <x-ui.card title="generate export" subtitle="Downloadable files; statistical reports use locked returns.">
+        <x-ui.card title="generate export" subtitle="Submitted and approved forms are included, with review status. Drafts and returned forms are excluded.">
             <form class="resource-form" method="POST" action="{{ route('reports.export') }}">
                 @csrf
                 <div class="form-grid">
-                    <label>report type<select name="report_type">@foreach (['school registry','enrolment','staff','examinations','infrastructure','religious affiliation','utilities','staff study programmes'] as $type)<option>{{ $type }}</option>@endforeach</select></label>
+                    <label>report type<select name="report_type">@foreach (['school registry','enrolment','staff','examinations','infrastructure','religious affiliation','utilities','staff study programmes'] as $type)<option value="{{ $type }}">{{ $type === 'school registry' ? 'Registered Schools' : $type }}</option>@endforeach</select></label>
                     <label>format<select name="format">@foreach (['csv','xlsx','pdf'] as $format)<option>{{ $format }}</option>@endforeach</select></label>
                 </div>
                 <div class="form-actions"><button class="button button-primary">Generate report</button></div>

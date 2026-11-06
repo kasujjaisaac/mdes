@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Actions\RecordAuditEvent;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -24,10 +25,13 @@ class LoginController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
-        ]);
+        $identifier = $request->input('username');
+        if (is_string($identifier)) {
+            $identifier = User::normalizeUsername($identifier);
+        }
+        $request->merge(['username' => $identifier]);
+        $data = $request->validate(['username' => ['required', 'string', 'max:80', 'not_regex:/@/'], 'password' => ['required', 'string', 'max:4096']]);
+        $credentials = ['username' => $data['username'], 'password' => $data['password']];
 
         $remember = $request->boolean('remember');
         $throttleKey = $this->throttleKey($request);
@@ -36,7 +40,7 @@ class LoginController extends Controller
             $seconds = RateLimiter::availableIn($throttleKey);
 
             throw ValidationException::withMessages([
-                'email' => "Too many login attempts. Try again in {$seconds} seconds.",
+                'username' => "Too many login attempts. Try again in {$seconds} seconds.",
             ]);
         }
 
@@ -44,7 +48,7 @@ class LoginController extends Controller
             RateLimiter::hit($throttleKey, 60);
 
             throw ValidationException::withMessages([
-                'email' => 'The provided credentials do not match our records.',
+                'username' => 'The provided credentials do not match our records.',
             ])->redirectTo(route('login'));
         }
 
@@ -53,15 +57,19 @@ class LoginController extends Controller
 
         if (! $user->isActive()) {
             Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
             RateLimiter::hit($throttleKey, 60);
 
             throw ValidationException::withMessages([
-                'email' => 'This account is not active. Contact the system administrator.',
+                'username' => 'This account is not active. Contact the system administrator.',
             ])->redirectTo(route('login'));
         }
 
         $user->forceFill(['last_login_at' => now()])->save();
+        app(RecordAuditEvent::class)->handle($request, 'account.login', $user, null, ['login' => true]);
 
+        $request->session()->put('auth_session_version.'.$user->id, (int) $user->session_version);
         RateLimiter::clear($throttleKey);
         $request->session()->regenerate();
 
@@ -72,6 +80,7 @@ class LoginController extends Controller
 
     public function destroy(Request $request): RedirectResponse
     {
+        app(RecordAuditEvent::class)->handle($request, 'account.logout', $request->user(), null, ['logout' => true]);
         Auth::logout();
 
         $request->session()->invalidate();
@@ -82,6 +91,6 @@ class LoginController extends Controller
 
     private function throttleKey(Request $request): string
     {
-        return strtolower((string) $request->input('email')).'|'.$request->ip();
+        return strtolower((string) $request->input('username')).'|'.$request->ip();
     }
 }

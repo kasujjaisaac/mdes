@@ -12,19 +12,25 @@ use App\Models\EducationCluster;
 use App\Models\Parish;
 use App\Models\School;
 use App\Models\SubCounty;
+use App\Services\SchoolProfileContactService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class SchoolController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): View|RedirectResponse
     {
+        if ($request->user()->isSchoolRepresentative()) {
+            return redirect()->route('representative.profile');
+        }
+        $request->validate(['search' => ['nullable', 'string', 'max:200'], 'parish_id' => ['nullable', 'integer', 'exists:parishes,id'], 'district_id' => ['nullable', 'integer', 'exists:districts,id'], 'school_level' => ['nullable', 'in:nursery,primary,secondary,vocational_technical,tertiary']]);
         $schools = School::query()
             ->visibleTo($request->user())
-            ->with(['parish', 'district', 'contact'])
+            ->with(['parish', 'district', 'contact', 'currentHeadteacher'])
             ->when($request->filled('search'), fn ($query) => $query->where(function ($search) use ($request) {
                 $term = '%'.$request->string('search')->toString().'%';
                 $search->where('official_name', 'like', $term)->orWhere('emis_number', 'like', $term)->orWhere('ministry_registration_number', 'like', $term);
@@ -37,7 +43,7 @@ class SchoolController extends Controller
             ->withQueryString();
 
         return view('schools.index', [
-            'title' => 'School Registry',
+            'title' => 'Registered Schools',
             'breadcrumbs' => [
                 ['label' => 'administration'],
                 ['label' => 'schools'],
@@ -57,6 +63,7 @@ class SchoolController extends Controller
     public function create(): View
     {
         Gate::authorize('schools.manage');
+
         return view('schools.create', [
             'title' => 'register school',
             'breadcrumbs' => [
@@ -72,16 +79,16 @@ class SchoolController extends Controller
     {
         $school = DB::transaction(function () use ($request, $audit): School {
             $school = School::query()->create([
-                ...$request->safe()->except(['contact', 'status_reason']),
+                ...$request->safe()->except(['contact', 'status_reason', 'headteacher_name', 'headteacher_phone', 'headteacher_email']),
                 'diocese_id' => Parish::findOrFail($request->integer('parish_id'))->diocese_id,
-                'diocesan_code' => 'SYS-'.\Illuminate\Support\Str::uuid(),
+                'diocesan_code' => 'SYS-'.Str::uuid(),
                 'ownership' => 'other',
                 'operational_status' => School::STATUS_ACTIVE,
                 'created_by' => $request->user()->id,
                 'updated_by' => $request->user()->id,
             ]);
 
-            $school->contact()->create($request->validated('contact', []));
+            app(SchoolProfileContactService::class)->sync($school, $request->validated());
             $school->statusHistories()->create([
                 'previous_status' => null,
                 'new_status' => $school->operational_status,
@@ -101,17 +108,10 @@ class SchoolController extends Controller
     public function show(Request $request, School $school): View
     {
         Gate::authorize('view', $school);
-        $request->validate(['return_id'=>['nullable','integer']]);
-        $submissions=$school->schoolReturns()->with('reportingPeriod')->orderByDesc('submitted_at')->orderByDesc('id')->get();
-        $selected=$request->filled('return_id') ? $submissions->firstWhere('id',$request->integer('return_id')) : $submissions->first();
-        if ($request->filled('return_id') && !$selected) abort(404);
-        $form=$selected?->statistical_form ?? [];
+
         return view('schools.show', [
-            'title'=>$school->official_name,
-            'school'=>$school->load(['parish','district']),
-            'submissions'=>$submissions, 'selected'=>$selected, 'form'=>$form,
-            'sections'=>\App\Support\StatisticalForm::sections(),
-            'learnerTotal'=>isset($form['enrolment']) ? collect($form['enrolment']['classes']??[])->merge($form['enrolment']['nursery']??[])->sum(fn($r)=>(int)($r['boys']??0)+(int)($r['girls']??0)) : null,
+            'title' => $school->official_name,
+            'school' => $school->load(['parish', 'district', 'contact', 'currentHeadteacher']),
         ]);
     }
 
@@ -138,11 +138,11 @@ class SchoolController extends Controller
         DB::transaction(function () use ($request, $school, $audit, $oldValues): void {
             $previousStatus = $school->operational_status;
             $school->update([
-                ...$request->safe()->except(['contact', 'status_reason']),
+                ...$request->safe()->except(['contact', 'status_reason', 'headteacher_name', 'headteacher_phone', 'headteacher_email']),
                 'diocese_id' => Parish::findOrFail($request->integer('parish_id'))->diocese_id,
                 'updated_by' => $request->user()->id,
             ]);
-            $school->contact()->updateOrCreate(['school_id' => $school->id], $request->validated('contact', []));
+            app(SchoolProfileContactService::class)->sync($school, $request->validated());
 
             if ($previousStatus !== $school->operational_status) {
                 $school->statusHistories()->create([

@@ -11,6 +11,10 @@ class Role extends Model
 {
     public const SUPER_ADMINISTRATOR = 'system-super-administrator';
 
+    public const HEADTEACHER = 'headteacher';
+
+    public const ACCOUNT_ROLES = [self::SUPER_ADMINISTRATOR, self::HEADTEACHER];
+
     public function permissions(): BelongsToMany
     {
         return $this->belongsToMany(Permission::class);

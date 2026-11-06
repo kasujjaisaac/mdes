@@ -6,6 +6,7 @@ use App\Actions\StartSchoolReturn;
 use App\Actions\TransitionSchoolReturn;
 use App\Models\Diocese;
 use App\Models\District;
+use App\Models\ExaminationType;
 use App\Models\Parish;
 use App\Models\ReportingPeriod;
 use App\Models\Role;
@@ -32,10 +33,10 @@ class ReportingWorkflowTest extends TestCase
 
     public function test_submission_window_list_filters_and_detail_render(): void
     {
-        [$admin,$school,$period]=$this->adminSchoolAndPeriod();
+        [$admin,$school,$period] = $this->adminSchoolAndPeriod();
         $this->actingAs($admin)->get(route('reporting-periods.index'))->assertOk()->assertSee('New window')->assertSee($period->title);
-        $this->get(route('reporting-periods.index',['status'=>'closed']))->assertOk()->assertViewHas('periods',fn($rows)=>$rows->total()===0);
-        $this->get(route('reporting-periods.show',$period))->assertOk()->assertSee('Submission Windows')->assertSee($school->official_name);
+        $this->get(route('reporting-periods.index', ['status' => 'closed']))->assertOk()->assertViewHas('periods', fn ($rows) => $rows->total() === 0);
+        $this->get(route('reporting-periods.show', $period))->assertOk()->assertSee('Submission Windows')->assertSee($school->official_name);
     }
 
     public function test_authorized_user_can_create_reporting_period_and_start_return(): void
@@ -56,7 +57,10 @@ class ReportingWorkflowTest extends TestCase
 
         $period = ReportingPeriod::query()->firstOrFail();
 
-        $this->actingAs($admin)
+        $head = User::factory()->create(['school_id' => $school->id]);
+        $head->roles()->attach(Role::where('slug', 'headteacher')->firstOrFail());
+        $period->update(['opening_date' => now()->subDay(), 'closing_date' => now()->addDay()]);
+        $this->actingAs($head)
             ->post(route('returns.start', [$period, $school]))
             ->assertRedirect();
 
@@ -77,7 +81,7 @@ class ReportingWorkflowTest extends TestCase
         app(TransitionSchoolReturn::class)->submit($return, $admin);
     }
 
-    public function test_complete_return_can_move_through_submit_certify_approve_and_lock(): void
+    public function test_complete_return_is_locked_immediately_on_submission(): void
     {
         [$admin, $school, $period] = $this->adminSchoolAndPeriod();
         $return = app(StartSchoolReturn::class)->handle($period, $school, $admin);
@@ -85,9 +89,6 @@ class ReportingWorkflowTest extends TestCase
 
         $transition = app(TransitionSchoolReturn::class);
         $transition->submit($return->refresh(), $admin);
-        $transition->certify($return->refresh(), $admin);
-        $transition->approve($return->refresh(), $admin);
-        $transition->lock($return->refresh(), $admin);
 
         $this->assertSame(SchoolReturn::STATUS_LOCKED, $return->refresh()->status);
     }
@@ -99,14 +100,27 @@ class ReportingWorkflowTest extends TestCase
         $this->completeSections($return);
         $transition = app(TransitionSchoolReturn::class);
         $transition->submit($return->refresh(), $admin);
-        $transition->certify($return->refresh(), $admin);
-        $transition->approve($return->refresh(), $admin);
-        $transition->lock($return->refresh(), $admin);
 
         $this->expectException(DomainException::class);
         app(EnrolmentSectionService::class)->save($return->refresh(), [
             ['class_level' => 'p1', 'boys' => 1, 'girls' => 1],
         ]);
+    }
+
+    public function test_workflow_migration_locks_existing_submissions_without_changing_data(): void
+    {
+        [$admin, $school, $period] = $this->adminSchoolAndPeriod();
+        $return = app(StartSchoolReturn::class)->handle($period, $school, $admin);
+        $return->update(['status' => 'certified', 'submitted_at' => '2026-01-10 12:00:00', 'certified_at' => '2026-01-11 12:00:00', 'statistical_form' => ['identity' => ['school_name' => 'Original school']]]);
+        $before = $return->fresh();
+        $migration = require database_path('migrations/2026_11_06_000001_lock_submitted_school_returns.php');
+        $migration->up();
+        $return->refresh();
+        $this->assertSame('locked', $return->status);
+        $this->assertTrue($return->locked_at->equalTo($before->submitted_at));
+        $this->assertSame($before->statistical_form, $return->statistical_form);
+        $this->assertTrue($return->certified_at->equalTo($before->certified_at));
+        $this->assertTrue($return->updated_at->equalTo($before->updated_at));
     }
 
     private function completeSections(SchoolReturn $return): void
@@ -140,7 +154,7 @@ class ReportingWorkflowTest extends TestCase
             'filled_positions' => 9,
         ]);
 
-        $exam = \App\Models\ExaminationType::query()->firstOrFail();
+        $exam = ExaminationType::query()->firstOrFail();
         app(AcademicPerformanceSectionService::class)->save($return, [[
             'examination_type_id' => $exam->id,
             'registered_candidates' => 10,

@@ -36,7 +36,7 @@ class PrinceDemoSchoolSeeder extends Seeder
             }
             $school->contact()->firstOrCreate([], ['email' => $user->email, 'postal_address' => 'Synthetic demo school, Masaka']);
             $user->update(['school_id' => $school->id]);
-            $user->roles()->sync([Role::where('slug', 'school-representative')->firstOrFail()->id]);
+            $user->roles()->sync([Role::where('slug', 'headteacher')->firstOrFail()->id]);
 
             $period = $sample->reportingPeriod;
             $period->schools()->syncWithoutDetaching([$school->id]);

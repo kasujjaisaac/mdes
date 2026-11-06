@@ -16,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'sub_county_id',
     'education_cluster_id',
     'official_name',
+    'registration_date',
     'diocesan_code',
     'emis_number',
     'ministry_registration_number',
@@ -36,16 +37,43 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 ])]
 class School extends Model
 {
+    protected static function booted(): void
+    {
+        static::updated(function (School $school) {
+            if ($school->wasChanged('ministry_registration_number') && filled($school->ministry_registration_number)) {
+                User::where('school_id', $school->id)->update(['username' => User::normalizeUsername($school->ministry_registration_number)]);
+            }
+        });
+    }
+
+    public static function normalizeMoeNumber(?string $value): ?string
+    {
+        $normalized = mb_strtoupper(preg_replace('/\s+/u', '', trim($value ?? '')));
+
+        return $normalized === '' ? null : $normalized;
+    }
+
+    public function setMinistryRegistrationNumberAttribute(?string $value): void
+    {
+        $this->attributes['ministry_registration_number'] = self::normalizeMoeNumber($value);
+    }
+
     public const STATUS_ACTIVE = 'active';
+
     public const STATUS_CLOSED = 'closed';
+
     public const STATUS_MERGED = 'merged';
+
     public const STATUS_SUSPENDED = 'suspended';
+
     public const STATUS_UNDER_CONSTRUCTION = 'under_construction';
+
     public const STATUS_UNDER_REVIEW = 'under_review';
 
     protected function casts(): array
     {
         return [
+            'registration_date' => 'date',
             'latitude' => 'decimal:7',
             'longitude' => 'decimal:7',
             'profile_verified' => 'boolean',
@@ -58,7 +86,9 @@ class School extends Model
             return $query;
         }
 
-        if ($user->isSchoolRepresentative()) return $query->whereKey($user->school_id ?? -1);
+        if ($user->isSchoolRepresentative()) {
+            return $query->whereKey($user->school_id ?? -1);
+        }
 
         $parishIds = $user->activeJurisdictionAssignments()->pluck('parish_id')->filter()->all();
 
@@ -98,6 +128,21 @@ class School extends Model
     public function leadershipHistories(): HasMany
     {
         return $this->hasMany(SchoolLeadershipHistory::class);
+    }
+
+    public function currentFirstDeputy(): HasOne
+    {
+        return $this->hasOne(SchoolLeadershipHistory::class)->where('position', 'first_deputy')->where('is_current', true)->orderByDesc('id');
+    }
+
+    public function currentSecondDeputy(): HasOne
+    {
+        return $this->hasOne(SchoolLeadershipHistory::class)->where('position', 'second_deputy')->where('is_current', true)->orderByDesc('id');
+    }
+
+    public function currentHeadteacher(): HasOne
+    {
+        return $this->hasOne(SchoolLeadershipHistory::class)->where('position', 'headteacher')->where('is_current', true)->orderByDesc('id');
     }
 
     public function statusHistories(): HasMany

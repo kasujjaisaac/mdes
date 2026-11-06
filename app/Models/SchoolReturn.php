@@ -26,12 +26,23 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class SchoolReturn extends Model
 {
     public const STATUS_NOT_STARTED = 'not_started';
+
     public const STATUS_DRAFT = 'draft';
+
     public const STATUS_SUBMITTED = 'submitted';
+
     public const STATUS_CERTIFIED = 'certified';
+
     public const STATUS_RETURNED_FOR_CORRECTION = 'returned_for_correction';
+
     public const STATUS_APPROVED = 'approved';
+
     public const STATUS_LOCKED = 'locked';
+
+    public const PENDING_REVIEW_STATUSES = ['submitted', 'certified', 'locked'];
+
+    // All submitted forms remain read-only, including approved forms.
+    public const SUBMITTED_STATUSES = ['submitted', 'certified', 'approved', 'locked'];
 
     protected function casts(): array
     {
@@ -106,8 +117,18 @@ class SchoolReturn extends Model
         return $this->hasMany(DataQualityFinding::class);
     }
 
+    public function statusLabel(): string
+    {
+        return match (true) {
+            $this->status === self::STATUS_APPROVED => 'Approved',
+            in_array($this->status, self::PENDING_REVIEW_STATUSES, true) => 'Pending review',
+            $this->status === self::STATUS_RETURNED_FOR_CORRECTION => 'Returned for correction',
+            default => ucfirst(str_replace('_', ' ', $this->status)),
+        };
+    }
+
     public function isLocked(): bool
     {
-        return $this->status === self::STATUS_LOCKED;
+        return in_array($this->status, self::SUBMITTED_STATUSES, true);
     }
 }

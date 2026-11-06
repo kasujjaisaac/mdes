@@ -24,7 +24,7 @@ class TransitionSchoolReturn
             if (SchoolReturn::where('school_id', $return->school_id)->where('id', '!=', $return->id)->whereNotNull('submitted_at')->whereHas('reportingPeriod', fn ($q) => $q->where('year', $year))->exists()) {
                 throw new DomainException('Your school has already submitted its annual form for '.$year.'.');
             }
-            if ($user->isSchoolRepresentative() && ($user->school_id !== $return->school_id || ! $return->profile_confirmed_at || ! $return->reportingPeriod->isSubmissionOpen())) {
+            if ($user->isSchoolRepresentative() && ($user->school_id !== $return->school_id || ! $return->profile_confirmed_at || ($return->reportingPeriod->is_archived || ($return->status !== SchoolReturn::STATUS_RETURNED_FOR_CORRECTION && ! $return->reportingPeriod->isSubmissionOpen())))) {
                 throw new DomainException('Confirm your school profile and submit during an open submission window.');
             }
             $this->assertStatus($return, [SchoolReturn::STATUS_DRAFT, SchoolReturn::STATUS_RETURNED_FOR_CORRECTION]);
@@ -32,71 +32,48 @@ class TransitionSchoolReturn
             $this->assertNoBlockingQualityFindings($return);
 
             return tap($return)->update([
-                'status' => SchoolReturn::STATUS_SUBMITTED,
+                'status' => SchoolReturn::STATUS_LOCKED,
+                'locked_at' => now(),
                 'submitted_by' => $user->id,
                 'submitted_at' => now(),
                 'correction_reason' => null,
+                'approved_by' => null,
+                'approved_at' => null,
             ]);
         });
     }
 
-    public function certify(SchoolReturn $return, User $user): SchoolReturn
+    public function approve(SchoolReturn $return, User $user): SchoolReturn
     {
-        $this->assertStatus($return, [SchoolReturn::STATUS_SUBMITTED]);
+        return DB::transaction(function () use ($return, $user) {
+            $return = SchoolReturn::whereKey($return->id)->lockForUpdate()->firstOrFail();
+            $this->assertStatus($return, SchoolReturn::PENDING_REVIEW_STATUSES);
+            if (! $return->submitted_at || $return->reportingPeriod->is_archived) {
+                throw new DomainException('Only submitted forms in an unarchived reporting window can be approved.');
+            }
 
-        $return = tap($return)->update([
-            'status' => SchoolReturn::STATUS_CERTIFIED,
-            'certified_by' => $user->id,
-            'certified_at' => now(),
-        ]);
-
-        $return->certifications()->create([
-            'certified_by' => $user->id,
-            'declaration' => 'I certify that this return has been reviewed by the school and is accurate to the best of our knowledge.',
-            'snapshot' => $return->fresh([
-                'enrolmentStatistics',
-                'attendanceWelfareStatistic',
-                'staffStatistic',
-                'academicPerformanceStatistics',
-                'infrastructureStatistics',
-                'catholicIdentityStatistic',
-                'governanceComplianceStatistic',
-            ])->toArray(),
-            'certified_at' => now(),
-        ]);
-
-        return $return;
+            return tap($return)->update(['status' => SchoolReturn::STATUS_APPROVED, 'approved_by' => $user->id, 'approved_at' => now()]);
+        });
     }
 
     public function returnForCorrection(SchoolReturn $return, User $user, string $reason): SchoolReturn
     {
-        $this->assertStatus($return, [SchoolReturn::STATUS_SUBMITTED, SchoolReturn::STATUS_CERTIFIED]);
+        return DB::transaction(function () use ($return, $reason) {
+            $return = SchoolReturn::whereKey($return->id)->lockForUpdate()->firstOrFail();
+            $this->assertStatus($return, SchoolReturn::PENDING_REVIEW_STATUSES);
+            if (blank($reason)) {
+                throw new DomainException('Explain the corrections the school needs to make.');
+            }
+            if (! $return->submitted_at || $return->reportingPeriod->is_archived) {
+                throw new DomainException('Archived returns cannot be sent for correction.');
+            }
 
-        return tap($return)->update([
-            'status' => SchoolReturn::STATUS_RETURNED_FOR_CORRECTION,
-            'correction_reason' => $reason,
-        ]);
-    }
-
-    public function approve(SchoolReturn $return, User $user): SchoolReturn
-    {
-        $this->assertStatus($return, [SchoolReturn::STATUS_CERTIFIED]);
-
-        return tap($return)->update([
-            'status' => SchoolReturn::STATUS_APPROVED,
-            'approved_by' => $user->id,
-            'approved_at' => now(),
-        ]);
-    }
-
-    public function lock(SchoolReturn $return, User $user): SchoolReturn
-    {
-        $this->assertStatus($return, [SchoolReturn::STATUS_APPROVED]);
-
-        return tap($return)->update([
-            'status' => SchoolReturn::STATUS_LOCKED,
-            'locked_at' => now(),
-        ]);
+            return tap($return)->update([
+                'status' => SchoolReturn::STATUS_RETURNED_FOR_CORRECTION,
+                'locked_at' => null,
+                'correction_reason' => $reason,
+            ]);
+        });
     }
 
     /**

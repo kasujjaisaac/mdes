@@ -1,49 +1,18 @@
-<x-layouts.app :title="$title" :breadcrumbs="$breadcrumbs" :actions="$actions">
-    <x-ui.card title="user accounts" subtitle="manage access to the mdsiss platform">
-        <x-ui.table :headers="['name', 'email', 'telephone', 'designation', 'roles', 'status', 'last login', '']">
-            @forelse ($users as $user)
-                <tr>
-                    <td>{{ $user->name }}</td>
-                    <td>{{ $user->email }}</td>
-                    <td>{{ $user->telephone ?? '-' }}</td>
-                    <td>{{ $user->designation ?? '-' }}</td>
-                    <td>
-                        <div class="badge-stack">
-                            @forelse ($user->roles as $role)
-                                <x-ui.badge>{{ strtolower($role->name) }}</x-ui.badge>
-                            @empty
-                                <x-ui.badge tone="warning">no role</x-ui.badge>
-                            @endforelse
-                        </div>
-                    </td>
-                    <td>
-                        <x-ui.badge :tone="$user->isActive() ? 'success' : 'warning'">
-                            {{ $user->status }}
-                        </x-ui.badge>
-                    </td>
-                    <td>{{ $user->last_login_at?->format('Y-m-d H:i') ?? '-' }}</td>
-                    <td>
-                        @can('users.manage')
-                            <a class="table-action" href="{{ route('administration.users.edit', $user) }}">edit</a>
-                        @endcan
-                    </td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="8">
-                        <x-ui.empty-state
-                            title="no users"
-                            message="create the first user account to begin assigning access."
-                            action-label="create user"
-                            :action-url="route('administration.users.create')"
-                        />
-                    </td>
-                </tr>
-            @endforelse
-        </x-ui.table>
-
-        <div class="native-pagination">
-            {{ $users->links() }}
-        </div>
-    </x-ui.card>
+<x-layouts.app :title="$title" :hide-heading="true">
+<div class="user-directory">
+<header class="user-directory-heading"><div><span class="diocesan-eyebrow">Settings / Access management</span><h1>Users</h1><p>Manage school and Secretariat accounts.</p></div>@can('users.manage')<a class="button button-primary" href="{{ route('administration.users.create') }}"><x-ui.nav-icon name="users"/> Create user</a>@endcan</header>
+<form class="user-directory-filters" method="GET" action="{{ route('administration.users.index') }}"><label>Find an account<input type="search" name="search" value="{{ request('search') }}" placeholder="Name, username, school or MOE Reg No"></label><label>Account type<select name="account_type"><option value="">All accounts</option><option value="system-super-administrator" @selected(request('account_type') === 'system-super-administrator')>Admin</option><option value="headteacher" @selected(request('account_type') === 'headteacher')>School Headteacher</option></select></label><label>Status<select name="status"><option value="">All statuses</option>@foreach(['active','suspended','deactivated'] as $status)<option value="{{ $status }}" @selected(request('status') === $status)>{{ ucfirst($status) }}</option>@endforeach</select></label><div><a href="{{ route('administration.users.index') }}">Reset</a><button type="submit" class="button button-primary">Apply filters</button></div></form>
+<section class="user-directory-records"><header><strong>{{ number_format($users->total()) }} user {{ Str::plural('account',$users->total()) }}</strong><span>School profiles have one account each</span></header>
+<div class="table-wrap"><table class="user-directory-table"><thead><tr><th>Account</th><th>Assigned school</th><th>Contact</th><th>Account type</th><th>Status</th><th>Last sign-in</th><th>Action</th></tr></thead><tbody>
+@forelse($users as $user)
+<tr><td class="user-account-cell"><strong>{{ $user->name }}</strong><small>Username: {{ $user->username }}</small><div class="user-mobile-details">@if($user->school)<span>{{ $user->school->official_name }}</span>@endif<a href="mailto:{{ $user->email }}">{{ $user->email }}</a><span>{{ $user->roles->pluck('name')->join(', ') ?: 'No role assigned' }}</span></div></td>
+<td class="user-school-cell">@if($user->school)<span>{{ $user->school->official_name }}</span><small>MOE: {{ $user->school->ministry_registration_number ?: 'Not recorded' }}</small>@else<span class="user-directory-muted">No school assignment</span>@endif</td>
+<td class="user-contact-cell"><a href="mailto:{{ $user->email }}">{{ $user->email }}</a>@if($user->telephone)<a class="user-phone" href="tel:{{ preg_replace('/[^0-9+]/','',$user->telephone) }}">{{ $user->telephone }}</a>@else<small class="user-directory-muted">Phone not recorded</small>@endif</td>
+<td class="user-role-cell"><div class="user-role-list">@forelse($user->roles as $role)<span>{{ $role->name }}</span>@empty<span class="user-directory-muted">No role assigned</span>@endforelse</div></td>
+<td class="user-status-cell"><span class="user-account-status is-{{ $user->status }}"><i aria-hidden="true"></i>{{ ucfirst($user->status) }}</span></td>
+<td class="user-login-cell">@if($user->last_login_at)<time datetime="{{ $user->last_login_at->toIso8601String() }}">{{ $user->last_login_at->timezone('Africa/Kampala')->format('d M Y') }}<small>{{ $user->last_login_at->timezone('Africa/Kampala')->format('H:i') }}</small></time>@else<span class="user-directory-muted">Not yet signed in</span>@endif</td>
+<td class="user-edit-cell">@can('users.manage')<a class="user-edit-button" href="{{ route('administration.users.edit',$user) }}" aria-label="Edit {{ $user->name }}">Edit</a>@else<span class="user-directory-muted">—</span>@endcan</td></tr>
+@empty<tr><td colspan="7"><div class="user-directory-empty"><x-ui.nav-icon name="users"/><h2>No user accounts yet</h2><p>Create an account to assign access to the portal.</p>@can('users.manage')<a class="button button-primary" href="{{ route('administration.users.create') }}">Create user</a>@endcan</div></td></tr>@endforelse
+</tbody></table></div><div class="native-pagination">{{ $users->links() }}</div></section>
+</div>
 </x-layouts.app>

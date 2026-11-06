@@ -1,6 +1,7 @@
+    <link rel="stylesheet" href="{{ asset('fonts/poppins.css') }}">
     <style>
         * { box-sizing:border-box; }
-        body { margin:0; min-height:100vh; min-height:100dvh; display:grid; place-items:center; padding:28px 20px; background:#fff; color:#213d60; font-family:"Segoe UI",Arial,sans-serif; -webkit-font-smoothing:antialiased; }
+        body { margin:0; min-height:100vh; min-height:100dvh; display:grid; place-items:center; padding:28px 20px; background:#fff; color:#213d60; font-family:"Poppins",Arial,sans-serif; -webkit-font-smoothing:antialiased; }
         .login-panel { width:100%; max-width:330px; }
         .login-logo { display:block; width:100px; height:100px; object-fit:contain; margin:0 auto 20px; }
         .login-welcome { margin:0; text-align:center; color:#213f67; font-size:22px; font-weight:600; line-height:1.35; letter-spacing:-.4px; }

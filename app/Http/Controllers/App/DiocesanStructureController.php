@@ -12,20 +12,24 @@ use App\Models\JurisdictionAssignment;
 use App\Models\Parish;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class DiocesanStructureController extends Controller
 {
-    public function parishes(\Illuminate\Http\Request $request): View
+    public function parishes(Request $request): View
     {
+        $request->validate(['search' => ['nullable', 'string', 'max:200'], 'status' => ['nullable', 'in:active,inactive']]);
         $parishes = Parish::with('diocese')->withCount('schools')
-            ->when($request->filled('search'), fn($q) => $q->where(function($q) use($request) {
+            ->when($request->filled('search'), fn ($q) => $q->where(function ($q) use ($request) {
                 $term = '%'.$request->string('search')->toString().'%';
-                $q->where('name','like',$term)->orWhere('code','like',$term);
+                $q->where('name', 'like', $term)->orWhere('code', 'like', $term);
             }))
-            ->when(in_array($request->input('status'), ['active','inactive']), fn($q) => $q->where('is_active',$request->input('status')==='active'))
+            ->when(in_array($request->input('status'), ['active', 'inactive']), fn ($q) => $q->where('is_active', $request->input('status') === 'active'))
             ->orderBy('name')->paginate(20)->withQueryString();
-        return view('diocesan-structure.parishes.index', ['title'=>'Parishes','parishes'=>$parishes]);
+
+        return view('diocesan-structure.parishes.index', ['title' => 'Parishes', 'parishes' => $parishes]);
     }
 
     public function index(): View
@@ -66,13 +70,18 @@ class DiocesanStructureController extends Controller
                 ['label' => 'Parishes', 'url' => route('parishes.index')],
                 ['label' => 'create parish'],
             ],
-            'dioceses' => Diocese::query()->orderBy('name')->get(),
         ]);
     }
 
     public function storeParish(StoreParishRequest $request): RedirectResponse
     {
-        Parish::query()->create($request->validated());
+        DB::transaction(function () use ($request) {
+            Diocese::whereKey($request->validated('diocese_id'))->lockForUpdate()->firstOrFail();
+            $sequence = Parish::where('code', 'like', 'MD-P%')->pluck('code')->map(function ($code) {
+                return preg_match('/^MD-P([0-9]+)$/', $code, $matches) ? (int) $matches[1] : 0;
+            })->max() ?? 0;
+            Parish::create([...$request->validated(), 'code' => 'MD-P'.str_pad((string) ($sequence + 1), 4, '0', STR_PAD_LEFT)]);
+        });
 
         return redirect()->route(request()->routeIs('parishes.*') ? 'parishes.index' : 'diocesan-structure.index')->with('status', 'parish created.');
     }
@@ -87,7 +96,6 @@ class DiocesanStructureController extends Controller
                 ['label' => $parish->name],
             ],
             'parish' => $parish,
-            'dioceses' => Diocese::query()->orderBy('name')->get(),
         ]);
     }
 

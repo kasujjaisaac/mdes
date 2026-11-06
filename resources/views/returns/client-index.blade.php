@@ -4,11 +4,11 @@
     <div class="client-submission-summary" aria-label="All school submissions">
         <div><strong>{{ $submissionCounts->sum() }}</strong><span>Total returns</span></div>
         <div><strong>{{ ($submissionCounts['draft'] ?? 0) + ($submissionCounts['returned_for_correction'] ?? 0) + ($submissionCounts['not_started'] ?? 0) }}</strong><span>To complete</span></div>
-        <div><strong>{{ collect(['submitted','certified','approved','locked'])->sum(fn($status) => $submissionCounts[$status] ?? 0) }}</strong><span>Sent for review</span></div>
+        <div><strong>{{ collect(['submitted','certified','approved','locked'])->sum(fn($status) => $submissionCounts[$status] ?? 0) }}</strong><span>Submitted / locked</span></div>
     </div>
     <form class="client-submission-filters" method="GET" action="{{ route('returns.index') }}" aria-label="Filter submissions">
         <label for="client-period">Collection<select id="client-period" name="period_id"><option value="">All collections</option>@foreach($periods as $period)<option value="{{ $period->id }}" @selected(request('period_id') == $period->id)>{{ $period->title }}</option>@endforeach</select></label>
-        <label for="client-status">Status<select id="client-status" name="status"><option value="">All statuses</option>@foreach(['draft'=>'Draft','returned_for_correction'=>'Needs correction','submitted'=>'Submitted','certified'=>'Certified','approved'=>'Approved','locked'=>'Locked','not_started'=>'Not started'] as $value=>$label)<option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>@endforeach</select></label>
+        <label for="client-status">Status<select id="client-status" name="status"><option value="">All statuses</option>@foreach(['draft'=>'Draft','returned_for_correction'=>'Needs correction','locked'=>'Submitted / locked','not_started'=>'Not started'] as $value=>$label)<option value="{{ $value }}" @selected(request('status') === $value)>{{ $label }}</option>@endforeach</select></label>
         <button class="button button-primary" type="submit">Apply filters</button>
         @if(request()->filled('period_id') || request()->filled('status'))<a class="client-filter-reset" href="{{ route('returns.index') }}">Clear filters</a>@endif
     </form>
@@ -23,7 +23,7 @@
             $deadline = $return->reportingPeriod->extension_date ?? $return->reportingPeriod->closing_date;
         @endphp
         <article class="client-return-card">
-            <header><span class="client-return-year"><x-ui.nav-icon name="clipboard"/>{{ $return->reportingPeriod->year }} COLLECTION</span><span class="client-return-status is-{{ $return->status }}">{{ $return->status === 'returned_for_correction' ? 'Needs correction' : ucfirst(str_replace('_',' ',$return->status)) }}</span></header>
+            <header><span class="client-return-year"><x-ui.nav-icon name="clipboard"/>{{ $return->reportingPeriod->year }} COLLECTION</span><span class="client-return-status is-{{ $return->status }}">{{ $return->status === 'returned_for_correction' ? 'Needs correction' : $return->statusLabel() }}</span></header>
             <h3>{{ $return->reportingPeriod->title }}</h3>
             <dl><div><dt>Deadline</dt><dd>{{ $deadline?->format('j M Y') ?? 'Not scheduled' }}</dd></div><div><dt>Last updated</dt><dd>{{ $return->updated_at->timezone('Africa/Kampala')->format('j M Y') }}</dd></div></dl>
             @if($return->status === 'returned_for_correction' && $return->correction_reason)<p class="client-return-feedback"><strong>Review feedback</strong>{{ $return->correction_reason }}</p>@endif

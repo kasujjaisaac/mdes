@@ -22,8 +22,8 @@
         <form class="login-form" method="POST" action="{{ route('login.store') }}">
             @csrf
             <div class="field">
-                <label for="email">Email address</label>
-                <input id="email" name="email" type="email" value="{{ old('email') }}" placeholder="Enter your email address" autocomplete="username" autofocus required @if($errors->any()) aria-invalid="true" aria-describedby="login-error" @endif>
+                <label for="username">Username</label>
+                <input id="username" name="username" type="text" value="{{ old('username', session('registered_username')) }}" placeholder="Enter your username" autocomplete="username" autofocus required @if($errors->any()) aria-invalid="true" aria-describedby="login-error" @endif>
             </div>
             <div class="field">
                 <label for="password">Password</label>
@@ -32,6 +32,7 @@
             <a class="forgot-link" href="{{ route('password.request') }}">Forgot password?</a>
             <button class="login-button" type="submit">Login</button>
         </form>
+        <p class="login-subtitle"><a href="{{ route('schools.register') }}">New school? Register your school</a></p>
     </main>
     @include('auth.partials.password-toggle')
 </body>

@@ -65,7 +65,7 @@ class SecurityAuditRegressionTest extends TestCase
         [$admin,$school,$return] = $this->fixtures();
         $return->update(['status' => 'submitted']);
         $reviewer = User::factory()->create();
-        $reviewer->roles()->attach(Role::where('slug', 'parish-education-coordinator')->firstOrFail());
+        $reviewer->roles()->attach(tap(Role::firstOrCreate(['slug' => 'parish-education-coordinator'], ['name' => 'Scoped test reviewer']), fn ($role) => $role->permissions()->sync(Permission::whereIn('slug', ['schools.view.assigned', 'returns.view', 'returns.review'])->pluck('id'))));
         $this->assertFalse(Gate::forUser($reviewer)->allows('view', $school));
         $this->actingAs($reviewer)->post(route('returns.transition', $return), ['action' => 'return_for_correction', 'reason' => 'Audit reproduction'])->assertForbidden();
         $this->assertSame('submitted', $return->fresh()->status);

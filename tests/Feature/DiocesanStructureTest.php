@@ -30,7 +30,7 @@ class DiocesanStructureTest extends TestCase
             ])
             ->assertRedirect('/administration/diocesan-structure');
 
-        $this->assertDatabaseHas('parishes', ['code' => 'NEW']);
+        $this->assertDatabaseHas('parishes', ['name'=>'new parish','code'=>'MD-P0001']);
     }
 
     public function test_unauthorized_user_cannot_manage_diocesan_structure(): void
@@ -76,6 +76,32 @@ class DiocesanStructureTest extends TestCase
         $this->put(route('parishes.update',$parish),['diocese_id'=>$parish->diocese_id,'name'=>'Updated parish','code'=>'KIT','is_active'=>1])->assertRedirect(route('parishes.index'));
         $this->assertSame('Updated parish',$parish->fresh()->name);
         $this->actingAs(User::factory()->create())->get(route('parishes.index'))->assertForbidden();
+    }
+
+    public function test_parish_forms_fix_the_diocese_to_masaka_and_ignore_forged_values(): void
+    {
+        $admin = $this->superAdmin();
+        $masaka = \App\Models\Diocese::where('code','MD')->firstOrFail();
+        $other = \App\Models\Diocese::create(['name'=>'Other Diocese','code'=>'OTHER']);
+        $this->actingAs($admin)->get(route('parishes.create'))->assertOk()->assertSee('Masaka Diocese')->assertDontSee('Select diocese');
+        $this->post(route('parishes.store'),['name'=>'Fixed parish','code'=>'FIXED','diocese_id'=>$other->id,'is_active'=>1])->assertSessionHasNoErrors();
+        $parish = Parish::where('name','Fixed parish')->firstOrFail();
+        $this->assertSame($masaka->id,$parish->diocese_id);
+        $this->put(route('parishes.update',$parish),['name'=>'Fixed updated','code'=>'FIXED','diocese_id'=>$other->id,'is_active'=>1])->assertSessionHasNoErrors();
+        $this->assertSame($masaka->id,$parish->fresh()->diocese_id);
+    }
+
+    public function test_parish_codes_are_generated_sequentially_and_cannot_be_edited(): void
+    {
+        $admin = $this->superAdmin();
+        $this->actingAs($admin)->post(route('parishes.store'), ['name'=>'Auto first','code'=>'FORGED','is_active'=>1])->assertSessionHasNoErrors();
+        $first = Parish::where('name','Auto first')->firstOrFail();
+        $this->assertSame('MD-P0001',$first->code);
+        $this->post(route('parishes.store'), ['name'=>'Auto second','is_active'=>1])->assertSessionHasNoErrors();
+        $this->assertSame('MD-P0002',Parish::where('name','Auto second')->firstOrFail()->code);
+        $this->put(route('parishes.update',$first), ['name'=>'Auto renamed','code'=>'FORGED-EDIT','is_active'=>1])->assertSessionHasNoErrors();
+        $this->assertSame('MD-P0001',$first->fresh()->code);
+        $this->get(route('parishes.edit',$first))->assertOk()->assertSee('MD-P0001')->assertDontSee('name="code"',false);
     }
 
     private function superAdmin(): User

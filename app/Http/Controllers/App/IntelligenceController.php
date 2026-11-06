@@ -27,7 +27,7 @@ class IntelligenceController extends Controller
         return view('intelligence.reports', [
             'title' => 'reports',
             'schools' => School::query()->visibleTo(auth()->user())->count(),
-            'lockedReturns' => SchoolReturn::query()->whereHas('school', fn ($q) => $q->visibleTo(auth()->user()))->where('status', SchoolReturn::STATUS_LOCKED)->count(),
+            'lockedReturns' => SchoolReturn::query()->whereHas('school', fn ($q) => $q->visibleTo(auth()->user()))->whereIn('status', SchoolReturn::SUBMITTED_STATUSES)->whereHas('reportingPeriod', fn ($q) => $q->where('is_archived', false))->count(),
             'exports' => ReportExport::query()->where('generated_by', auth()->id())->whereIn('report_type', ['school registry', 'enrolment', 'staff', 'examinations', 'infrastructure', 'religious affiliation', 'utilities', 'staff study programmes'])->latest()->limit(10)->get(),
         ]);
     }

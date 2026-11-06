@@ -7,19 +7,20 @@
                         ['label'=>'Dashboard','icon'=>'dashboard','route'=>'representative.home','active'=>request()->routeIs('dashboard','representative.home')],
                         ['label'=>'School Profile','icon'=>'school','route'=>'representative.profile','active'=>request()->routeIs('representative.profile*')],
                         ['label'=>'My Submissions','icon'=>'clipboard','route'=>'returns.index','active'=>request()->routeIs('returns.*','representative.confirm*')],
-                        ['label'=>'School Alerts','icon'=>'bell','route'=>'alerts.index','active'=>request()->routeIs('alerts.*')],
+                        ['label'=>'Announcements','icon'=>'bell','route'=>'announcements.index','active'=>request()->routeIs('announcements.*','alerts.*')],
                         ['label'=>'My Profile','icon'=>'users','route'=>'profile.show','active'=>request()->routeIs('profile.show')],
                         ['label'=>'Help & Support','icon'=>'help','route'=>'support.index','active'=>request()->routeIs('support.*')]
                     ] as $link)
                     <a href="{{ route($link['route']) }}" @if($link['active']) aria-current="page" @endif><x-ui.nav-icon :name="$link['icon']"/><span>{{ $link['label'] }}</span><span class="client-menu-arrow" aria-hidden="true">&rsaquo;</span></a>
                     @endforeach
                     @else
-                    @foreach(collect(\App\Support\Navigation::groups())->flatMap(fn($group) => $group['items'])->filter(fn($item) => !$item['permission'] || auth()->user()->can($item['permission'])) as $item)
+                    @foreach(collect(\App\Support\Navigation::groups())->flatMap(fn($group) => $group['items'])->filter(fn($item) => !$item['permission'] || auth()->user()->can($item['permission']))->reject(fn($item)=>in_array($item['key'],['users','change-password','reporting-periods'])) as $item)
                     <a href="{{ $item['url'] }}" @if(request()->url() === $item['url'] || str_starts_with(request()->url(),$item['url'].'/')) aria-current="page" @endif><x-ui.nav-icon :name="$item['icon']"/><span>{{ $item['label'] }}</span><span class="client-menu-arrow" aria-hidden="true">&rsaquo;</span></a>
                     @endforeach
                     <a href="{{ route('profile.show') }}" @if(request()->routeIs('profile.show')) aria-current="page" @endif><x-ui.nav-icon name="users"/><span>My Profile</span><span class="client-menu-arrow" aria-hidden="true">&rsaquo;</span></a>
                     <a href="{{ route('support.index') }}" @if(request()->routeIs('support.*')) aria-current="page" @endif><x-ui.nav-icon name="help"/><span>Help &amp; Support</span><span class="client-menu-arrow" aria-hidden="true">&rsaquo;</span></a>
                     @endif
+                    @include('components.layouts.settings-menu',['mobile'=>true])
                     <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit"><x-ui.nav-icon name="shield"/>Sign out</button></form>
                 </nav>
             </details>

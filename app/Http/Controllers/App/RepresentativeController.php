@@ -9,6 +9,7 @@ use App\Models\Parish;
 use App\Models\ReportingPeriod;
 use App\Models\School;
 use App\Models\SchoolReturn;
+use App\Services\SchoolProfileContactService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -70,10 +71,13 @@ class RepresentativeController extends Controller
         $school = $request->user()->school;
         abort_unless($school, 403);
         Gate::authorize('view', $school);
+        $request->merge(['ministry_registration_number' => is_string($request->input('ministry_registration_number')) ? School::normalizeMoeNumber($request->input('ministry_registration_number')) : $request->input('ministry_registration_number')]);
         $data = $request->validate([
+            'headteacher_name' => ['nullable', 'string', 'max:255'], 'headteacher_phone' => ['nullable', 'string', 'max:40'], 'headteacher_email' => ['nullable', 'email', 'max:255'],
+            'contact' => ['sometimes', 'array:telephone,email'], 'contact.telephone' => ['nullable', 'string', 'max:40'], 'contact.email' => ['nullable', 'email', 'max:255'],
             'parish_id' => ['required', 'exists:parishes,id'], 'district_id' => ['required', 'exists:districts,id'],
-            'ministry_registration_number' => ['nullable', 'string', 'max:80', Rule::unique('schools')->ignore($school->id)],
-            'emis_number' => ['nullable', 'string', 'max:60', Rule::unique('schools')->ignore($school->id)],
+            'ministry_registration_number' => ['required', 'string', 'max:80', ...($school->ministry_registration_number ? [Rule::in([$school->ministry_registration_number])] : []), Rule::unique('schools')->ignore($school->id), Rule::unique('users', 'username')->ignore($request->user()->id)],
+            'emis_number' => ['nullable', 'string', 'max:60', ...($school->emis_number ? ['required', Rule::in([$school->emis_number])] : []), Rule::unique('schools')->ignore($school->id)],
             'school_level' => ['required', 'in:nursery,primary,secondary,vocational_technical,tertiary'],
             'funding_classification' => ['required', 'in:Government,Private'], 'gender_classification' => ['required', 'in:Boys,Girls,Mixed'],
             'boarding_status' => ['required', 'in:Day,Boarding,Both day and boarding'],
@@ -81,7 +85,8 @@ class RepresentativeController extends Controller
         DB::transaction(function () use ($request, $school, $data) {
             $locked = School::whereKey($school->id)->lockForUpdate()->firstOrFail();
             $before = $locked->toArray();
-            $locked->update([...$data, 'diocese_id' => Parish::findOrFail($data['parish_id'])->diocese_id, 'updated_by' => $request->user()->id]);
+            $locked->update([...array_diff_key($data, array_flip(['headteacher_name', 'headteacher_phone', 'headteacher_email', 'contact'])), 'diocese_id' => Parish::findOrFail($data['parish_id'])->diocese_id, 'updated_by' => $request->user()->id]);
+            app(SchoolProfileContactService::class)->sync($locked, $data);
             // Submitted snapshots remain immutable. Drafts must confirm the corrected profile.
             SchoolReturn::where('school_id', $school->id)->whereIn('status', ['draft', 'returned_for_correction'])->whereNull('submitted_at')->update(['profile_confirmed_at' => null, 'profile_confirmed_by' => null, 'profile_snapshot' => null]);
             app(RecordAuditEvent::class)->handle($request, 'school_profile.updated', $locked, $before, $locked->fresh()->toArray());
@@ -106,10 +111,11 @@ class RepresentativeController extends Controller
         Gate::authorize('update', $return);
         abort_unless($request->user()->isSchoolRepresentative(), 403);
         $school = $return->school;
+        $request->merge(['ministry_registration_number' => is_string($request->input('ministry_registration_number')) ? School::normalizeMoeNumber($request->input('ministry_registration_number')) : $request->input('ministry_registration_number')]);
         $data = $request->validate([
             'confirmed' => ['accepted'], 'parish_id' => ['required', 'exists:parishes,id'], 'district_id' => ['required', 'exists:districts,id'],
-            'ministry_registration_number' => ['nullable', 'string', 'max:80', Rule::unique('schools')->ignore($school->id)],
-            'emis_number' => ['nullable', 'string', 'max:60', Rule::unique('schools')->ignore($school->id)],
+            'ministry_registration_number' => ['required', 'string', 'max:80', ...($school->ministry_registration_number ? [Rule::in([$school->ministry_registration_number])] : []), Rule::unique('schools')->ignore($school->id), Rule::unique('users', 'username')->ignore($request->user()->id)],
+            'emis_number' => ['nullable', 'string', 'max:60', ...($school->emis_number ? ['required', Rule::in([$school->emis_number])] : []), Rule::unique('schools')->ignore($school->id)],
             'school_level' => ['required', 'in:nursery,primary,secondary,vocational_technical,tertiary'],
             'funding_classification' => ['required', 'in:Government,Private'], 'gender_classification' => ['required', 'in:Boys,Girls,Mixed'],
             'boarding_status' => ['required', 'in:Day,Boarding,Both day and boarding'],
@@ -128,12 +134,13 @@ class RepresentativeController extends Controller
                 'level' => match ($school->school_level) {
                     'nursery' => 'Pre-primary','primary' => 'Primary','secondary' => 'Secondary','tertiary' => 'Tertiary',default => 'Vocational/Technical'
                 }, 'funding' => $school->funding_classification, 'gender' => $school->gender_classification, 'boarding' => $school->boarding_status];
+            $snapshot += array_filter(['headteacher_name' => $school->currentHeadteacher?->person_name, 'headteacher_phone' => $school->currentHeadteacher?->telephone, 'first_deputy_name' => $school->currentFirstDeputy?->person_name, 'first_deputy_phone' => $school->currentFirstDeputy?->telephone, 'second_deputy_name' => $school->currentSecondDeputy?->person_name, 'second_deputy_phone' => $school->currentSecondDeputy?->telephone], fn ($value) => filled($value));
             $form = $locked->statistical_form ?? [];
             $form['identity'] = [...($form['identity'] ?? []), ...$snapshot];
             $locked->forceFill(['profile_confirmed_by' => $request->user()->id, 'profile_confirmed_at' => now(), 'profile_snapshot' => $snapshot, 'statistical_form' => $form])->save();
             app(RecordAuditEvent::class)->handle($request, 'school_profile.confirmed', $locked, null, ['school_id' => $school->id]);
         });
 
-        return redirect()->route('returns.form.show',$return)->with('status','School profile confirmed. Continue with the form sections.');
+        return redirect()->route('returns.form.show', $return)->with('status', 'School profile confirmed. Continue with the form sections.');
     }
 }

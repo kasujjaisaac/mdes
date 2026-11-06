@@ -28,7 +28,7 @@ class IdentityAccessSeeder extends Seeder
         'returns.view' => 'View school returns',
         'returns.manage.all' => 'Manage all school returns',
         'returns.manage.assigned' => 'Manage assigned school returns',
-        'returns.review' => 'Review and approve returns',
+        'returns.review' => 'Return submitted school data for correction',
         'documents.view' => 'View protected documents',
         'documents.manage' => 'Manage protected documents',
         'inspections.view' => 'View inspections',
@@ -54,16 +54,8 @@ class IdentityAccessSeeder extends Seeder
      * @var array<string, string>
      */
     private array $roles = [
-        'system-super-administrator' => 'System Super Administrator',
-        'diocesan-education-secretary' => 'Diocesan Education Secretary',
-        'diocesan-education-officer' => 'Diocesan Education Officer',
-        'parish-education-coordinator' => 'Parish Education Coordinator',
-        'inspector' => 'Inspector',
-        'headteacher' => 'Headteacher',
-        'school-data-officer' => 'School Data Officer',
-        'auditor' => 'Auditor',
-        'board-leadership-viewer' => 'Board/Leadership Viewer',
-        'technical-administrator' => 'Technical Administrator',
+        'system-super-administrator' => 'Admin',
+        'headteacher' => 'School Headteacher',
     ];
 
     public function run(): void
@@ -84,58 +76,8 @@ class IdentityAccessSeeder extends Seeder
 
             if ($slug === Role::SUPER_ADMINISTRATOR) {
                 $role->permissions()->sync($permissions->pluck('id')->all());
-            } elseif (in_array($slug, ['diocesan-education-secretary', 'diocesan-education-officer'], true)) {
-                $role->permissions()->sync($permissions->only([
-                    'dashboard.view',
-                    'diocesan-structure.view',
-                    'diocesan-structure.manage',
-                    'schools.view.all',
-                    'schools.manage',
-                    'reporting-periods.view',
-                    'reporting-periods.manage',
-                    'returns.view',
-                    'returns.manage.all',
-                    'returns.review',
-                    'documents.view',
-                    'documents.manage',
-                    'inspections.view',
-                    'inspections.manage',
-                    'improvement-plans.view',
-                    'improvement-plans.manage',
-                    'development.view',
-                    'development.manage',
-                    'financial-statistics.view',
-                    'financial-statistics.manage',
-                    'communications.view',
-                    'communications.manage',
-                    'helpdesk.view',
-                    'reports.view',
-                    'reports.export',
-                    'audit.view',
-                    'reference-data.view',
-                    'settings.view',
-                    'logs.view',
-                ])->pluck('id')->all());
-            } elseif ($slug === 'parish-education-coordinator') {
-                $role->permissions()->sync($permissions->only([
-                    'dashboard.view',
-                    'diocesan-structure.view',
-                    'schools.view.assigned',
-                    'reporting-periods.view',
-                    'returns.view',
-                    'returns.manage.assigned',
-                    'returns.review',
-                    'documents.view',
-                ])->pluck('id')->all());
-            } elseif (in_array($slug, ['headteacher', 'school-data-officer'], true)) {
-                $role->permissions()->sync($permissions->only([
-                    'dashboard.view',
-                    'schools.view.assigned',
-                    'reporting-periods.view',
-                    'returns.view',
-                    'returns.manage.assigned',
-                    'documents.view',
-                ])->pluck('id')->all());
+            } else {
+                $role->permissions()->sync($permissions->only(['dashboard.view', 'schools.view.assigned', 'returns.view', 'returns.manage.assigned', 'reporting-periods.view', 'documents.view'])->pluck('id')->all());
             }
         }
     }

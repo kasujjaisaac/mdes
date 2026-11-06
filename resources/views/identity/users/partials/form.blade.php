@@ -1,66 +1,18 @@
 @php($assignedRoleIds = collect(old('role_ids', $user?->roles->pluck('id')->all() ?? []))->map(fn ($id) => (int) $id))
+@if($errors->any())<div class="user-editor-errors" role="alert"><strong>Please check the highlighted fields.</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+<section class="user-editor-panel"><header><span>01</span><div><h2>Account details</h2><p>Contact details for the person using this account.</p></div></header><div class="user-editor-fields">
+@php($legacyNameParts = preg_split('/\s+/u', trim($user?->name ?? ''), 2))
+<label for="user-first-name">First name <b>*</b><input id="user-first-name" name="first_name" value="{{ old('first_name',$user?->first_name ?? ($legacyNameParts[0] ?? '')) }}" maxlength="100" autocomplete="given-name" placeholder="Enter first name" required @if($errors->has('first_name')) aria-invalid="true" @endif>@error('first_name')<small class="user-field-error">{{ $message }}</small>@enderror</label>
+<label for="user-last-name">Last name <b>*</b><input id="user-last-name" name="last_name" value="{{ old('last_name',$user?->last_name ?? ($legacyNameParts[1] ?? '')) }}" maxlength="150" autocomplete="family-name" placeholder="Enter last name" required @if($errors->has('last_name')) aria-invalid="true" @endif>@error('last_name')<small class="user-field-error">{{ $message }}</small>@enderror</label>
+<label for="user-email">Contact / recovery email <b>*</b><input id="user-email" name="email" type="email" value="{{ old('email',$user?->email) }}" maxlength="255" autocomplete="off" placeholder="name@example.com" required @if($errors->has('email')) aria-invalid="true" @endif>@error('email')<small class="user-field-error">{{ $message }}</small>@enderror</label>
+<label for="user-phone">Telephone <span class="user-optional">Optional</span><input id="user-phone" name="telephone" type="tel" value="{{ old('telephone',$user?->telephone) }}" maxlength="40" autocomplete="tel" placeholder="Enter phone number">@error('telephone')<small class="user-field-error">{{ $message }}</small>@enderror</label>
 
-@if ($errors->any())
-    <x-ui.alert tone="info">
-        check the highlighted fields and try again.
-    </x-ui.alert>
-@endif
-
-<div class="form-grid">
-<label>Assigned school (required for school representatives)<select name="school_id"><option value="">No school assignment</option>@foreach($schools as $school)<option value="{{ $school->id }}" @selected(old('school_id',$user?->school_id)==$school->id)>{{ $school->official_name }}</option>@endforeach</select>@error('school_id')<small>{{ $message }}</small>@enderror</label>
-    <label>
-        full name
-        <input name="name" value="{{ old('name', $user?->name) }}" required>
-        @error('name') <small>{{ $message }}</small> @enderror
-    </label>
-
-    <label>
-        email
-        <input name="email" type="email" value="{{ old('email', $user?->email) }}" required>
-        @error('email') <small>{{ $message }}</small> @enderror
-    </label>
-
-    <label>
-        telephone
-        <input name="telephone" value="{{ old('telephone', $user?->telephone) }}">
-        @error('telephone') <small>{{ $message }}</small> @enderror
-    </label>
-
-    <label>
-        designation
-        <input name="designation" value="{{ old('designation', $user?->designation) }}">
-        @error('designation') <small>{{ $message }}</small> @enderror
-    </label>
-
-    <label>
-        account status
-        <select name="status" required>
-            @foreach ($statuses as $value => $label)
-                <option value="{{ $value }}" @selected(old('status', $user?->status ?? 'active') === $value)>{{ $label }}</option>
-            @endforeach
-        </select>
-        @error('status') <small>{{ $message }}</small> @enderror
-    </label>
-
-    <label>
-        {{ $user ? 'new password' : 'password' }}
-        <input name="password" type="password" @if (! $user) required @endif>
-        @error('password') <small>{{ $message }}</small> @enderror
-    </label>
-</div>
-
-<fieldset class="role-picker">
-    <legend>roles</legend>
-    @foreach ($roles as $role)
-        <label>
-            <input
-                type="checkbox"
-                name="role_ids[]"
-                value="{{ $role->id }}"
-                @checked($assignedRoleIds->contains($role->id))
-            >
-            <span>{{ strtolower($role->name) }}</span>
-        </label>
-    @endforeach
-    @error('role_ids') <small>{{ $message }}</small> @enderror
-</fieldset>
+</div></section>
+@if($user)<p class="user-required-note">Username: <strong>{{ $user->username }}</strong></p>@endif
+<section class="user-editor-panel"><header><span>02</span><div><h2>School and sign-in</h2><p>Set the school assignment, account status and password.</p></div></header><div class="user-editor-fields">
+<label for="user-school" class="user-field-wide">Assigned school<select id="user-school" name="school_id" @if($errors->has('school_id')) aria-invalid="true" @endif><option value="">No school assignment</option>@foreach($schools as $school)<option value="{{ $school->id }}" @selected(old('school_id',$user?->school_id)==$school->id)>{{ $school->official_name }}{{ $school->ministry_registration_number ? ' - '.$school->ministry_registration_number : '' }}</option>@endforeach</select><small>Required for School Headteachers. Admin accounts have no school assignment. Each school has one account.</small>@error('school_id')<small class="user-field-error">{{ $message }}</small>@enderror</label>
+<label for="user-status">Account status <b>*</b><select id="user-status" name="status" required>@foreach($statuses as $value=>$label)<option value="{{ $value }}" @selected(old('status',$user?->status ?? 'active') === $value)>{{ ucfirst($label) }}</option>@endforeach</select>@error('status')<small class="user-field-error">{{ $message }}</small>@enderror</label>
+<label for="user-password">{{ $user ? 'New password' : 'Password' }} @if(!$user)<b>*</b>@else<span class="user-optional">Optional</span>@endif<input id="user-password" name="password" type="password" minlength="12" autocomplete="new-password" placeholder="{{ $user ? 'Leave blank to keep current password' : 'At least 12 characters' }}" @required(!$user)>@if($user)<small>Leave blank to keep the current password.</small>@else<small>Use at least 12 characters.</small>@endif @error('password')<small class="user-field-error">{{ $message }}</small>@enderror</label>
+<label for="user-password-confirmation">Confirm {{ $user ? 'new password' : 'password' }}<input id="user-password-confirmation" name="password_confirmation" type="password" autocomplete="new-password" placeholder="Enter the password again" @required(!$user)></label>
+</div></section>
+<section class="user-editor-panel"><header><span>03</span><div><h2>Account type</h2><p>Choose Admin or School Headteacher.</p></div></header><fieldset class="user-role-options"><legend class="sr-only">Account type</legend>@foreach($roles as $role)<label class="user-role-choice"><input type="radio" name="role_ids[]" value="{{ $role->id }}" @checked($assignedRoleIds->contains($role->id))><span>{{ $role->name }}</span></label>@endforeach</fieldset>@error('role_ids')<p class="user-field-error user-role-error">{{ $message }}</p>@enderror @error('role_ids.*')<p class="user-field-error user-role-error">{{ $message }}</p>@enderror</section>

@@ -15,11 +15,10 @@ class SchoolReturnPolicy
     public function update(User $user, SchoolReturn $return): bool
     {
         if ($user->isSchoolRepresentative()) {
-            return $user->school_id === $return->school_id && $user->hasPermission('returns.manage.assigned') && in_array($return->status, ['draft', 'returned_for_correction']) && $return->reportingPeriod->allowsRepresentativeDraft();
+            return $user->school_id === $return->school_id && $user->hasPermission('returns.manage.assigned') && in_array($return->status, [SchoolReturn::STATUS_DRAFT, SchoolReturn::STATUS_RETURNED_FOR_CORRECTION]) && ($return->status === 'returned_for_correction' ? ! $return->reportingPeriod->is_archived : $return->reportingPeriod->allowsRepresentativeDraft());
         }
 
-        return ! $return->isLocked()
-            && ($user->hasPermission('returns.manage.all') || ($user->hasPermission('returns.manage.assigned') && $user->can('view', $return->school)));
+        return false;
     }
 
     public function review(User $user, SchoolReturn $return): bool

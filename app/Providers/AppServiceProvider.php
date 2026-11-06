@@ -32,7 +32,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Gate::before(function (User $user): ?bool {
+        Gate::before(function (User $user, string $ability, array $arguments = []): ?bool {
+            if ($ability === 'update' && ($arguments[0] ?? null) instanceof SchoolReturn) {
+                return null;
+            }
+
             return $user->hasRole(Role::SUPER_ADMINISTRATOR) ? true : null;
         });
 

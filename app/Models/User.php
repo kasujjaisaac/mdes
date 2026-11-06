@@ -13,12 +13,41 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['school_id', 'name', 'email', 'telephone', 'designation', 'status', 'password', 'last_login_at'])]
-#[Hidden(['password', 'remember_token'])]
+#[Fillable(['school_id', 'name', 'first_name', 'last_name', 'email', 'telephone', 'designation', 'status', 'password', 'last_login_at'])]
+#[Hidden(['password', 'remember_token', 'session_version', 'must_change_password'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+
+    public static function normalizeUsername(string $value): string
+    {
+        return mb_strtoupper(preg_replace('/\s+/u', '', trim($value)));
+    }
+
+    protected static function booted(): void
+    {
+        static::creating(function (User $user) {
+            $moe = $user->school_id ? School::whereKey($user->school_id)->value('ministry_registration_number') : null;
+            if ($moe) {
+                $user->username = self::normalizeUsername($moe);
+
+                return;
+            }
+            $base = mb_substr(self::normalizeUsername(strstr($user->email, '@', true) ?: 'USER'), 0, 76);
+            $candidate = $base;
+            $suffix = 2;
+            while (self::where('username', $candidate)->exists()) {
+                $candidate = $base.'-'.$suffix++;
+            }
+            $user->username = $candidate;
+        });
+    }
+
+    public function setEmailAttribute(string $value): void
+    {
+        $this->attributes['email'] = strtolower(trim($value));
+    }
 
     public const STATUS_ACTIVE = 'active';
 
@@ -37,6 +66,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'last_login_at' => 'datetime',
             'password' => 'hashed',
+            'must_change_password' => 'boolean',
+            'session_version' => 'integer',
         ];
     }
 
@@ -47,7 +78,7 @@ class User extends Authenticatable
 
     public function isSchoolRepresentative(): bool
     {
-        return ! $this->hasPermission('schools.view.all') && ($this->school_id !== null || $this->roles->contains(fn ($role) => in_array($role->slug, ['school-representative', 'headteacher', 'school-data-officer'])));
+        return ! $this->hasPermission('schools.view.all') && ($this->school_id !== null || $this->roles->contains(fn ($role) => in_array($role->slug, [Role::HEADTEACHER])));
     }
 
     public function roles(): BelongsToMany

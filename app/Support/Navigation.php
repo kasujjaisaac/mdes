@@ -28,21 +28,22 @@ class Navigation
                 'label' => 'School Directory',
                 'items' => [
                     self::item('Parishes', 'parishes', 'hierarchy', route('parishes.index'), 'diocesan-structure.view'),
-                    self::item(auth()->user()?->isSchoolRepresentative() ? 'School Profile' : 'School Registry', 'schools', 'school', auth()->user()?->isSchoolRepresentative() ? route('representative.profile') : route('schools.index'), 'schools.view'),
+                    self::item(auth()->user()?->isSchoolRepresentative() ? 'School Profile' : 'Registered Schools', 'schools', 'school', auth()->user()?->isSchoolRepresentative() ? route('representative.profile') : route('schools.index'), 'schools.view'),
                 ],
             ],
             [
                 'label' => 'School Statistics',
                 'items' => [
-                    ...(! auth()->user()?->isSchoolRepresentative() ? [self::item('Submission Windows', 'reporting-periods', 'calendar', route('reporting-periods.index'), 'reporting-periods.view')] : []),
                     self::item(self::submissionLabel(), 'school-returns', 'clipboard', route('returns.index'), 'returns.view'),
-                    self::item('Alerts', 'alerts', 'bell', route('alerts.index')),
+                    self::item('Announcements', 'announcements', 'bell', route('announcements.index')),
                 ],
             ],
             [
-                'label' => 'Administration',
+                'label' => 'Settings',
                 'items' => [
                     self::item('Users', 'users', 'users', route('administration.users.index'), 'users.view'),
+                    self::item('Change password', 'change-password', 'shield', route('profile.password.edit')),
+                    ...(! auth()->user()?->isSchoolRepresentative() ? [self::item('Window settings', 'reporting-periods', 'calendar', route('reporting-periods.index'), 'reporting-periods.view')] : []),
                 ],
             ],
         ];

@@ -71,7 +71,7 @@
     </section>
     @if(auth()->user()->isSchoolRepresentative())
         @if($return->correction_reason)<div class="alert"><strong>Corrections requested</strong><p>{{ $return->correction_reason }}</p></div>@endif
-        @if($editable && $sectionKey === 'declaration')<form method="POST" action="{{ route('returns.transition',$return) }}" class="form-actions {{ $mobileSavedCount < count($sections) || !empty($qualityErrors) ? 'mobile-completion-pending' : '' }}" data-confirm-submission>@csrf<input type="hidden" name="action" value="submit"><input type="hidden" name="acknowledged" value="0"><button class="button button-primary" type="submit"><span class="desktop-only-layout">Submit for review</span><span class="mobile-only-layout">Complete &amp; submit for review</span></button></form>@endif
+        @if($editable && $sectionKey === 'declaration')<form method="POST" action="{{ route('returns.transition',$return) }}" class="form-actions {{ $mobileSavedCount < count($sections) || !empty($qualityErrors) ? 'mobile-completion-pending' : '' }}" data-confirm-submission>@csrf<input type="hidden" name="action" value="submit"><input type="hidden" name="acknowledged" value="0"><button class="button button-primary" type="submit"><span class="desktop-only-layout">Submit and lock</span><span class="mobile-only-layout">Complete &amp; submit</span></button></form>@endif
         @if($editable && $sectionKey === 'declaration' && ($mobileSavedCount < count($sections) || !empty($qualityErrors)))<p class="mobile-only-layout mobile-completion-note">Save all {{ count($sections) }} sections and resolve the checks listed above to enable final submission. Saving a draft does not submit your form.</p>@endif
     @endif
 </div></div></div>
