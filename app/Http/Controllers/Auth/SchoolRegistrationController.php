@@ -49,7 +49,10 @@ class SchoolRegistrationController extends Controller
                 $school->update(['created_by' => $user->id, 'updated_by' => $user->id]);
                 app(SchoolProfileContactService::class)->sync($school, ['headteacher_name' => $data['headteacher_name'], 'headteacher_phone' => $data['telephone'], 'headteacher_email' => $data['email']]);
                 foreach (['first_deputy' => 'first_deputy', 'second_deputy' => 'second_deputy'] as $key => $position) {
-                    $school->leadershipHistories()->create(['position' => $position, 'person_name' => $data[$key.'_name'], 'telephone' => $data[$key.'_phone'], 'effective_from' => $data['registration_date'], 'is_current' => true]);
+                    if (blank($data[$key.'_name'] ?? null)) {
+                        continue;
+                    }
+                    $school->leadershipHistories()->create(['position' => $position, 'person_name' => $data[$key.'_name'], 'telephone' => $data[$key.'_phone'] ?? null, 'effective_from' => $data['registration_date'], 'is_current' => true]);
                 }
                 $school->contact()->create(['telephone' => $data['telephone'], 'email' => $data['email']]);
                 $school->statusHistories()->create(['previous_status' => null, 'new_status' => School::STATUS_ACTIVE, 'effective_date' => now()->toDateString(), 'reason' => 'School self-registration', 'responsible_user_id' => $user->id]);
@@ -62,6 +65,6 @@ class SchoolRegistrationController extends Controller
             throw ValidationException::withMessages(['official_name' => 'A school or account with these registration details already exists. Sign in or contact the Secretariat.']);
         }
 
-        return redirect()->route('login')->with('registered_username', $user->school->ministry_registration_number)->with('status', 'School registered. Sign in using your MOE Reg No and default password mdes123. You can change your password later in Settings.');
+        return redirect()->route('login')->with('registered_username', $user->school->ministry_registration_number)->with('registered_school_name', $user->school->official_name)->with('status', 'Your school has been successfully registered.');
     }
 }

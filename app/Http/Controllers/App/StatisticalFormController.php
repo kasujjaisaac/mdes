@@ -5,6 +5,8 @@ namespace App\Http\Controllers\App;
 use App\Actions\RecordAuditEvent;
 use App\Http\Controllers\Controller;
 use App\Models\SchoolReturn;
+use App\Services\StatisticalFormDraftService;
+use App\Services\StatisticalFormQualityService;
 use App\Services\StatisticalFormSummaryService;
 use App\Support\StatisticalForm;
 use Illuminate\Http\Request;
@@ -30,15 +32,36 @@ class StatisticalFormController extends Controller
             'parish' => $return->school->parish?->name,
             'district' => $return->school->district?->name,
         ] : [];
+        $editable = Gate::allows('update', $return) && in_array($return->status, [SchoolReturn::STATUS_DRAFT, SchoolReturn::STATUS_RETURNED_FOR_CORRECTION]);
+        $draft = $editable ? ($return->statistical_form_drafts[$section] ?? []) : [];
+        $sectionData = $draft['data'] ?? $return->statistical_form[$section] ?? $defaults;
 
         return view('returns.statistical-form', [
             'title' => 'Statistical Form 2026', 'return' => $return->loadMissing('school.parish', 'school.district'),
             'sections' => $sections, 'sectionKey' => $section, 'section' => $sections[$section],
-            'data' => $section === 'identity' && auth()->user()->isSchoolRepresentative() ? [...($return->statistical_form[$section] ?? $defaults), ...($return->profile_snapshot ?? [])] : ($return->statistical_form[$section] ?? $defaults),
+            'data' => $section === 'identity' && auth()->user()->isSchoolRepresentative() ? [...$sectionData, ...($return->profile_snapshot ?? [])] : $sectionData,
+            'draftRevision' => $draft['revision'] ?? 0, 'draftSavedAt' => $draft['saved_at'] ?? null,
             'confirmedKeys' => auth()->user()->isSchoolRepresentative() ? array_keys($return->profile_snapshot ?? []) : [],
-            'qualityErrors' => app(\App\Services\StatisticalFormQualityService::class)->errors($return),
-            'editable' => Gate::allows('update', $return) && in_array($return->status, [SchoolReturn::STATUS_DRAFT, SchoolReturn::STATUS_RETURNED_FOR_CORRECTION]),
+            'qualityErrors' => app(StatisticalFormQualityService::class)->errors($return),
+            'editable' => $editable,
         ]);
+    }
+
+    public function autosave(Request $request, SchoolReturn $return, string $section)
+    {
+        Gate::authorize('update', $return);
+        $schema = StatisticalForm::sections()[$section] ?? abort(404);
+        $validated = $request->validate([...StatisticalForm::draftRules($schema), 'revision' => ['required', 'integer', 'min:0']]);
+        abort_if(strlen(json_encode($validated['data'])) > 1000000, 413, 'This section is too large to save.');
+        $result = DB::transaction(function () use ($return, $section, $validated) {
+            $locked = SchoolReturn::whereKey($return->id)->lockForUpdate()->firstOrFail();
+            Gate::authorize('update', $locked);
+            abort_unless($locked->profile_confirmed_at, 409, 'Confirm your school profile before saving.');
+
+            return app(StatisticalFormDraftService::class)->save($locked, $section, $validated['data'], (int) $validated['revision']);
+        });
+
+        return response()->json($result);
     }
 
     public function save(Request $request, SchoolReturn $return, string $section)
@@ -49,6 +72,7 @@ class StatisticalFormController extends Controller
         }
         abort_unless(in_array($return->status, [SchoolReturn::STATUS_DRAFT, SchoolReturn::STATUS_RETURNED_FOR_CORRECTION]), 403);
         $schema = StatisticalForm::sections()[$section] ?? abort(404);
+        $request->validate(['draft_revision' => ['nullable', 'integer', 'min:0']]);
         $validated = $request->validate(StatisticalForm::rules($schema));
         $data = StatisticalForm::clean($validated['data'] ?? [], $schema);
         if ($section === 'identity' && $request->user()->isSchoolRepresentative()) {
@@ -76,7 +100,13 @@ class StatisticalFormController extends Controller
                 }
             }
             $old = $locked->statistical_form ?? [];
-            $locked->forceFill(['statistical_form' => [...$old, $section => $data]])->save();
+            $drafts = $locked->statistical_form_drafts ?? [];
+            $revision = (int) ($drafts[$section]['revision'] ?? 0);
+            if ($request->filled('draft_revision')) {
+                abort_unless($request->integer('draft_revision') === $revision, 409, 'This section was changed in another tab. Reload before continuing.');
+            }
+            $drafts[$section] = ['revision' => $revision + 1, 'saved_at' => now()->toIso8601String(), 'valid' => true];
+            $locked->forceFill(['statistical_form' => [...$old, $section => $data], 'statistical_form_drafts' => $drafts])->save();
             app(StatisticalFormSummaryService::class)->sync($locked, $section, $data);
             app(RecordAuditEvent::class)->handle($request, 'statistical_form.saved', $locked, ['section' => $section], ['section' => $section]);
         });
@@ -87,6 +117,7 @@ class StatisticalFormController extends Controller
             $offset = $request->input('navigate') === 'previous' ? -1 : 1;
             $section = $keys[$position + $offset] ?? $section;
         }
+
         return redirect()->route('returns.form.show', [$return, $section])->with('status', 'Form section saved.');
     }
 }

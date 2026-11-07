@@ -88,7 +88,7 @@ class TransitionSchoolReturn
 
     private function assertSectionsComplete(SchoolReturn $return): void
     {
-        if ($return->statistical_form !== null) {
+        if ($return->statistical_form !== null || ! empty($return->statistical_form_drafts)) {
             $errors = app(StatisticalFormQualityService::class)->errors($return);
             if ($errors) {
                 throw new DomainException(implode(' ', $errors));

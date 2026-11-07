@@ -6,6 +6,13 @@
 <button class="button" type="submit"><x-ui.nav-icon name="search"/> Search</button>@can('reporting-periods.view')<a class="button button-primary" href="{{ route('reporting-periods.index') }}"><x-ui.nav-icon name="calendar"/> Submission windows</a>@endcan
 </form></x-slot:topbarFilters>
 @if(auth()->user()->isSchoolRepresentative())
+@if($startablePeriods->isNotEmpty())
+<section class="submission-start-windows" aria-label="Available forms">
+@foreach($startablePeriods as $period)
+<article><div><span>Ready to start</span><h2>{{ $period->title }}</h2><p>Deadline: {{ ($period->extension_date ?? $period->closing_date)?->format('j M Y') ?? 'Not scheduled' }}</p></div><form method="POST" action="{{ route('returns.start', [$period, auth()->user()->school_id]) }}">@csrf<button class="button button-primary" type="submit"><x-ui.nav-icon name="clipboard"/> Start form</button></form></article>
+@endforeach
+</section>
+@endif
 <div class="mobile-only-layout">@include('returns.client-index')</div>
 @endif
 <div class="desktop-submission-layout">

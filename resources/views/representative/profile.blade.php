@@ -4,7 +4,7 @@
 
 <div class="portal-profile-page mobile-only-layout">
 @if($school)
-<div class="portal-profile-actions"><a href="{{ route('representative.home') }}">&larr; Dashboard</a><a class="button button-primary" href="{{ route('representative.profile.edit') }}">Edit profile</a></div>
+<div class="portal-profile-actions"><a class="button button-primary" href="{{ route('representative.profile.edit') }}">Edit profile</a></div>
 <table class="mobile-school-details" aria-label="School profile details"><tbody>
 @foreach([
 'School name'=>$school->official_name,

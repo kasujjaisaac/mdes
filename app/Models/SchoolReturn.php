@@ -48,6 +48,7 @@ class SchoolReturn extends Model
     {
         return [
             'statistical_form' => 'array',
+            'statistical_form_drafts' => 'array',
             'profile_snapshot' => 'array',
             'profile_confirmed_at' => 'datetime',
             'submitted_at' => 'datetime',

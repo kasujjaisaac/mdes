@@ -1,6 +1,6 @@
 <x-layouts.app :title="$title" :breadcrumbs="$breadcrumbs" :hide-heading="true">
 <div class="school-editor">
-<header class="school-editor-heading"><div><a href="{{ route('schools.index') }}">&larr; Registered Schools</a><h1>Edit school</h1><p>Update the school particulars below.</p></div><span class="school-required-note"><span>*</span> Required fields</span></header>
+<header class="school-editor-heading"><div><h1>Edit school</h1><p>Update the school particulars below.</p></div><span class="school-required-note"><span>*</span> Required fields</span></header>
 <form data-protect-changes class="resource-form school-editor-form" method="POST" action="{{ route('schools.update', $school) }}">
 @csrf
 @method('PUT')

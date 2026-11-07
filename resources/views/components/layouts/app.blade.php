@@ -45,7 +45,7 @@
             @isset($topbarFilters)
                 {{ $topbarFilters }}
             @endisset
-            <div class="topbar-actions"><a class="topbar-alert-link" href="{{ route('alerts.index') }}" aria-label="Inbox: {{ $unreadAlerts }} unread"><x-ui.nav-icon name="bell"/>@if($unreadAlerts)<span>{{ $unreadAlerts }}</span>@endif</a>
+            <div class="topbar-actions"><a class="topbar-alert-link" href="{{ route(auth()->user()->isSchoolRepresentative() ? 'announcements.index' : 'alerts.index') }}" aria-label="Inbox: {{ $unreadAlerts }} unread"><x-ui.nav-icon name="bell"/>@if($unreadAlerts)<span>{{ $unreadAlerts }}</span>@endif</a>
                 <span class="topbar-date">{{ now()->timezone(config('app.timezone'))->format('l, d M Y') }}</span>
                 <div class="profile-menu" data-menu>
                     <button class="profile-button profile-icon-button" type="button" data-menu-toggle aria-expanded="false" aria-haspopup="true" aria-controls="profile-menu-panel" aria-label="Open profile menu" title="Profile menu">
@@ -95,6 +95,7 @@
         <div class="app-main">
             @include('representative.window-strip')
             <main class="content" id="main-content" tabindex="-1">
+                @include('components.layouts.school-back-navigation')
                 @unless($hideHeading ?? false)
                     <div class="page-heading">
                         <div>

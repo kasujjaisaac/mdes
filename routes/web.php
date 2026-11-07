@@ -126,6 +126,7 @@ Route::middleware(['auth', 'active'])->group(function (): void {
         ->middleware('can:returns.view')
         ->name('returns.transition');
     Route::get('/school-statistics/returns/{return}/statistical-form/{section?}', [\App\Http\Controllers\App\StatisticalFormController::class, 'show'])->middleware('can:returns.view')->name('returns.form.show');
+    Route::post('/school-statistics/returns/{return}/draft/{section}', [\App\Http\Controllers\App\StatisticalFormController::class, 'autosave'])->middleware(['can:returns.view', 'throttle:120,1'])->name('returns.form.autosave');
     Route::post('/school-statistics/returns/{return}/statistical-form/{section}', [\App\Http\Controllers\App\StatisticalFormController::class, 'save'])->middleware('can:returns.view')->name('returns.form.save');
     Route::get('/documents', [DocumentController::class, 'index'])
         ->middleware('can:documents.view')

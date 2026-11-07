@@ -1,6 +1,6 @@
 <x-layouts.app :title="$title" :hide-heading="true">
 <div class="source-entry-page paper-entry-page reference-form-page">
-    <div class="source-form-heading"><div><h2>{{ $return->school->official_name }}</h2></div><a class="button" href="{{ auth()->user()->isSchoolRepresentative() ? route('returns.index') : route('returns.show', $return) }}">Back to submissions</a></div>
+    <div class="source-form-heading"><div><h2>{{ $return->school->official_name }}</h2></div>@unless(auth()->user()->isSchoolRepresentative())<x-ui.back-link :href="route('returns.show', $return)" label="Back to submission"/>@endunless</div>
     @if($errors->any())<div class="alert"><strong>Please correct the following:</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
     <div class="source-entry-layout"><section class="source-entry-sidebar source-entry-top-sections reference-section-navigation" aria-label="Form progress and sections">
 
@@ -37,8 +37,10 @@
 @endforeach</nav>
 <div class="reference-progress-caption">{{ count(array_intersect_key($return->statistical_form ?? [], $sections)) }} of {{ count($sections) }} sections saved</div>
 </section><div class="source-entry-content {{ $sectionKey === 'identity' ? 'profile-capture-inline' : '' }}">
-    <section class="card reference-form-card"><header class="card-header reference-form-header"><h2>Section {{ chr(65+array_search($sectionKey,array_keys($sections))) }}: {{ preg_replace('/^[0-9\-]+\.\s*/', '', $section['title']) }}</h2><span>{{ $editable ? 'Complete and save this section' : 'Read-only submission' }}</span></header>
-        <form data-protect-changes method="POST" action="{{ route('returns.form.save', [$return, $sectionKey]) }}" class="resource-form source-form">@csrf
+    <section class="card reference-form-card"><header class="card-header reference-form-header"><h2>Section {{ chr(65+array_search($sectionKey,array_keys($sections))) }}: {{ preg_replace('/^[0-9\-]+\.\s*/', '', $section['title']) }}</h2><span>{{ $editable ? 'Your progress saves automatically' : 'Read-only submission' }}</span></header>
+        <form data-protect-changes @if($editable) data-autosave-url="{{ route('returns.form.autosave', [$return, $sectionKey]) }}" data-autosave-key="{{ auth()->id() }}-{{ $return->id }}-{{ $sectionKey }}" data-draft-saved-at="{{ $draftSavedAt }}" @endif method="POST" action="{{ route('returns.form.save', [$return, $sectionKey]) }}" class="resource-form source-form">@csrf
+            <input type="hidden" name="draft_revision" value="{{ $draftRevision }}">
+            @if($editable)<div class="form-autosave-status" data-autosave-status role="status" aria-live="polite">Changes save automatically as you type.</div>@endif
             <input type="hidden" name="data[_section]" value="{{ $sectionKey }}">
             <div class="form-grid">@foreach($section['fields'] ?? [] as $key => $field)<div class="source-field source-field-{{ $key }}"><label for="control-{{ md5('data['.$key.']') }}">{{ $field['label'] }}</label><x-ui.source-field :field="$field" :name="'data['.$key.']'" :value="old('data.'.$key, $data[$key] ?? null)" :disabled="!$editable || in_array($key,$confirmedKeys ?? [])" /></div>@endforeach</div>
             @foreach($section['tables'] ?? [] as $tableKey => $table)
@@ -50,7 +52,7 @@
                 @if($sectionKey === 'enrolment')
                 @include('returns.partials.paper-enrolment')
                 @else
-                <section data-source-table="{{ $tableKey }}"><h3>{{ $table['label'] }}</h3><div class="table-wrap"><table class="data-table source-data-table"><thead><tr><th scope="col">{{ isset($table['rows']) ? 'Item' : '#' }}</th>@foreach($table['columns'] as $column)<th scope="col">{{ $column['label'] }}</th>@endforeach @if($numericColumns)<th scope="col">Total</th>@endif @if(!isset($table['rows']) && $editable)<th scope="col">Actions</th>@endif</tr></thead><tbody data-source-rows>
+                <section data-source-table="{{ $tableKey }}" @if(!isset($table['rows'])) data-repeatable-table @endif><h3>{{ $table['label'] }}</h3><div class="table-wrap"><table class="data-table source-data-table"><thead><tr><th scope="col">{{ isset($table['rows']) ? 'Item' : '#' }}</th>@foreach($table['columns'] as $column)<th scope="col">{{ $column['label'] }}</th>@endforeach @if($numericColumns)<th scope="col">Total</th>@endif @if(!isset($table['rows']) && $editable)<th scope="col">Actions</th>@endif</tr></thead><tbody data-source-rows>
                     @foreach($rowLabels as $rowKey => $label)
                         <tr><th scope="row">{{ $label ?: $loop->iteration }}</th>@foreach($table['columns'] as $columnKey => $column)<td><x-ui.source-field :field="$column" :name="'data['.$tableKey.']['.$rowKey.']['.$columnKey.']'" :value="$rows[$rowKey][$columnKey] ?? null" :disabled="!$editable" /></td>@endforeach
                         @if($numericColumns)<td class="source-total">{{ collect($numericColumns)->sum(fn($column) => (int)($rows[$rowKey][$column] ?? 0)) }}</td>@endif
@@ -63,7 +65,7 @@
                 </section>
                 @endif
             @endforeach
-            @if($editable)<div class="form-actions source-save-bar"><button class="button button-primary desktop-only-layout" type="submit">Save this section</button><div class="mobile-only-layout mobile-form-bottom-actions"><p class="mobile-save-indicator" data-save-state role="status" aria-live="polite">No unsaved changes</p><p class="mobile-navigation-help">Prev and Next save this section before moving.</p><div class="mobile-three-actions">@if($mobileSectionPosition > 0)<button class="button" type="submit" name="navigate" value="previous">Prev</button>@endif
+            @if($editable)<div class="form-actions source-save-bar"><button class="button button-primary desktop-only-layout" type="submit">Save this section</button><div class="mobile-only-layout mobile-form-bottom-actions"><p class="mobile-save-indicator" data-autosave-status role="status" aria-live="polite">Changes save automatically</p><p class="mobile-navigation-help">Prev and Next save this section before moving.</p><div class="mobile-three-actions">@if($mobileSectionPosition > 0)<button class="button" type="submit" name="navigate" value="previous">Prev</button>@endif
 @if($mobileSectionPosition < count($sections)-1)<button class="button" type="submit" name="navigate" value="next">Next</button>@endif
 <button class="button button-primary" type="submit">Save draft</button></div></div></div>@endif
 @if(!$editable)<div class="mobile-only-layout mobile-bottom-navigation">@if($mobileSectionPosition > 0)<a class="button" href="{{ route('returns.form.show',[$return,$mobileSectionKeys[$mobileSectionPosition-1]]) }}">&larr; Previous</a>@endif @if($mobileSectionPosition < count($sections)-1)<a class="button" href="{{ route('returns.form.show',[$return,$mobileSectionKeys[$mobileSectionPosition+1]]) }}">Next &rarr;</a>@endif</div>@endif

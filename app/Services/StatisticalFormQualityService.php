@@ -9,6 +9,11 @@ class StatisticalFormQualityService
     {
         $form = $return->statistical_form ?? [];
         $errors = [];
+        foreach ($return->statistical_form_drafts ?? [] as $key => $draft) {
+            if (($draft['valid'] ?? true) === false) {
+                $errors[$key] = (StatisticalForm::sections()[$key]['title'] ?? $key).' has unfinished or invalid entries. Correct them before submitting.';
+            }
+        }
         foreach (StatisticalForm::sections() as $key => $section) {
             if (! array_key_exists($key, $form)) $errors[$key] = $section['title'].' must be reviewed and saved (even if not applicable).';
         }

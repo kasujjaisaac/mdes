@@ -56,6 +56,21 @@ class StatisticalForm
         };
     }
 
+    /** Preserve unfinished entries without treating them as validated submission data. */
+    public static function draftRules(array $section): array
+    {
+        $rules = self::rules($section);
+        $rules['data'] = ['present', 'array:'.implode(',', [...array_keys($section['fields'] ?? []), ...array_keys($section['tables'] ?? []), '_section'])];
+        $rules['data._section'] = ['nullable', 'string', 'max:80'];
+        foreach ($rules as $key => $constraints) {
+            if (! collect($constraints)->contains(fn ($rule) => is_string($rule) && ($rule === 'array' || str_starts_with($rule, 'array:')))) {
+                $rules[$key] = ['nullable', 'string', 'max:3000'];
+            }
+        }
+
+        return $rules;
+    }
+
     public static function clean(array $data, array $section): array
     {
         $clean = array_intersect_key($data, $section['fields'] ?? []);

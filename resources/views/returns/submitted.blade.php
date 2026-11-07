@@ -1,7 +1,7 @@
 <x-layouts.app :title="$title" :hide-heading="true">
 <x-slot:topbarFilters><div class="profile-topbar-actions"><a class="button" href="{{ route('returns.index') }}">Submissions</a></div></x-slot:topbarFilters>
 <div class="submitted-record-page {{ ($adminReview ?? false) ? 'admin-submitted-review' : '' }}">
-<a class="submitted-mobile-back" href="{{ route('returns.index') }}">&larr; Back to submissions</a>
+@unless(auth()->user()->isSchoolRepresentative())<a class="submitted-mobile-back" href="{{ route('returns.index') }}">&larr; Back to submissions</a>@endunless
 @if($errors->any())<div class="announcement-error" role="alert"><strong>Review could not be completed.</strong><p>{{ $errors->first() }}</p></div>@endif
 <header class="submitted-record-summary"><div class="submitted-record-year"><span>REPORTING YEAR</span><strong>{{ $return->reportingPeriod->year }}</strong></div><div class="submitted-record-school"><h1>{{ $return->school->official_name }}</h1><p>{{ $return->reportingPeriod->title }} &mdash; annual submission</p></div><div class="submitted-record-date"><span class="submission-status review-status is-{{ $return->status }}"><x-ui.nav-icon name="checklist"/> {{ $return->statusLabel() }}</span>
 @if($return->submitted_at)

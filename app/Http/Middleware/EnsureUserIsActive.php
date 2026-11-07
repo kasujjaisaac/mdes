@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Models\User;
+use App\Services\SubmissionWindowNotificationService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -38,6 +39,7 @@ class EnsureUserIsActive
                 return redirect()->route('login')->withErrors(['username' => 'Your account access changed. Please sign in again.']);
             }
             $request->session()->put($key, (int) $user->session_version);
+            app(SubmissionWindowNotificationService::class)->syncFor($user);
         }
 
         return $next($request);

@@ -52,6 +52,11 @@ class SchoolReturnController extends Controller
             'breadcrumbs' => [['label' => 'school statistics'], ['label' => Navigation::submissionLabel()]],
             'returns' => $returns,
             'submissionCounts' => $counts,
+            'startablePeriods' => ReportingPeriod::query()->where('is_archived', false)
+                ->whereHas('schools', fn ($query) => $query->where('schools.id', $request->user()->school_id))
+                ->whereDoesntHave('schoolReturns', fn ($query) => $query->where('school_id', $request->user()->school_id))
+                ->when($request->filled('period_id'), fn ($query) => $query->whereKey($request->integer('period_id')))
+                ->orderByDesc('year')->get()->filter(fn ($period) => $period->isSubmissionOpen()),
             'periods' => ReportingPeriod::query()->where('is_archived', false)->whereHas('schools', fn ($q) => $q->visibleTo($request->user()))->latest()->get(),
             'schools' => School::query()->visibleTo($request->user())->orderBy('official_name')->get(),
         ]);

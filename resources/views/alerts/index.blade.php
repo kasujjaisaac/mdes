@@ -7,7 +7,7 @@
 @endif
 <div class="alerts-inbox-messages">
 @forelse($alerts as $alert)
-<article class="school-alert {{ !$alert->read_at && $alert->user_id===auth()->id()?'is-unread':'' }}"><div class="school-alert-icon"><x-ui.nav-icon :name="in_array($alert->type,['support_request','support_reply']) ? 'help' : 'document'"/></div><div class="school-alert-content"><div class="alert-message-category"><span>{{ in_array($alert->type,['support_request','support_reply']) ? 'Support' : ($alert->type==='announcement' ? 'Announcement' : ($alert->type==='school_message' ? 'School message' : 'School feedback')) }}</span>@if(!$alert->read_at && $alert->user_id===auth()->id())<span class="alert-new-label">New</span>@endif</div><header><h2>{{ $alert->subject ?? ucfirst(str_replace('_',' ',$alert->type)) }}</h2><time>{{ $alert->created_at->timezone('Africa/Kampala')->format('d M Y, H:i') }}</time></header><small>{{ $alert->sender?->name ?? config('mdsiss.name') }}
+<article class="school-alert {{ !$alert->read_at && $alert->user_id===auth()->id()?'is-unread':'' }}"><div class="school-alert-icon"><x-ui.nav-icon :name="in_array($alert->type,['support_request','support_reply']) ? 'help' : 'document'"/></div><div class="school-alert-content"><div class="alert-message-category"><span>{{ in_array($alert->type,['support_request','support_reply']) ? 'Support' : (in_array($alert->type,['announcement','submission_window']) ? 'Announcement' : ($alert->type==='school_message' ? 'School message' : 'School feedback')) }}</span>@if(!$alert->read_at && $alert->user_id===auth()->id())<span class="alert-new-label">New</span>@endif</div><header><h2>{{ $alert->subject ?? ucfirst(str_replace('_',' ',$alert->type)) }}</h2><time>{{ $alert->created_at->timezone('Africa/Kampala')->format('d M Y, H:i') }}</time></header><small>{{ $alert->sender?->name ?? config('mdsiss.name') }}
 @if($alert->school)
  &middot; {{ $alert->school->official_name }}
 @endif
@@ -15,6 +15,7 @@
  &middot; {{ $alert->schoolReturn->reportingPeriod?->year }}
 @endif
 </small><p>{{ $alert->message }}</p><footer>
+@if($alert->type==='submission_window')<a href="{{ route('representative.home') }}">Open school forms</a>@endif
 @if(in_array($alert->type,['support_request','support_reply']))
 <a href="{{ route('support.index') }}">Open support &rarr;</a>
 @endif

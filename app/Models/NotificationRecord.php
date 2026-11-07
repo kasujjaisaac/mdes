@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['school_id', 'school_return_id', 'sender_id', 'subject', 'user_id', 'type', 'severity', 'message', 'status', 'read_at', 'announcement_id'])]
+#[Fillable(['school_id', 'school_return_id', 'sender_id', 'subject', 'user_id', 'type', 'severity', 'message', 'status', 'read_at', 'announcement_id', 'notification_key'])]
 class NotificationRecord extends Model
 {
     public function sender()

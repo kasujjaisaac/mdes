@@ -16,6 +16,6 @@ $stripMessage=$stripSubmitted ? 'Your '.$stripWindow->year.' school submission h
 @for($copy=0;$copy<2;$copy++)
 <div class="window-strip-copy" @if($copy===1) aria-hidden="true" @endif><span><svg class="marquee-message-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M4 4h16v12H9l-5 4V4Z"/><path d="M8 8h8M8 12h6"/></svg>{{ $stripMessage }}</span><span aria-hidden="true"><svg class="marquee-message-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 4h16v12H9l-5 4V4Z"/><path d="M8 8h8M8 12h6"/></svg>{{ $stripMessage }}</span></div>
 @endfor
-</div></div><button type="button" class="mobile-announcement-toggle" data-announcement-toggle aria-expanded="false">Read notice</button><a href="{{ $stripSubmitted?route('returns.show',$stripEntry):route('representative.home') }}">{{ $stripSubmitted?'View submission':'School forms' }} &rarr;</a></aside><div class="mobile-announcement-full" hidden>{{ $stripMessage }}</div>
+</div></div><a class="mobile-announcement-toggle" href="{{ route('announcements.index') }}">Read notice</a><a href="{{ $stripSubmitted?route('returns.show',$stripEntry):route('representative.home') }}">{{ $stripSubmitted?'View submission':'School forms' }} &rarr;</a></aside>
 @endif
 @endif

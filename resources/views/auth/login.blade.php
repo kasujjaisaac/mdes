@@ -13,7 +13,7 @@
         <img class="login-logo" src="{{ asset('images/system-logo.jpg') }}" alt="Masaka Diocese crest" width="100" height="100">
         <h1 id="login-title" class="login-welcome">{{ config('mdsiss.name') }}</h1>
         <p class="login-subtitle">Sign in to continue</p>
-        @if(session('status'))
+        @if(session('status') && !session('registered_username'))
             <p class="login-message" role="status">{{ session('status') }}</p>
         @endif
         @if($errors->any())
@@ -34,6 +34,7 @@
         </form>
         <p class="login-subtitle"><a href="{{ route('schools.register') }}">New school? Register your school</a></p>
     </main>
+    @include('auth.partials.registration-success')
     @include('auth.partials.password-toggle')
 </body>
 </html>

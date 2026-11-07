@@ -1,6 +1,6 @@
 
 <div class="client-submissions">
-    <header class="client-submissions-heading"><a href="{{ route('representative.home') }}">&larr; Dashboard</a><h1>My submissions</h1><p>Manage your school returns and follow their review status.</p></header>
+    <header class="client-submissions-heading"><h1>My submissions</h1><p>Manage your school returns and follow their review status.</p></header>
     <div class="client-submission-summary" aria-label="All school submissions">
         <div><strong>{{ $submissionCounts->sum() }}</strong><span>Total returns</span></div>
         <div><strong>{{ ($submissionCounts['draft'] ?? 0) + ($submissionCounts['returned_for_correction'] ?? 0) + ($submissionCounts['not_started'] ?? 0) }}</strong><span>To complete</span></div>
@@ -31,7 +31,7 @@
             <footer>@if($return->submitted_at)<span>Submitted {{ $return->submitted_at->timezone('Africa/Kampala')->format('j M Y') }}</span>@else<span>Not submitted yet</span>@endif<a class="button {{ $editable ? 'button-primary' : '' }}" href="{{ $editable && !$return->profile_confirmed_at ? route('representative.confirm', $return) : route('returns.show', $return) }}">{{ $return->status === 'returned_for_correction' ? 'Review corrections' : ($editable ? 'Continue form' : 'View submission') }} &rarr;</a></footer>
         </article>
     @empty
-        <section class="client-submission-empty"><x-ui.nav-icon name="clipboard"/><h3>No returns found</h3><p>{{ request()->filled('period_id') || request()->filled('status') ? 'Try another collection or clear your filters.' : 'Open your dashboard to see the collections available to your school.' }}</p><a class="button" href="{{ request()->filled('period_id') || request()->filled('status') ? route('returns.index') : route('representative.home') }}">{{ request()->filled('period_id') || request()->filled('status') ? 'Clear filters' : 'Go to dashboard' }}</a></section>
+        <section class="client-submission-empty"><x-ui.nav-icon name="clipboard"/><h3>No returns found</h3><p>{{ $startablePeriods->isNotEmpty() ? 'Choose Start form above to begin your school return.' : (request()->filled('period_id') || request()->filled('status') ? 'Try another collection or clear your filters.' : 'No new forms are currently available. Assigned open windows will appear here.') }}</p>@if(request()->filled('period_id') || request()->filled('status'))<a class="button" href="{{ route('returns.index') }}">Clear filters</a>@endif</section>
     @endforelse
     </div>
     <div class="native-pagination">{{ $returns->links() }}</div>

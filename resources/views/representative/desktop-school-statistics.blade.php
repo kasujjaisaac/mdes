@@ -24,12 +24,12 @@
         </article>
         <article class="desktop-statistics-panel">
             <header><x-ui.nav-icon name="chart"/><h3>Teaching and classroom ratios</h3></header>
-            <dl class="school-ratio-list"><div><dt>Learners per teacher</dt><dd>{{ $hasEnrolment && $teacherCount > 0 ? number_format($learnerTotal / $teacherCount, 1) : 'Not available' }}</dd></div><div><dt>Learners per permanent classroom</dt><dd>{{ $hasEnrolment && $classrooms > 0 ? number_format($learnerTotal / $classrooms, 1) : 'Not available' }}</dd></div></dl>
+            <dl class="school-ratio-list"><div><dt>Learners per teacher</dt><dd @class(['is-missing' => !$hasEnrolment || !$teacherCount || $teacherCount <= 0])>{{ $hasEnrolment && $teacherCount > 0 ? number_format($learnerTotal / $teacherCount, 1) : 'Not available' }}</dd></div><div><dt>Learners per permanent classroom</dt><dd @class(['is-missing' => !$hasEnrolment || !$classrooms || $classrooms <= 0])>{{ $hasEnrolment && $classrooms > 0 ? number_format($learnerTotal / $classrooms, 1) : 'Not available' }}</dd></div></dl>
             <p>Calculated from recorded totals; these are averages, not actual class sizes.</p>
         </article>
         <article class="desktop-statistics-panel">
             <header><x-ui.nav-icon name="building"/><h3>Learning resources</h3></header>
-            <dl class="school-resource-list">@foreach($resourceItems as [$label,$value,$icon])<div><dt><x-ui.nav-icon :name="$icon"/>{{ $label }}</dt><dd>{{ $value !== null ? number_format($value) : 'Not recorded' }}</dd></div>@endforeach</dl>
+            <dl class="school-resource-list">@foreach($resourceItems as [$label,$value,$icon])<div><dt><x-ui.nav-icon :name="$icon"/>{{ $label }}</dt><dd @class(['is-missing' => $value === null])>{{ $value !== null ? number_format($value) : 'Not recorded' }}</dd></div>@endforeach</dl>
             <p>Quantities from the facilities section of this form.</p>
         </article>
     </div>

@@ -5,8 +5,8 @@
     <button type="button" data-close-announcement aria-label="Close notification"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
     <div class="window-announcement-emblem"><x-ui.nav-icon name="calendar"/></div>
     <p class="window-announcement-eyebrow">ANNUAL SCHOOL COLLECTION &middot; {{ $period->year }}</p>
-    <h2 id="window-announcement-title">Your school?s story.<br>Your next submission.</h2>
-    <p id="window-announcement-description">Bring your school?s records up to date.<br>Complete and submit your annual statistics on time.</p>
+    <h2 id="window-announcement-title">Your school&#39;s story.<br>Your next submission.</h2>
+    <p id="window-announcement-description">Bring your school&#39;s records up to date.<br>Complete and submit your annual statistics on time.</p>
 </header>
 <div class="window-announcement-body">
     <div class="window-announcement-school"><span class="window-announcement-school-icon"><x-ui.nav-icon name="school"/></span><div><span>PREPARED FOR</span><strong>{{ $school->official_name }}</strong></div></div>
