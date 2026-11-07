@@ -261,12 +261,12 @@ class StatisticalFormTest extends TestCase
         $this->assertSame('locked', $return->fresh()->status);
         $this->assertNotNull($return->fresh()->locked_at);
         $this->post(route('returns.form.save',[$return,'enrolment']),['data'=>[]])->assertForbidden();
-        $this->post(route('returns.transition',$return),['action'=>'return_for_correction','reason'=>'Change enrolment'])->assertForbidden();
+        $this->post(route('returns.transition',$return),['review_token'=>\App\Support\StatisticalForm::adminReviewFingerprint($return->fresh()),'action'=>'return_for_correction','reason'=>'Change enrolment'])->assertForbidden();
         $this->actingAs($admin)->post(route('returns.form.save',[$return,'enrolment']),['data'=>[]])->assertForbidden();
         $this->get(route('dashboard',['year'=>2026]))->assertOk()->assertViewHas('boys',12)->assertDontSee('Approved / locked')->assertDontSee('Provisional');
         foreach (['certify','lock'] as $action) $this->post(route('returns.transition',$return),['action'=>$action])->assertSessionHasErrors('action');
-        $this->post(route('returns.transition',$return),['action'=>'return_for_correction'])->assertSessionHasErrors('reason');
-        $this->post(route('returns.transition',$return),['action'=>'return_for_correction','reason'=>'Correct the boys count'])->assertSessionHasNoErrors();
+        $this->post(route('returns.transition',$return),['review_token'=>\App\Support\StatisticalForm::adminReviewFingerprint($return->fresh()),'action'=>'return_for_correction'])->assertSessionHasErrors('reason');
+        $this->post(route('returns.transition',$return),['review_token'=>\App\Support\StatisticalForm::adminReviewFingerprint($return->fresh()),'action'=>'return_for_correction','reason'=>'Correct the boys count'])->assertSessionHasNoErrors();
         $this->assertSame('returned_for_correction', $return->fresh()->status);
         $this->assertNull($return->fresh()->locked_at);
         $this->get(route('dashboard',['year'=>2026]))->assertOk()->assertViewHas('boys',null);
@@ -356,7 +356,7 @@ class StatisticalFormTest extends TestCase
         [$user,$return] = $this->context();
         $this->actingAs($user)->get(route('dashboard'))->assertOk()->assertDontSee('inspection visits')->assertDontSee('financial summaries')->assertDontSee('School Operational Status');
         $this->get(route('schools.create'))->assertOk()->assertDontSee('name="latitude"', false)->assertDontSee('name="operational_status"', false)->assertDontSee('name="diocesan_code"', false);
-        $this->get(route('returns.show',$return))->assertOk()->assertDontSee('attendance and welfare')->assertDontSee('governance and compliance');
+        $this->get(route('returns.show',$return))->assertForbidden();
         foreach (['/oversight/inspections','/oversight/projects','/school-statistics/financial-statistics','/communications','/helpdesk','/school-statistics/returns/'.$return->id.'/enrolment'] as $url) $this->get($url)->assertNotFound();
         $this->post('/school-statistics/financial-statistics',['school_id'=>$return->school_id])->assertNotFound();
     }
@@ -441,7 +441,7 @@ class StatisticalFormTest extends TestCase
     public function test_locked_returns_are_read_only_and_unassigned_users_cannot_read_staff(): void
     {
         [$user,$return] = $this->context();
-        $return->update(['status'=>'locked']);
+        $return->update(['status'=>'locked','submitted_at'=>now()]);
         $this->actingAs($user)->get(route('returns.form.show',[$return,'teaching']))->assertOk()->assertDontSee('type="submit">Save draft</button>', false);
         $this->post(route('returns.form.save',[$return,'teaching']),['data'=>[]])->assertForbidden();
         $this->actingAs(User::factory()->create())->get(route('returns.form.show',[$return,'teaching']))->assertForbidden();
@@ -519,7 +519,7 @@ class StatisticalFormTest extends TestCase
         $this->assertSame($rep->id,$return->statistical_form['declaration']['acknowledged_by']);
         $this->assertNotEmpty($return->statistical_form['declaration']['acknowledged_at']);
         $this->get(route('returns.show',$return))->assertOk()->assertSee('Submission reference: MDES-'.$return->id);
-        $this->post(route('returns.transition',$return),['action'=>'submit','acknowledged'=>1,'review_fingerprint'=>StatisticalForm::reviewFingerprint($return->fresh())])->assertForbidden();
+        $this->post(route('returns.transition',$return),['action'=>'submit','acknowledged'=>1,'review_fingerprint'=>StatisticalForm::reviewFingerprint($return->fresh())])->assertSessionHasNoErrors()->assertRedirect(route('returns.show',$return));
     }
 
     public function test_changed_answers_require_another_review_before_submission(): void

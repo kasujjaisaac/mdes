@@ -1,28 +1,31 @@
-<x-layouts.app :title="$title" :breadcrumbs="[['label' => 'reports']]">
-    @if($errors->any())<x-ui.alert>{{ $errors->first() }}</x-ui.alert>@endif
-    <section class="stats-grid">
-        <x-ui.stat-card label="schools" :value="$schools" meta="registry records" tone="blue" />
-        <x-ui.stat-card label="submitted returns" :value="$lockedReturns" meta="pending review and approved" tone="green" />
-    </section>
-    <div class="module-grid">
-        <x-ui.card title="generate export" subtitle="Submitted and approved forms are included, with review status. Drafts and returned forms are excluded.">
-            <form class="resource-form" method="POST" action="{{ route('reports.export') }}">
-                @csrf
-                <div class="form-grid">
-                    <label>report type<select name="report_type">@foreach (['school registry','enrolment','staff','examinations','infrastructure','religious affiliation','utilities','staff study programmes'] as $type)<option value="{{ $type }}">{{ $type === 'school registry' ? 'Registered Schools' : $type }}</option>@endforeach</select></label>
-                    <label>format<select name="format">@foreach (['csv','xlsx','pdf'] as $format)<option>{{ $format }}</option>@endforeach</select></label>
-                </div>
-                <div class="form-actions"><button class="button button-primary">Generate report</button></div>
-            </form>
-        </x-ui.card>
-        <x-ui.card title="recent exports" subtitle="audit-friendly export register">
-            <x-ui.table :headers="['report', 'format', 'status', 'generated', 'download']">
-                @forelse ($exports as $export)
-                    <tr><td>{{ $export->report_type }}</td><td>{{ $export->format }}</td><td>{{ $export->path ? $export->status : ($export->status === 'generated' ? 'Legacy log (no file)' : $export->status) }}</td><td>{{ $export->generated_at->toDayDateTimeString() }}</td><td>@if($export->status === 'generated' && $export->path)<a href="{{ route('reports.download',$export) }}">Download</a>@elseif($export->status === 'failed'){{ $export->failure_reason }}@else &mdash; @endif</td></tr>
-                @empty
-                    <tr><td colspan="5"><x-ui.empty-state title="no exports yet" message="export records appear after generation." /></td></tr>
-                @endforelse
-            </x-ui.table>
-        </x-ui.card>
-    </div>
-</x-layouts.app>
+<x-layouts.app :title="$title" :hide-heading="true">
+<div class="reports-workspace">
+<x-ui.back-link :href="route('dashboard')" label="Back to dashboard" class="reports-back-button"/>
+<header class="reports-heading"><div><span class="diocesan-eyebrow">Administration</span><h1>Reports</h1><p>Choose a report, preview the figures, then download.</p></div><span class="reports-count">{{ count($catalog) }} reports</span></header>
+@if($errors->any())<div class="announcement-error" role="alert"><strong>Please check your report selection.</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+<section class="report-builder"><header><div class="report-builder-title"><span aria-hidden="true"><x-ui.nav-icon name="document"/></span><div><h2>Create report</h2><p>Choose your report and reporting period.</p></div></div><span class="report-step-label">1. Select &nbsp; 2. Preview &nbsp; 3. Download</span></header>
+<form method="POST" action="{{ route('reports.preview') }}" data-report-builder>@csrf
+<div class="report-filter-grid">
+<label class="report-type-field">Report<select name="report_type" required>@foreach($catalog as $key=>$label)<option value="{{ $key }}" @selected(old('report_type')===$key)>{{ $label }}</option>@endforeach</select></label>
+<label data-report-field="year">Reporting year<select name="year">@foreach($years->push(now('Africa/Kampala')->year)->unique()->sortDesc() as $year)<option value="{{ $year }}" @selected((int)old('year',now('Africa/Kampala')->year)===$year)>{{ $year }}</option>@endforeach</select></label>
+<label data-report-field="basis">Data basis<select name="basis"><option value="submitted" @selected(old('basis')!=='approved')>All submitted forms</option><option value="approved" @selected(old('basis')==='approved')>Approved only</option></select></label>
+<label class="report-school-field">School<select name="school_id"><option value="">All schools</option>@foreach($schools as $s)<option value="{{ $s->id }}" @selected(old('school_id')==$s->id)>{{ $s->official_name }}</option>@endforeach</select><small data-report-school-help>Choose a school only for an individual report.</small></label>
+<label data-report-field="comparison">Comparison year<input name="comparison_year" type="number" min="2000" max="2100" value="{{ old('comparison_year') }}" placeholder="Previous year"><small>Used by the year comparison report only.</small></label>
+</div>
+<?php $selectedReportFilters = collect(['parish_id','district_id','level','funding','residence','gender'])->filter(fn($key)=>filled(old($key)))->count(); ?>
+<details class="report-school-filters" data-report-school-filters @if($selectedReportFilters) open @endif><summary><span><x-ui.nav-icon name="settings"/> Filter schools <small>Optional</small></span><span class="report-filter-count" data-report-filter-count>{{ $selectedReportFilters ? $selectedReportFilters.' selected' : 'No extra filters' }}</span></summary><div class="report-filter-grid report-secondary-filters"><label>Parish<select name="parish_id"><option value="">All parishes</option>@foreach($schools->pluck('parish')->filter()->unique('id')->sortBy('name') as $p)<option value="{{ $p->id }}" @selected(old('parish_id')==$p->id)>{{ $p->name }}</option>@endforeach</select></label>
+<label>District<select name="district_id"><option value="">All districts</option>@foreach($schools->pluck('district')->filter()->unique('id')->sortBy('name') as $d)<option value="{{ $d->id }}" @selected(old('district_id')==$d->id)>{{ $d->name }}</option>@endforeach</select></label>
+<label>School level<select name="level"><option value="">All levels</option>@foreach(['nursery'=>'Pre-primary','primary'=>'Primary','secondary'=>'Secondary','vocational_technical'=>'Vocational','tertiary'=>'Tertiary'] as $key=>$label)<option value="{{ $key }}" @selected(old('level')===$key)>{{ $label }}</option>@endforeach</select></label>
+<label>Funding<select name="funding"><option value="">All funding</option>@foreach(['Government','Private'] as $v)<option @selected(old('funding')===$v)>{{ $v }}</option>@endforeach</select></label>
+<label>Residence<select name="residence"><option value="">All residence types</option>@foreach(['Day','Boarding','Both day and boarding'] as $v)<option @selected(old('residence')===$v)>{{ $v }}</option>@endforeach</select></label>
+<label>School gender<select name="gender"><option value="">All school types</option>@foreach(['Boys','Girls','Mixed'] as $v)<option @selected(old('gender')===$v)>{{ $v }}</option>@endforeach</select></label>
+</div></details>
+<footer><a class="button report-reset" href="{{ route('reports.index') }}">Reset</a><button class="button button-primary report-preview-button" type="submit">Preview report <span aria-hidden="true">&rarr;</span></button></footer>
+</form></section>
+<section class="reports-history"><header><div><h2>Recent exports</h2><p>Your generated files, ready to download.</p></div><span class="report-history-count">{{ $exports->total() }}</span></header>
+@if($exports->isEmpty())<div class="reports-empty"><span><x-ui.nav-icon name="document"/></span><strong>No exports yet</strong><p>Preview a report above to create your first download.</p><div>Word <i></i> Excel <i></i> PDF</div></div>
+@else<div class="table-wrap"><table class="data-table report-history-table"><thead><tr><th>Report</th><th class="report-history-format">Format</th><th>Created</th><th class="report-history-status">Status</th><th class="report-history-action">File</th></tr></thead><tbody>
+@foreach($exports as $export)<tr><td><strong>{{ $catalog[$export->report_type]??ucfirst($export->report_type) }}</strong><small>{{ $export->filters['_metadata']['Reporting year']??'' }}@if(isset($export->filters['basis'])) &middot; {{ $export->filters['basis']==='approved'?'Approved only':'Submitted' }}@endif</small><span class="report-history-inline"><span>{{ \App\Support\Reports\ReportCatalog::FORMATS[$export->format]??strtoupper($export->format) }}</span><span class="export-state is-{{ $export->status }}">{{ $export->status==='generated'?'Ready':ucfirst($export->status) }}</span></span></td>
+<td class="report-history-format">{{ \App\Support\Reports\ReportCatalog::FORMATS[$export->format]??strtoupper($export->format) }}</td><td class="report-history-date">{{ $export->generated_at?->timezone('Africa/Kampala')->format('d M Y') }}<small>{{ $export->generated_at?->timezone('Africa/Kampala')->format('H:i') }} EAT</small></td><td class="report-history-status"><span class="export-state is-{{ $export->status }}">{{ $export->status==='generated'?'Ready':ucfirst($export->status) }}</span></td><td class="report-history-action">@if($export->status==='generated'&&$export->path)<a class="report-file-download" href="{{ route('reports.download',$export) }}" aria-label="Download {{ $catalog[$export->report_type]??$export->report_type }} as {{ strtoupper($export->format) }}" title="Download report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></svg><span>Download</span></a>@elseif($export->status==='failed')<span class="report-export-error" title="{{ $export->failure_reason }}">Failed</span>@else &mdash; @endif</td></tr>@endforeach
+</tbody></table></div>{{ $exports->links() }}@endif</section>
+</div></x-layouts.app>

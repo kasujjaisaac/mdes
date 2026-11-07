@@ -1,12 +1,12 @@
 <x-layouts.app :title="$title" :hide-heading="true">
 <x-slot:topbarFilters>
 <div class="admin-dashboard-toolbar">
-    <div class="admin-toolbar-context"><span>Administration</span><strong>Education dashboard</strong></div>
-    <span class="admin-toolbar-year"><x-ui.nav-icon name="calendar"/>{{ $year }} reporting</span>
     <nav class="admin-toolbar-shortcuts" aria-label="Dashboard shortcuts">
         @can('returns.view')<a href="{{ route('dashboard.details',array_merge(request()->only(['parish','district','level','reporting_status']),['year'=>$year,'metric'=>'schools','stage'=>'submitted'])) }}"><x-ui.nav-icon name="clipboard"/><span>Submissions</span><b>{{ $submittedCount }}</b></a>
         @endcan
-        @can('reporting-periods.view')<a href="{{ route('reporting-periods.index',['year'=>$year]) }}"><x-ui.nav-icon name="calendar"/><span class="toolbar-label-full">Reporting windows</span><span class="toolbar-label-short">Windows</span></a>@endcan
+        @can('reporting-periods.view')
+        <?php $dashboardWindow = \App\Models\ReportingPeriod::where('year',$year)->where('type','annual_census')->where('is_archived',false)->latest('id')->first(); $dashboardWindowOpen = $dashboardWindow?->isSubmissionOpen() ?? false; ?>
+        <a class="dashboard-window-shortcut" href="{{ route('reporting-periods.index',['year'=>$year]) }}"><x-ui.nav-icon name="calendar"/><span>Submission window</span><span class="dashboard-window-indicator {{ $dashboardWindowOpen ? 'is-open' : 'is-closed' }}"><i aria-hidden="true"></i>{{ $dashboardWindow ? ($dashboardWindowOpen ? 'Open' : 'Closed') : 'Not set' }}</span></a>@endcan
     </nav>
 </div>
 </x-slot:topbarFilters>
@@ -20,7 +20,7 @@ $parishLinks = fn($metric,$stage='expected') => $parishRows->mapWithKeys(fn($r)=
 
 @endphp
 <div class="insight-dashboard reference-dashboard hr-dashboard diocesan-dashboard dashboard-polished">
-<header class="diocesan-heading"><div><span class="diocesan-eyebrow">Masaka Diocesan Education Secretariat</span><h1>Diocesan education overview</h1><p class="dashboard-period-label"><span class="dashboard-period-dot" aria-hidden="true"></span>{{ $year }} school statistics</p></div></header>
+<header class="diocesan-heading"><div><h1>Diocesan overview</h1><p class="dashboard-period-label"><span class="dashboard-period-dot" aria-hidden="true"></span>{{ $year }} school statistics</p></div></header>
 @include('components.dashboard.filters')
 
 <section class="diocesan-panel dashboard-workflow" aria-label="Reporting completeness"><header><h2><a href="{{ $detailLink(['metric'=>'schools']) }}">School reporting progress &rarr;</a></h2></header>

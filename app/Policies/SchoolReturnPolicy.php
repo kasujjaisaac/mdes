@@ -9,6 +9,10 @@ class SchoolReturnPolicy
 {
     public function view(User $user, SchoolReturn $return): bool
     {
+        if ($user->isAdministrator()) {
+            return $return->submitted_at !== null && in_array($return->status, [...SchoolReturn::SUBMITTED_STATUSES, SchoolReturn::STATUS_RETURNED_FOR_CORRECTION], true);
+        }
+
         return $user->can('view', $return->school);
     }
 

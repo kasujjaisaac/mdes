@@ -67,7 +67,7 @@ class SecurityAuditRegressionTest extends TestCase
         $reviewer = User::factory()->create();
         $reviewer->roles()->attach(tap(Role::firstOrCreate(['slug' => 'parish-education-coordinator'], ['name' => 'Scoped test reviewer']), fn ($role) => $role->permissions()->sync(Permission::whereIn('slug', ['schools.view.assigned', 'returns.view', 'returns.review'])->pluck('id'))));
         $this->assertFalse(Gate::forUser($reviewer)->allows('view', $school));
-        $this->actingAs($reviewer)->post(route('returns.transition', $return), ['action' => 'return_for_correction', 'reason' => 'Audit reproduction'])->assertForbidden();
+        $this->actingAs($reviewer)->post(route('returns.transition', $return), ['review_token'=>\App\Support\StatisticalForm::adminReviewFingerprint($return->fresh()),'action' => 'return_for_correction', 'reason' => 'Audit reproduction'])->assertForbidden();
         $this->assertSame('submitted', $return->fresh()->status);
     }
 
@@ -191,7 +191,7 @@ class SecurityAuditRegressionTest extends TestCase
         $stream = fopen('php://temp', 'w+');
         fwrite($stream, Storage::disk('local')->get($export->path));
         rewind($stream);
-        fgetcsv($stream, 0, ',', '"', '');
+        while (($headers = fgetcsv($stream, 0, ',', '"', '')) !== false && ($headers[0] ?? null) !== 'School') {}
         $row = fgetcsv($stream, 0, ',', '"', '');
         fclose($stream);
         $this->assertStringStartsWith("'=", $row[0]);

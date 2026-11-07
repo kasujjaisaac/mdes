@@ -18,6 +18,12 @@ class StatisticalForm
         };
     }
 
+    public static function adminReviewFingerprint(SchoolReturn $return): string
+    {
+        $version = \App\Models\SubmissionVersion::where('school_return_id',$return->id)->latest('version')->first();
+        return hash_hmac('sha256', json_encode([$return->id,$return->status,$return->submitted_at?->toIso8601String(),$version?->id,$version?->content_hash,$version ? null : $return->statistical_form],JSON_THROW_ON_ERROR),(string)config('app.key'));
+    }
+
     public static function reviewFingerprint(SchoolReturn $return): string
     {
         return hash_hmac('sha256', json_encode([

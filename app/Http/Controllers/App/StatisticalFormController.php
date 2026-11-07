@@ -8,6 +8,7 @@ use App\Models\SchoolReturn;
 use App\Services\StatisticalFormDraftService;
 use App\Services\StatisticalFormQualityService;
 use App\Services\StatisticalFormSummaryService;
+use App\Services\SubmissionVersionService;
 use App\Support\StatisticalForm;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +37,12 @@ class StatisticalFormController extends Controller
     public function show(SchoolReturn $return, string $section = 'identity')
     {
         Gate::authorize('view', $return);
+        if (auth()->user()->isAdministrator()) {
+            $return = app(SubmissionVersionService::class)->forDisplay($return);
+            if ($return->status === 'returned_for_correction' && ! $return->getRelation('displayVersion')) {
+                return redirect()->route('returns.show', $return);
+            }
+        }
         if (auth()->user()->isSchoolRepresentative() && ! $return->profile_confirmed_at && in_array($return->status, ['draft', 'returned_for_correction'])) {
             return redirect()->route('representative.confirm', $return);
         }
@@ -59,13 +66,16 @@ class StatisticalFormController extends Controller
             if ($editable) {
                 $displayForm = $return->statistical_form ?? [];
                 foreach ($return->statistical_form_drafts ?? [] as $key => $draft) {
-                    if (isset($draft['data'])) $displayForm[$key] = $draft['data'];
+                    if (isset($draft['data'])) {
+                        $displayForm[$key] = $draft['data'];
+                    }
                 }
                 if (isset($displayForm['enrolment']['community'])) {
                     $displayForm['religion']['community'] = $displayForm['enrolment']['community'];
                 }
                 $return->statistical_form = $displayForm;
             }
+
             return view('returns.submitted', [
                 'title' => 'Review and submit', 'return' => $return->loadMissing('school', 'reportingPeriod'),
                 'reviewMode' => $editable, 'qualityErrors' => $qualityErrors, 'reviewFingerprint' => $reviewFingerprint,

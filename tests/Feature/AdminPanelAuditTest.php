@@ -51,7 +51,7 @@ class AdminPanelAuditTest extends TestCase
         [$admin,$head,$school,$period,$return] = $this->context();
         $this->actingAs($admin)->post(route('returns.start', [$period, $school]))->assertForbidden();
         $this->post(route('returns.form.save', [$return, 'identity']), ['data' => ['school_name' => 'Forged']])->assertForbidden();
-        $this->get(route('returns.form.show', [$return, 'identity']))->assertOk()->assertViewHas('editable', false);
+        $this->get(route('returns.form.show', [$return, 'identity']))->assertForbidden();
         $this->assertNull($return->fresh()->statistical_form);
     }
 

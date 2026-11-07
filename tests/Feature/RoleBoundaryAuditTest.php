@@ -42,7 +42,7 @@ class RoleBoundaryAuditTest extends TestCase
             $this->get(route($route))->assertForbidden();
         }
         $this->post(route('announcements.publish'),[])->assertForbidden();
-        $this->post(route('returns.transition',$return),['action'=>'approve'])->assertForbidden();
+        $this->post(route('returns.transition',$return),['review_token'=>\App\Support\StatisticalForm::adminReviewFingerprint($return->fresh()),'action'=>'approve'])->assertForbidden();
         $other = $school->replicate(); $other->diocesan_code='ROLE-02'; $other->ministry_registration_number='ROLE-02'; $other->save();
         $foreign = SchoolReturn::create(['school_id'=>$other->id,'reporting_period_id'=>$period->id,'status'=>'draft']);
         $this->get(route('returns.show',$foreign))->assertForbidden();
@@ -57,7 +57,7 @@ class RoleBoundaryAuditTest extends TestCase
         $this->assertFalse($head->isAdministrator());
         $this->assertFalse($head->hasPermission('users.manage'));
         $this->actingAs($head)->get(route('administration.users.index'))->assertForbidden();
-        $this->post(route('returns.transition',$return),['action'=>'approve'])->assertForbidden();
+        $this->post(route('returns.transition',$return),['review_token'=>\App\Support\StatisticalForm::adminReviewFingerprint($return->fresh()),'action'=>'approve'])->assertForbidden();
         $this->get(route('representative.profile'))->assertForbidden();
     }
 

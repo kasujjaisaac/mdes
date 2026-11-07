@@ -1,6 +1,10 @@
 <x-layouts.app :title="$title" :hide-heading="true">
 <x-slot:topbarFilters><div class="profile-topbar-actions"><a class="button" href="{{ route('returns.index') }}">Submissions</a></div></x-slot:topbarFilters>
-<?php $reviewMode = $reviewMode ?? false; ?>
+<?php $reviewMode = $reviewMode ?? false; $submittedSections = $return->relationLoaded('displayVersion') ? ($return->getRelation('displayVersion')?->payload['schema'] ?? \App\Support\StatisticalForm::sectionsForReturn($return)) : \App\Support\StatisticalForm::sectionsForReturn($return); $missingSubmittedCopy = $return->relationLoaded('displayVersion') && !$return->getRelation('displayVersion') && $return->status==='returned_for_correction'; if($missingSubmittedCopy)$submittedSections=[]; ?>
+@if(!$missingSubmittedCopy)
+@include('returns.partials.download-copy',['copyReturn'=>$return])
+@endif
+@if($missingSubmittedCopy)<div class="announcement-error" role="status">The original submitted copy was not retained for this older form. The school's working corrections remain private until resubmission.</div>@endif
 <div class="submitted-record-page {{ ($adminReview ?? false) ? 'admin-submitted-review' : '' }}">
 @unless(auth()->user()->isSchoolRepresentative())<a class="submitted-mobile-back" href="{{ route('returns.index') }}">&larr; Back to submissions</a>@endunless
 @if($errors->any())<div class="announcement-error" role="alert"><strong>Review could not be completed.</strong><p>{{ $errors->first() }}</p></div>@endif
@@ -26,12 +30,12 @@ $target = array_key_exists($target,\App\Support\StatisticalForm::sectionsForRetu
 </div></header>
 @php($sectionTitle = fn($title) => $title)
 <nav class="submitted-record-nav" aria-label="Submitted data sections">
-@foreach(collect(\App\Support\StatisticalForm::sectionsForReturn($return))->except('declaration') as $key=>$section)
+@foreach(collect($submittedSections)->except('declaration') as $key=>$section)
 <a href="#submitted-{{ $key }}" @if($loop->first) aria-current="location" @endif>{{ $sectionTitle($section['title']) }}</a>
 @endforeach
 </nav>
 <?php $display = fn($value) => blank($value) ? 'Not recorded' : (is_array($value) ? implode(', ',array_map(fn($v)=>is_scalar($v)?(string)$v:'', $value)) : (string)$value); ?>
-@foreach(collect(\App\Support\StatisticalForm::sectionsForReturn($return))->except('declaration') as $key=>$section)
+@foreach(collect($submittedSections)->except('declaration') as $key=>$section)
 <section id="submitted-{{ $key }}" class="card submitted-data-section"><header class="submitted-section-heading"><span>{{ $section['page'] }}</span><h2>{{ $key === 'identity' ? 'School profile' : $sectionTitle($section['title']) }}</h2>@if($reviewMode)<a class="button review-edit-section" href="{{ route('returns.form.show',[$return,$key]) }}">Edit section</a>@endif</header><div class="submitted-section-body">@if(!empty($section['description']))<p class="questionnaire-source-description">{{ $section['description'] }}</p>@endif
 @if(!array_key_exists($key,$return->statistical_form??[]))<p class="submitted-missing-value">Not recorded</p>
 @else
@@ -73,16 +77,17 @@ $target = array_key_exists($target,\App\Support\StatisticalForm::sectionsForRetu
 @elseif($return->submitted_at)
 <section class="review-submission-receipt"><strong>Submission reference: MDES-{{ $return->id }}</strong><p>Submitted {{ $return->submitted_at->timezone('Africa/Kampala')->format('d F Y, H:i') }}. This submitted form is read-only.</p></section>
 @endif
+@if(($adminReview ?? false) && $return->status==='returned_for_correction' && !$missingSubmittedCopy)<p class="review-submission-receipt">This is the last submitted copy. The school's working corrections remain private until resubmission.</p>@endif
 @if($adminReview ?? false)
 <section class="submitted-review-actions" aria-labelledby="submission-review-title">
 <header><div><span class="diocesan-eyebrow">School review</span><h2 id="submission-review-title">Review this submission</h2><p>The school answers above are read-only.</p></div><span class="review-status is-{{ $return->status }}">{{ $return->statusLabel() }}</span></header>
 @if(in_array($return->status,\App\Models\SchoolReturn::PENDING_REVIEW_STATUSES) && !$return->reportingPeriod->is_archived)
 @can('review',$return)
-<div class="submitted-review-buttons"><a class="button" href="{{ route('returns.index') }}">Back to submissions</a><button type="button" class="button review-return-trigger" data-open-correction-dialog>Return for correction</button><form method="POST" action="{{ route('returns.transition',$return) }}">@csrf<input type="hidden" name="action" value="approve"><button class="button button-primary" type="submit">Approve submission</button></form></div>
+<div class="submitted-review-buttons"><a class="button" href="{{ route('returns.index') }}">Back to submissions</a><button type="button" class="button review-return-trigger" data-open-correction-dialog>Return for correction</button><form method="POST" action="{{ route('returns.transition',$return) }}">@csrf<input type="hidden" name="review_token" value="{{ $reviewToken }}"><input type="hidden" name="action" value="approve"><button class="button button-primary" type="submit">Approve submission</button></form></div>
 <dialog class="review-return-dialog submitted-correction-dialog" data-correction-dialog data-reopen="{{ $errors->has('reason') ? 'true' : 'false' }}" aria-labelledby="correction-dialog-title" aria-describedby="correction-dialog-description">
 <header><div><span class="diocesan-eyebrow">School submission</span><h2 id="correction-dialog-title">Return for correction</h2></div><button type="button" data-close-correction-dialog aria-label="Close">&times;</button></header>
 <p class="correction-school-name">{{ $return->school->official_name }}</p><p id="correction-dialog-description">Describe the issue for the submitter. Sending will return the form so the school can correct and resubmit it.</p>
-<form method="POST" action="{{ route('returns.transition',$return) }}">@csrf<input type="hidden" name="action" value="return_for_correction"><label for="review-return-reason">Issue / corrections needed <span aria-hidden="true">*</span></label><textarea id="review-return-reason" name="reason" rows="5" maxlength="3000" required placeholder="Explain the issue and what needs to change">{{ old('reason') }}</textarea>@error('reason')<small class="correction-field-error" role="alert">{{ $message }}</small>@enderror<small>The submitter will receive this message as an alert linked to the form.</small><footer><button type="button" class="button" data-close-correction-dialog>Cancel</button><button class="button button-primary" type="submit">Send</button></footer></form>
+<form method="POST" action="{{ route('returns.transition',$return) }}">@csrf<input type="hidden" name="review_token" value="{{ $reviewToken }}"><input type="hidden" name="action" value="return_for_correction"><label for="review-return-reason">Issue / corrections needed <span aria-hidden="true">*</span></label><textarea id="review-return-reason" name="reason" rows="5" maxlength="3000" required placeholder="Explain the issue and what needs to change">{{ old('reason') }}</textarea>@error('reason')<small class="correction-field-error" role="alert">{{ $message }}</small>@enderror<small>The submitter will receive this message as an alert linked to the form.</small><footer><button type="button" class="button" data-close-correction-dialog>Cancel</button><button class="button button-primary" type="submit">Send</button></footer></form>
 </dialog>
 @endcan
 @elseif($return->status === 'approved')<p class="submitted-review-outcome">Approved {{ $return->approved_at?->timezone('Africa/Kampala')->format('d M Y, H:i') }}. This form remains locked.</p>

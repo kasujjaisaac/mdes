@@ -36,6 +36,7 @@ class Navigation
                 'items' => [
                     self::item(self::submissionLabel(), 'school-returns', 'clipboard', route('returns.index'), 'returns.view'),
                     self::item('Announcements', 'announcements', 'bell', route('announcements.index')),
+                    self::item('Reports', 'reports', 'document', route('reports.index'), 'reports.view'),
                 ],
             ],
             [

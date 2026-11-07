@@ -69,20 +69,35 @@ class ReportingPeriodController extends Controller
         Gate::authorize('reporting-periods.manage');
         abort_if($reportingPeriod->is_archived, 403);
 
-        return view('reporting-periods.edit', ['title' => 'Edit submission window', 'period' => $reportingPeriod]);
+        return view('reporting-periods.edit', ['title' => 'Edit submission window', 'period' => $reportingPeriod, 'schools' => School::orderBy('official_name')->get(), 'assignedSchoolIds' => $reportingPeriod->schools()->pluck('schools.id')->all()]);
     }
 
     public function update(Request $request, ReportingPeriod $reportingPeriod): RedirectResponse
     {
         Gate::authorize('reporting-periods.manage');
         abort_if($reportingPeriod->is_archived, 403);
-        $data = $request->validate(['title' => ['required', 'string', 'max:255'], 'opening_date' => ['required', 'date'], 'closing_date' => ['required', 'date', 'after_or_equal:opening_date'], 'extension_date' => ['nullable', 'date', 'after_or_equal:closing_date'], 'status' => ['required', 'in:draft,open,closed,locked']]);
+        $data = $request->validate(['title' => ['required', 'string', 'max:255'], 'opening_date' => ['required', 'date'], 'closing_date' => ['required', 'date', 'after_or_equal:opening_date'], 'extension_date' => ['nullable', 'date', 'after_or_equal:closing_date'], 'status' => ['required', 'in:draft,open,closed,locked'], 'update_assignments' => ['sometimes', 'boolean'], 'school_ids' => ['sometimes', 'array', 'max:5000'], 'school_ids.*' => ['integer', 'distinct', 'exists:schools,id']]);
         DB::transaction(function () use ($request, $reportingPeriod, $data) {
             $locked = ReportingPeriod::whereKey($reportingPeriod->id)->lockForUpdate()->firstOrFail();
             abort_if($locked->is_archived, 403);
-            $before = $locked->only(array_keys($data));
-            $locked->update($data);
-            app(RecordAuditEvent::class)->handle($request, 'reporting_period.updated', $locked, $before, $locked->only(array_keys($data)));
+            $fields = array_keys(collect($data)->except(['school_ids', 'update_assignments'])->all());
+            $before = $locked->only($fields);
+            if ($request->boolean('update_assignments')) {
+                $before['school_ids'] = $locked->schools()->pluck('schools.id')->all();
+            }
+            $locked->update(collect($data)->except(['school_ids', 'update_assignments'])->all());
+            if ($request->boolean('update_assignments')) {
+                $ids = $data['school_ids'] ?? [];
+                if ($locked->schoolReturns()->whereNotNull('submitted_at')->whereNotIn('school_id', $ids)->exists()) {
+                    throw ValidationException::withMessages(['school_ids' => 'Schools with submitted forms must remain assigned to this window.']);
+                }
+                $locked->schools()->sync($ids);
+            }
+            $after = $locked->only($fields);
+            if ($request->boolean('update_assignments')) {
+                $after['school_ids'] = $locked->schools()->pluck('schools.id')->all();
+            }
+            app(RecordAuditEvent::class)->handle($request, 'reporting_period.updated', $locked, $before, $after);
         });
 
         return redirect()->route('reporting-periods.show', $reportingPeriod)->with('status', 'Submission window updated.');

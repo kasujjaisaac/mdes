@@ -125,6 +125,7 @@ Route::middleware(['auth', 'active'])->group(function (): void {
     Route::post('/school-statistics/returns/{return}/transition', [SchoolReturnController::class, 'transition'])
         ->middleware('can:returns.view')
         ->name('returns.transition');
+    Route::get('/school-statistics/returns/{return}/download', [\App\Http\Controllers\App\FormCopyController::class,'download'])->middleware(['can:returns.view','throttle:20,1'])->name('returns.copy');
     Route::get('/school-statistics/returns/{return}/statistical-form/{section?}', [\App\Http\Controllers\App\StatisticalFormController::class, 'show'])->middleware('can:returns.view')->name('returns.form.show');
     Route::get('/school-statistics/returns/{return}/introduction', [\App\Http\Controllers\App\StatisticalFormController::class, 'introduction'])->middleware('can:returns.view')->name('returns.form.introduction');
     Route::get('/school-statistics/returns/{return}/questionnaire', [\App\Http\Controllers\App\StatisticalFormController::class, 'source'])->middleware('can:returns.view')->name('returns.form.source');
@@ -148,8 +149,9 @@ Route::middleware(['auth', 'active'])->group(function (): void {
     Route::get('/intelligence/reports', [IntelligenceController::class, 'reports'])
         ->middleware('can:reports.view')
         ->name('reports.index');
+    Route::post('/intelligence/reports/preview', [IntelligenceController::class,'preview'])->middleware(['can:reports.export','throttle:20,1'])->name('reports.preview');
     Route::post('/intelligence/reports/export', [IntelligenceController::class, 'export'])
-        ->middleware('can:reports.export')
+        ->middleware(['can:reports.export','throttle:10,1'])
         ->name('reports.export');
     Route::get('/intelligence/reports/exports/{export}/download', [IntelligenceController::class, 'download'])->middleware('can:reports.export')->name('reports.download');
     Route::get('/intelligence/analytics', [IntelligenceController::class, 'analytics'])

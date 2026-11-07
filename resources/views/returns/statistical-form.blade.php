@@ -2,6 +2,7 @@
 <div class="source-entry-page paper-entry-page reference-form-page statistical-entry-refined">
     @unless(auth()->user()->isSchoolRepresentative())<x-ui.back-link :href="route('returns.show', $return)" label="Back to submission"/>@endunless
     @if($errors->any())<div class="alert"><strong>Please correct the following:</strong><ul>@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul></div>@endif
+    @include('returns.partials.download-copy',['copyReturn'=>$return])
     <div class="source-entry-layout"><section class="source-entry-sidebar source-entry-top-sections reference-section-navigation" aria-label="Form progress and sections">
 
 @php

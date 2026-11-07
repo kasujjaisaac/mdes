@@ -7,13 +7,14 @@ use App\Actions\StartSchoolReturn;
 use App\Actions\TransitionSchoolReturn;
 use App\Http\Controllers\Controller;
 use App\Models\AuditEvent;
-use App\Models\NotificationRecord;
 use App\Models\Parish;
 use App\Models\ReportingPeriod;
 use App\Models\School;
 use App\Models\SchoolReturn;
-use App\Models\User;
+use App\Services\SubmissionNotificationService;
+use App\Services\SubmissionVersionService;
 use App\Support\Navigation;
+use App\Support\StatisticalForm;
 use DomainException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -56,7 +57,7 @@ class SchoolReturnController extends Controller
                 ->whereHas('schools', fn ($query) => $query->where('schools.id', $request->user()->school_id))
                 ->whereDoesntHave('schoolReturns', fn ($query) => $query->where('school_id', $request->user()->school_id))
                 ->when($request->filled('period_id'), fn ($query) => $query->whereKey($request->integer('period_id')))
-                ->orderByDesc('year')->get()->filter(fn ($period) => $period->isSubmissionOpen()),
+                ->orderByDesc('year')->get()->filter(fn ($period) => $period->isSubmissionOpen() && (! $request->filled('status') || $request->input('status') === 'not_started')),
             'periods' => ReportingPeriod::query()->where('is_archived', false)->whereHas('schools', fn ($q) => $q->visibleTo($request->user()))->latest()->get(),
             'schools' => School::query()->visibleTo($request->user())->orderBy('official_name')->get(),
         ]);
@@ -104,6 +105,9 @@ class SchoolReturnController extends Controller
         Gate::authorize('view', $return);
 
         if (auth()->user()->isSchoolRepresentative()) {
+            if ($return->status === SchoolReturn::STATUS_NOT_STARTED) {
+                return redirect()->route('returns.index')->with('status', 'Choose Start form to begin this return.');
+            }
             if (in_array($return->status, ['draft', 'returned_for_correction'])) {
                 return redirect()->route('returns.form.show', $return);
             }
@@ -112,9 +116,16 @@ class SchoolReturnController extends Controller
         }
 
         if ($return->submitted_at) {
+            $reviewData = DB::transaction(function () use ($return) {
+                $locked = SchoolReturn::whereKey($return->id)->lockForUpdate()->firstOrFail();
+                Gate::authorize('view', $locked);
+
+                return ['return' => app(SubmissionVersionService::class)->forDisplay($locked->load(['school', 'reportingPeriod'])), 'reviewToken' => StatisticalForm::adminReviewFingerprint($locked)];
+            });
+
             return view('returns.submitted', [
                 'title' => 'Submission for '.$return->school->official_name,
-                'return' => $return->load(['school', 'reportingPeriod']),
+                ...$reviewData,
                 'adminReview' => true,
                 'reviewHistory' => AuditEvent::where('auditable_type', SchoolReturn::class)->where('auditable_id', $return->id)->whereIn('action', ['submission.submit', 'submission.approve', 'submission.return_for_correction'])->with('user')->oldest('id')->get(),
             ]);
@@ -130,35 +141,42 @@ class SchoolReturnController extends Controller
 
     public function transition(Request $request, SchoolReturn $return, TransitionSchoolReturn $transition): RedirectResponse
     {
-        Gate::authorize(in_array($request->input('action'), ['certify', 'approve', 'lock', 'return_for_correction']) ? 'review' : 'update', $return);
+        Gate::authorize(in_array($request->input('action'), ['certify', 'approve', 'lock', 'return_for_correction']) ? 'review' : ($request->input('action') === 'submit' && $return->isLocked() ? 'view' : 'update'), $return);
 
         if ($request->input('action') === 'submit' && $request->user()->isSchoolRepresentative()) {
             $request->validate(['acknowledged' => ['accepted'], 'review_fingerprint' => ['required', 'string', 'size:64']]);
         }
 
+        if (in_array($request->input('action'), ['approve', 'return_for_correction'], true)) {
+            $request->validate(['review_token' => ['required', 'string', 'size:64']]);
+        }
         $request->validate(['action' => ['required', 'in:submit,approve,return_for_correction'], 'reason' => ['required_if:action,return_for_correction', 'nullable', 'string', 'max:3000']]);
+        $alreadySubmitted = false;
         try {
-            DB::transaction(function () use ($request, $return, $transition) {
+            DB::transaction(function () use ($request, $return, $transition, &$alreadySubmitted) {
                 School::whereKey($return->school_id)->lockForUpdate()->firstOrFail();
                 $locked = SchoolReturn::whereKey($return->id)->lockForUpdate()->firstOrFail();
+                if ($request->input('action') === 'submit' && $request->user()->isSchoolRepresentative() && $locked->school_id === $request->user()->school_id && $locked->isLocked() && $locked->submitted_at) {
+                    Gate::authorize('view', $locked);
+                    $alreadySubmitted = true;
+
+                    return;
+                }
                 Gate::authorize(in_array($request->input('action'), ['certify', 'approve', 'lock', 'return_for_correction']) ? 'review' : 'update', $locked);
                 if ($request->input('action') === 'submit' && $request->user()->isSchoolRepresentative()
-                    && ! hash_equals(\App\Support\StatisticalForm::reviewFingerprint($locked), $request->string('review_fingerprint')->toString())) {
+                    && ! hash_equals(StatisticalForm::reviewFingerprint($locked), $request->string('review_fingerprint')->toString())) {
                     throw new DomainException('This form changed after you opened the review. Review the updated answers and acknowledge them again before submitting.');
                 }
+                if (in_array($request->input('action'), ['approve', 'return_for_correction'], true) && ! hash_equals(StatisticalForm::adminReviewFingerprint($locked), $request->string('review_token')->toString())) {
+                    throw new DomainException('This submission changed after you opened it. Open the latest submitted version before approving or returning it.');
+                }
                 $oldStatus = $locked->status;
-                match ($request->input('action')) {
+                $updated = match ($request->input('action')) {
                     'submit' => $transition->submit($locked, $request->user()),
                     'approve' => $transition->approve($locked, $request->user()),
                     'return_for_correction' => $transition->returnForCorrection($locked, $request->user(), $request->string('reason')->toString()),
                 };
-                if (in_array($request->input('action'), ['approve', 'return_for_correction'])) {
-                    $recipient = User::whereKey($locked->submitted_by)->where('school_id', $locked->school_id)->first()
-                        ?? User::where('school_id', $locked->school_id)->where('status', 'active')->first();
-                    if ($recipient) {
-                        NotificationRecord::create(['user_id' => $recipient->id, 'sender_id' => $request->user()->id, 'school_id' => $locked->school_id, 'school_return_id' => $locked->id, 'type' => 'school_feedback', 'severity' => 'info', 'subject' => $request->input('action') === 'approve' ? 'Submission approved' : 'Submission returned for correction', 'message' => $request->input('action') === 'approve' ? 'Your school submission has been approved.' : $request->string('reason')->toString(), 'status' => 'open']);
-                    }
-                }
+                app(SubmissionNotificationService::class)->send($updated, $request->user(), $request->input('action'), $request->input('reason'), $oldStatus === SchoolReturn::STATUS_RETURNED_FOR_CORRECTION);
                 app(RecordAuditEvent::class)->handle($request, 'submission.'.$request->input('action'), $locked, ['status' => $oldStatus], ['status' => $locked->fresh()->status], $request->input('reason'));
             });
         } catch (DomainException $exception) {
@@ -170,6 +188,6 @@ class SchoolReturnController extends Controller
             return $response;
         }
 
-        return redirect()->route('returns.show', $return)->with('status', $request->input('action') === 'submit' ? 'Your form has been submitted successfully. Reference: MDES-'.$return->id.'.' : 'Return updated.');
+        return redirect()->route('returns.show', $return)->with('status', $alreadySubmitted ? 'Your form has already been received. Reference: MDES-'.$return->id.'.' : ($request->input('action') === 'submit' ? 'Your form has been submitted successfully. Reference: MDES-'.$return->id.'.' : 'Return updated.'));
     }
 }

@@ -34,6 +34,9 @@
                 <a class="reference-brand" href="{{ route('dashboard') }}"><img class="system-logo" src="{{ asset('images/system-logo.jpg') }}" alt="Masaka Diocese crest" width="44" height="38"><span><strong>MDES</strong><small>{{ config('mdsiss.name') }}</small></span></a>
             @if(auth()->user()->isSchoolRepresentative())
                 @include('components.layouts.school-portal-context')
+            @elseif(auth()->user()->isAdministrator())
+            <?php $adminHeaderYear = filter_var(request()->query('year'), FILTER_VALIDATE_INT); $adminHeaderYear = $adminHeaderYear && $adminHeaderYear >= 2000 && $adminHeaderYear <= 2100 ? $adminHeaderYear : now('Africa/Kampala')->year; ?>
+            <div class="admin-topbar-context"><div class="admin-topbar-identity"><span>Administration</span><strong>{{ request()->routeIs('dashboard') ? 'Education dashboard' : ucfirst($title ?? 'Administration') }}</strong></div><span class="admin-topbar-reporting-year"><x-ui.nav-icon name="calendar"/>{{ $adminHeaderYear }} reporting</span></div>
             @else
             <div class="topbar-left">
                 <div class="topbar-title">

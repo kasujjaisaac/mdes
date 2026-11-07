@@ -2,11 +2,13 @@
 
 namespace App\Actions;
 
+use App\Models\ReportingPeriod;
 use App\Models\School;
 use App\Models\SchoolReturn;
 use App\Models\User;
 use App\Services\ReturnQualityService;
 use App\Services\StatisticalFormQualityService;
+use App\Services\SubmissionVersionService;
 use DomainException;
 use Illuminate\Support\Facades\DB;
 
@@ -19,7 +21,7 @@ class TransitionSchoolReturn
         return DB::transaction(function () use ($return, $user) {
             School::whereKey($return->school_id)->lockForUpdate()->firstOrFail();
             $return = SchoolReturn::whereKey($return->id)->lockForUpdate()->firstOrFail();
-            $return->load('reportingPeriod');
+            $return->setRelation('reportingPeriod', ReportingPeriod::whereKey($return->reporting_period_id)->lockForUpdate()->firstOrFail());
             $year = $return->reportingPeriod->year;
             if (SchoolReturn::where('school_id', $return->school_id)->where('id', '!=', $return->id)->whereNotNull('submitted_at')->whereHas('reportingPeriod', fn ($q) => $q->where('year', $year))->exists()) {
                 throw new DomainException('Your school has already submitted its annual form for '.$year.'.');
@@ -27,11 +29,14 @@ class TransitionSchoolReturn
             if ($user->isSchoolRepresentative() && ($user->school_id !== $return->school_id || ! $return->profile_confirmed_at || ($return->reportingPeriod->is_archived || ($return->status !== SchoolReturn::STATUS_RETURNED_FOR_CORRECTION && ! $return->reportingPeriod->isSubmissionOpen())))) {
                 throw new DomainException('Confirm your school profile and submit during an open submission window.');
             }
+            if ($user->isSchoolRepresentative() && ! $return->reportingPeriod->schools()->where('schools.id', $return->school_id)->exists()) {
+                throw new DomainException('Your school is not assigned to this submission window. Ask the administrator to add your school before submitting.');
+            }
             $this->assertStatus($return, [SchoolReturn::STATUS_DRAFT, SchoolReturn::STATUS_RETURNED_FOR_CORRECTION]);
             $this->assertSectionsComplete($return);
             $this->assertNoBlockingQualityFindings($return);
 
-            return tap($return)->update([
+            $return->update([
                 'status' => SchoolReturn::STATUS_LOCKED,
                 'locked_at' => now(),
                 'submitted_by' => $user->id,
@@ -44,6 +49,9 @@ class TransitionSchoolReturn
                 'approved_by' => null,
                 'approved_at' => null,
             ]);
+            app(SubmissionVersionService::class)->capture($return->fresh());
+
+            return $return;
         });
     }
 
@@ -56,13 +64,15 @@ class TransitionSchoolReturn
                 throw new DomainException('Only submitted forms in an unarchived reporting window can be approved.');
             }
 
+            app(SubmissionVersionService::class)->review($return, SchoolReturn::STATUS_APPROVED, $user);
+
             return tap($return)->update(['status' => SchoolReturn::STATUS_APPROVED, 'approved_by' => $user->id, 'approved_at' => now()]);
         });
     }
 
     public function returnForCorrection(SchoolReturn $return, User $user, string $reason): SchoolReturn
     {
-        return DB::transaction(function () use ($return, $reason) {
+        return DB::transaction(function () use ($return, $reason, $user) {
             $return = SchoolReturn::whereKey($return->id)->lockForUpdate()->firstOrFail();
             $this->assertStatus($return, SchoolReturn::PENDING_REVIEW_STATUSES);
             if (blank($reason)) {
@@ -71,6 +81,8 @@ class TransitionSchoolReturn
             if (! $return->submitted_at || $return->reportingPeriod->is_archived) {
                 throw new DomainException('Archived returns cannot be sent for correction.');
             }
+
+            app(SubmissionVersionService::class)->review($return, SchoolReturn::STATUS_RETURNED_FOR_CORRECTION, $user, $reason);
 
             return tap($return)->update([
                 'status' => SchoolReturn::STATUS_RETURNED_FOR_CORRECTION,

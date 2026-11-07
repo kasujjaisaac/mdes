@@ -680,3 +680,31 @@ document.querySelectorAll('[data-review-submit]').forEach(form => {
 window.addEventListener('pageshow', event => {
     if (event.persisted && document.querySelector('[data-review-submit][data-submitting="true"]')) location.reload();
 });
+
+// Show only the reporting controls applicable to the selected report.
+document.querySelectorAll('[data-report-builder]').forEach(form => {
+    const type = form.querySelector('[name="report_type"]');
+    if (!type) return;
+    const sync = () => {
+        const directory = ['school registry','leadership','user accounts'].includes(type.value);
+        const operational = ['submission progress','announcements','review history','support requests'].includes(type.value);
+        [['year', !directory], ['basis', !directory && !operational], ['comparison', type.value === 'year comparison']].forEach(([field, visible]) => {
+            const wrapper = form.querySelector(`[data-report-field="${field}"]`);
+            if (!wrapper) return;
+            wrapper.hidden = !visible;
+            wrapper.querySelectorAll('input,select').forEach(control => control.disabled = !visible);
+        });
+        const school = form.querySelector('[name=school_id]');
+        if (school) school.required = type.value === 'complete form';
+        const help = form.querySelector('[data-report-school-help]');
+        if (help) help.textContent = type.value === 'complete form' ? 'Select a school to download its complete form.' : 'Choose a school only for an individual report.';
+        const filters = form.querySelector('[data-report-school-filters]');
+        const count = form.querySelector('[data-report-filter-count]');
+        if (filters && count) {
+            const selected = [...filters.querySelectorAll('select')].filter(control => control.value).length;
+            count.textContent = selected ? `${selected} selected` : 'No extra filters';
+        }
+    };
+    form.addEventListener('change', sync);
+    sync();
+});
