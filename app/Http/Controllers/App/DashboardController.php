@@ -19,6 +19,7 @@ class DashboardController extends Controller
         if ($request->user()->isSchoolRepresentative()) {
             return redirect()->route('representative.home');
         }
+        \Illuminate\Support\Facades\Gate::authorize('dashboard.view');
         $request->validate([
             'parish' => ['nullable', 'integer'], 'level' => ['nullable', 'string', 'max:80'], 'district' => ['nullable', 'integer'],
             'year' => ['nullable', 'integer', 'between:2000,2100'],

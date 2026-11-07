@@ -16,7 +16,9 @@ class UserAccountService
 {
     public function assignableRoles(User $actor)
     {
-        return Role::with('permissions')->whereIn('slug', Role::ACCOUNT_ROLES)->orderBy('name')->get()->filter(fn ($role) => $actor->hasRole(Role::SUPER_ADMINISTRATOR) || ($role->slug !== Role::SUPER_ADMINISTRATOR && $role->permissions->every(fn ($permission) => $actor->hasPermission($permission->slug))));
+        if (! $actor->isAdministrator()) return collect();
+
+        return Role::with('permissions')->whereIn('slug', Role::ACCOUNT_ROLES)->orderBy('name')->get();
     }
 
     public function authorizeTarget(User $actor, User $target): void
@@ -37,13 +39,13 @@ class UserAccountService
         $roleIds = collect($data['role_ids'])->map(fn ($id) => (int) $id)->sort()->values();
         $allowed = $this->assignableRoles($request->user())->pluck('id');
         $selectedRoles = Role::with('permissions')->whereIn('id', $roleIds)->get();
-        if ($selectedRoles->contains(fn ($role) => $role->slug === Role::HEADTEACHER) && $selectedRoles->contains(fn ($role) => $role->slug === Role::SUPER_ADMINISTRATOR || $role->permissions->contains('slug', 'schools.view.all'))) {
+        if ($selectedRoles->contains('slug', Role::HEADTEACHER) && $selectedRoles->contains('slug', Role::SUPER_ADMINISTRATOR)) {
             throw ValidationException::withMessages(['role_ids' => 'School roles cannot be combined with roles that access all schools.']);
         }
         if ($roleIds->diff($allowed)->isNotEmpty()) {
             throw ValidationException::withMessages(['role_ids' => 'You cannot assign roles with access beyond your own.']);
         }
-        $keepsUserManagement = $selectedRoles->contains(fn ($role) => $role->slug === Role::SUPER_ADMINISTRATOR || $role->permissions->contains('slug', 'users.manage'));
+        $keepsUserManagement = $selectedRoles->contains('slug', Role::SUPER_ADMINISTRATOR);
         try {
             return DB::transaction(function () use ($request, $target, $data, $roleIds, $keepsUserManagement) {
                 // Serialize administrator changes so concurrent requests cannot remove the last one.
@@ -57,7 +59,7 @@ class UserAccountService
                 if ($target && $user->id === $request->user()->id && ($data['status'] !== User::STATUS_ACTIVE || ! $keepsUserManagement)) {
                     throw ValidationException::withMessages(['status' => 'You cannot disable your own account or remove your own user-management access.']);
                 }
-                if ($target && $user->isActive() && $oldRoles->contains($superId) && ($data['status'] !== User::STATUS_ACTIVE || ! $roleIds->contains($superId)) && User::where('status', User::STATUS_ACTIVE)->whereHas('roles', fn ($q) => $q->where('slug', Role::SUPER_ADMINISTRATOR))->count() <= 1) {
+                if ($target && $user->isActive() && $user->isAdministrator() && ($data['status'] !== User::STATUS_ACTIVE || ! $roleIds->contains($superId)) && User::administrators()->where('status', User::STATUS_ACTIVE)->count() <= 1) {
                     throw ValidationException::withMessages(['role_ids' => 'Keep at least one active system super administrator.']);
                 }
                 $before = $target ? $user->only(['name', 'username', 'email', 'school_id', 'status']) + ['role_ids' => $oldRoles->all()] : null;

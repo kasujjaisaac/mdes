@@ -32,6 +32,7 @@ document.querySelectorAll('[data-source-table]').forEach((table) => {
         row.querySelectorAll('.source-inline-error').forEach(error => error.remove());
         row.querySelectorAll('input,select,textarea').forEach((field) => {
             field.name = field.name.replace(/\[\d+\]/, `[${index}]`);
+            field.id = `source-entry-${field.name.replace(/[^a-zA-Z0-9_-]/g, '-')}`;
             field.value = '';
             field.removeAttribute('aria-invalid');
             field.removeAttribute('aria-describedby');
@@ -62,6 +63,22 @@ document.querySelectorAll('.school-profile-nav a[href^="#"]').forEach((link) => 
 });
 
 
+
+// Explain water reliability only when the school answers No.
+document.querySelectorAll('.source-field-water_reliable').forEach(group => {
+    const form = group.closest('form');
+    const explanation = form?.querySelector('.source-field-water_explanation');
+    const field = explanation?.querySelector('textarea');
+    if (!field) return;
+    const originallyDisabled = field.disabled;
+    const sync = () => {
+        const answer = group.querySelector('input[type=radio]:checked')?.value;
+        explanation.hidden = answer !== 'No';
+        field.disabled = originallyDisabled || answer !== 'No';
+    };
+    group.querySelectorAll('input[type=radio]').forEach(radio => radio.addEventListener('change', sync));
+    sync();
+});
 
 // Warn only when editable form values differ from their original values.
 const protectedForms = new Map();
@@ -119,29 +136,6 @@ profileMenu?.addEventListener('keydown',(event) => {
 });
 
 window.addEventListener('pageshow',() => protectedForms.forEach((state) => { state.submitting=false; }));
-
-// Acknowledged annual submission, separate from saving draft sections.
-document.querySelectorAll('[data-confirm-submission]').forEach(form => {
-    const dialog = document.getElementById('submission-confirmation');
-    if (!dialog) return;
-    form.addEventListener('submit', event => {
-        if (hasUnsavedChanges()) {
-            event.preventDefault();
-            window.alert('Save your changes before submitting the form.');
-            return;
-        }
-        if (form.elements.acknowledged.value === '1') return;
-        event.preventDefault();
-        dialog.returnValue = '';
-        dialog.querySelector('input[type=checkbox]').checked = false;
-        dialog.showModal();
-    });
-    dialog.addEventListener('close', () => {
-        if (dialog.returnValue !== 'confirm') return;
-        form.elements.acknowledged.value = '1';
-        form.requestSubmit();
-    });
-});
 
 // Display each school-window announcement once per browser session and deadline.
 document.querySelectorAll('[data-window-announcement]').forEach(dialog => {
@@ -209,6 +203,18 @@ if (confirmationPage && window.matchMedia('(max-width: 820px)').matches) {
 
 // Keep table guidance accurate after resizing, rotating, or changing row contents.
 const mobileViewport = window.matchMedia('(max-width: 820px)');
+// Compact staff gender labels on mobile; the submitted values remain Male/Female.
+const syncStaffGenderLabels = () => document.querySelectorAll('[data-source-table=members] .source-col-gender select').forEach(select => {
+    [...select.options].forEach(option => {
+        if (!option.dataset.fullLabel) option.dataset.fullLabel = option.textContent;
+        option.textContent = mobileViewport.matches ? ({Male:'M',Female:'F','':'-'}[option.value] ?? option.dataset.fullLabel) : option.dataset.fullLabel;
+        option.title = option.dataset.fullLabel;
+    });
+});
+syncStaffGenderLabels();
+mobileViewport.addEventListener('change', syncStaffGenderLabels);
+document.querySelectorAll('form').forEach(form => form.addEventListener('formstructurechange', syncStaffGenderLabels));
+
 const tableCleanups = [];
 const configureMobileTables = () => {
     tableCleanups.splice(0).forEach(cleanup => cleanup());
@@ -260,6 +266,24 @@ const mobileRequiredFields = [...document.querySelectorAll('[data-mobile-require
 const syncRequiredFields = () => mobileRequiredFields.forEach(({field,required}) => { field.required = required || mobileViewport.matches; });
 syncRequiredFields();
 mobileViewport.addEventListener('change', syncRequiredFields);
+
+// Mark other required controls consistently without changing their validation rules.
+const markRequiredControls = () => document.querySelectorAll('input[required],select[required],textarea[required]').forEach(field => {
+    const label = field.labels?.[0] || field.closest('label');
+    if (!label || label.textContent.includes('*')) return;
+    const text = [...label.childNodes].find(node => node.nodeType === 3 && node.textContent.trim());
+    if (!text) return;
+    const caption = document.createElement('span');
+    caption.textContent = text.textContent.trim() + ' ';
+    const marker = document.createElement('span');
+    marker.className = 'field-required-mark';
+    marker.setAttribute('aria-hidden', 'true');
+    marker.textContent = '*';
+    caption.append(marker);
+    text.replaceWith(caption);
+});
+markRequiredControls();
+mobileViewport.addEventListener('change', markRequiredControls);
 
 // A single compact contact dialog for the registered-school list.
 const schoolContactPopup = document.querySelector('#school-contact-popup');
@@ -403,6 +427,17 @@ window.addEventListener('pageshow', event => {
     if (event.persisted) window.location.reload();
 });
 
+// Saved-section confirmations are temporary; validation errors remain visible.
+document.querySelectorAll('[data-auto-dismiss]').forEach(notice => {
+    const delay = Number(notice.dataset.autoDismiss);
+    if (!Number.isFinite(delay) || delay <= 0) return;
+    setTimeout(() => {
+        notice.style.transition = 'opacity 180ms ease';
+        notice.style.opacity = '0';
+        setTimeout(() => notice.remove(), 180);
+    }, delay);
+});
+
 // Keep unfinished statistical sections on the server, with a device backup until acknowledged.
 document.querySelectorAll('form[data-autosave-url]').forEach(form => {
     const storageKey = 'mdes-form-draft:' + form.dataset.autosaveKey;
@@ -418,8 +453,26 @@ document.querySelectorAll('form[data-autosave-url]').forEach(form => {
     let recovery = null;
     let allowSubmit = false;
     let deviceBackupAvailable = true;
+    let navigationPending = false;
+    const actionError = form.querySelector('[data-form-action-error]');
+    const showActionError = message => {
+        if (state) state.submitting = false;
+        if (!actionError) { window.alert(message); return; }
+        actionError.textContent = message;
+        actionError.hidden = false;
+        actionError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        actionError.focus({ preventScroll: true });
+    };
+    form.addEventListener('invalid', event => {
+        if (event.target !== form.querySelector(':invalid')) return;
+        const field = event.target;
+        const label = field.getAttribute('aria-label') || field.closest('label')?.textContent.trim() || 'This field';
+        showActionError(`${label}: ${field.validationMessage}`);
+    }, true);
+    if (actionError && !actionError.hidden) requestAnimationFrame(() => showActionError(actionError.textContent));
     const status = (message, tone = '') => indicators.forEach(indicator => {
         indicator.textContent = message;
+        indicator.hidden = !message;
         indicator.dataset.state = tone;
     });
     const backup = () => {
@@ -545,18 +598,44 @@ document.querySelectorAll('form[data-autosave-url]').forEach(form => {
         const target = event.target;
         if (!(target instanceof HTMLFormElement)) return;
         event.preventDefault();
+        if (navigationPending) return;
+        navigationPending = true;
         const submitter = event.submitter;
-        if (target === form) {
-            if (pending) await pending;
-            if (conflict || recovery) { if (state) state.submitting = false; return; }
-            backup();
-        } else if (!await save()) { if (state) state.submitting = false; return; }
-        clearTimeout(timer);
-        clearTimeout(retryTimer);
-        if (state) state.submitting = true;
-        allowSubmit = true;
-        target.requestSubmit(submitter);
-        allowSubmit = false;
+        const originalLabel = submitter?.textContent;
+        submitter?.setAttribute('aria-busy', 'true');
+        if (submitter) submitter.textContent = 'Saving…';
+        try {
+            clearTimeout(timer);
+            clearTimeout(retryTimer);
+            if (target === form) {
+                if (pending) await pending;
+                if (conflict || recovery) {
+                    showActionError(recovery ? 'Choose Restore device draft or Keep server version above before continuing.' : (indicators[0]?.textContent || 'Your draft changed. Reload and review it before continuing.'));
+                    return;
+                }
+                backup();
+            } else if (!await save()) {
+                showActionError(indicators[0]?.textContent || 'Your changes could not be saved. Check your connection and try again.');
+                return;
+            }
+            if (actionError) actionError.hidden = true;
+            if (state) state.submitting = true;
+            // Restore the button before resubmitting so its name/value navigate correctly.
+            if (submitter) submitter.textContent = originalLabel;
+            // A nested requestSubmit during the original submit event can be ignored
+            // by the browser. Start a fresh task even when no autosave was pending.
+            await new Promise(resolve => setTimeout(resolve, 0));
+            allowSubmit = true;
+            if (submitter) target.requestSubmit(submitter);
+            else target.requestSubmit();
+        } catch {
+            showActionError('Unable to continue. Your entries are kept on this page. Please retry or reload to recover your draft.');
+        } finally {
+            allowSubmit = false;
+            navigationPending = false;
+            submitter?.removeAttribute('aria-busy');
+            if (submitter) submitter.textContent = originalLabel;
+        }
     });
     try {
         const snapshot = JSON.parse(localStorage.getItem(storageKey) || 'null');
@@ -584,4 +663,20 @@ document.querySelectorAll('form[data-autosave-url]').forEach(form => {
             }
         } else clearBackup();
     } catch { status('Automatic saving is active. Device backup is unavailable in this browser.'); }
+});
+
+// Prevent repeated clicks while the final submission is being processed.
+document.querySelectorAll('[data-review-submit]').forEach(form => {
+    form.addEventListener('submit', event => {
+        if (event.defaultPrevented) return;
+        if (form.dataset.submitting === 'true') { event.preventDefault(); return; }
+        form.dataset.submitting = 'true';
+        const button = form.querySelector('button[type="submit"]');
+        if (button) { button.disabled = true; button.textContent = 'Submitting...'; }
+        const status = form.querySelector('[data-review-submit-status]');
+        if (status) status.hidden = false;
+    });
+});
+window.addEventListener('pageshow', event => {
+    if (event.persisted && document.querySelector('[data-review-submit][data-submitting="true"]')) location.reload();
 });

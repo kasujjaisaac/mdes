@@ -1,45 +1,78 @@
 <x-layouts.app :title="$title" :hide-heading="true">
 <x-slot:topbarFilters><div class="profile-topbar-actions"><a class="button" href="{{ route('returns.index') }}">Submissions</a></div></x-slot:topbarFilters>
+<?php $reviewMode = $reviewMode ?? false; ?>
 <div class="submitted-record-page {{ ($adminReview ?? false) ? 'admin-submitted-review' : '' }}">
 @unless(auth()->user()->isSchoolRepresentative())<a class="submitted-mobile-back" href="{{ route('returns.index') }}">&larr; Back to submissions</a>@endunless
 @if($errors->any())<div class="announcement-error" role="alert"><strong>Review could not be completed.</strong><p>{{ $errors->first() }}</p></div>@endif
+@if($reviewMode)
+<section class="form-review-intro"><span class="diocesan-eyebrow">Final step</span><h1>Review and submit</h1><p>Review your school's answers below. Use Edit section to make changes.</p>
+@if($qualityErrors)<div class="review-completeness has-issues" role="alert"><h2>{{ count($qualityErrors) }} items needing attention</h2><ul>
+@foreach($qualityErrors as $issueKey=>$issue)
+@php
+$target = array_key_exists($issueKey,\App\Support\StatisticalForm::sections()) ? $issueKey : explode('_',$issueKey)[0];
+$target = $target === 'religion' ? 'enrolment' : ($target === 'facility' ? 'facilities' : $target);
+$target = array_key_exists($target,\App\Support\StatisticalForm::sectionsForReturn($return)) ? $target : 'identity';
+@endphp
+<li><a href="{{ route('returns.form.show',[$return,$target]) }}">{{ $issue }}</a></li>
+@endforeach</ul></div>@else<div class="review-completeness is-ready"><strong>Ready to submit</strong><p>All required sections are complete.</p></div>@endif
+</section>
+@endif
 <header class="submitted-record-summary"><div class="submitted-record-year"><span>REPORTING YEAR</span><strong>{{ $return->reportingPeriod->year }}</strong></div><div class="submitted-record-school"><h1>{{ $return->school->official_name }}</h1><p>{{ $return->reportingPeriod->title }} &mdash; annual submission</p></div><div class="submitted-record-date"><span class="submission-status review-status is-{{ $return->status }}"><x-ui.nav-icon name="checklist"/> {{ $return->statusLabel() }}</span>
 @if($return->submitted_at)
 <div class="submitted-date-value"><span>Date submitted</span><time datetime="{{ $return->submitted_at->toIso8601String() }}">{{ $return->submitted_at->timezone('Africa/Kampala')->format('d F Y, H:i') }}</time></div>
 @else
-<span class="muted">Submission date not recorded</span>
+<span class="muted">{{ $reviewMode ? 'Not yet submitted' : 'Submission date not recorded' }}</span>
 @endif
 </div></header>
-@php($sectionTitle = fn($title) => preg_replace('/^[\d\s\p{Pd}]+[.]\s*/u', '', $title))
+@php($sectionTitle = fn($title) => $title)
 <nav class="submitted-record-nav" aria-label="Submitted data sections">
-@foreach(\App\Support\StatisticalForm::sections() as $key=>$section)
+@foreach(collect(\App\Support\StatisticalForm::sectionsForReturn($return))->except('declaration') as $key=>$section)
 <a href="#submitted-{{ $key }}" @if($loop->first) aria-current="location" @endif>{{ $sectionTitle($section['title']) }}</a>
 @endforeach
 </nav>
 <?php $display = fn($value) => blank($value) ? 'Not recorded' : (is_array($value) ? implode(', ',array_map(fn($v)=>is_scalar($v)?(string)$v:'', $value)) : (string)$value); ?>
-@foreach(\App\Support\StatisticalForm::sections() as $key=>$section)
-<section id="submitted-{{ $key }}" class="card submitted-data-section"><header class="submitted-section-heading"><span>{{ str_pad($loop->iteration,2,'0',STR_PAD_LEFT) }}</span><h2>{{ $sectionTitle($section['title']) }}</h2></header><div class="submitted-section-body">
+@foreach(collect(\App\Support\StatisticalForm::sectionsForReturn($return))->except('declaration') as $key=>$section)
+<section id="submitted-{{ $key }}" class="card submitted-data-section"><header class="submitted-section-heading"><span>{{ $section['page'] }}</span><h2>{{ $key === 'identity' ? 'School profile' : $sectionTitle($section['title']) }}</h2>@if($reviewMode)<a class="button review-edit-section" href="{{ route('returns.form.show',[$return,$key]) }}">Edit section</a>@endif</header><div class="submitted-section-body">@if(!empty($section['description']))<p class="questionnaire-source-description">{{ $section['description'] }}</p>@endif
 @if(!array_key_exists($key,$return->statistical_form??[]))<p class="submitted-missing-value">Not recorded</p>
 @else
-<?php $data=$return->statistical_form[$key]; ?>
+<?php $data=$return->statistical_form[$key]; if($key === 'enrolment') $data['community'] = $return->statistical_form['religion']['community'] ?? []; ?>
 @if(!empty($section['fields']))<table class="profile-values-table submitted-field-table"><thead><tr><th>Field</th><th>Submitted value</th></tr></thead><tbody>
 @foreach($section['fields'] as $fieldKey=>$field)
-@php($fieldValue = $key === 'identity' && $fieldKey === 'date' ? ($return->submitted_at?->timezone('Africa/Kampala')->format('d M Y, H:i') ?? 'Submission date not recorded') : $display($data[$fieldKey]??null))
-<tr><th scope="row">{{ $key === 'identity' && $fieldKey === 'date' ? 'Date submitted' : ($key === 'identity' && $fieldKey === 'registration_number' ? 'MOE Reg No' : $field['label']) }}</th><td class="{{ in_array($fieldValue,['Not recorded','Submission date not recorded']) ? 'is-missing' : '' }}">{{ $fieldValue }}</td></tr>
+@continue($key === 'utilities' && $fieldKey === 'water_explanation' && ($data['water_reliable'] ?? null) !== 'No')
+@if($key === 'identity' && $fieldKey === 'level')<tr><th colspan="2">{{ $section['classification_title'] }}</th></tr>@endif
+@php($fieldValue = $key === 'identity' && $fieldKey === 'date' ? ($reviewMode ? $display($data[$fieldKey] ?? null) : ($return->submitted_at?->timezone('Africa/Kampala')->format('d M Y, H:i') ?? 'Submission date not recorded')) : $display($data[$fieldKey]??null))
+<tr><th scope="row">{{ $field['label'] }}</th><td class="{{ in_array($fieldValue,['Not recorded','Submission date not recorded']) ? 'is-missing' : '' }}">{{ $fieldValue }}</td></tr>
 @endforeach</tbody></table>
 @endif
-@foreach($section['tables']??[] as $tableKey=>$table)<h3>{{ $table['label'] }}</h3><div class="table-wrap"><table class="profile-values-table submitted-grid-table"><thead><tr><th>Item</th>
-@foreach($table['columns'] as $column)<th>{{ $column['label'] }}</th>
+@foreach($section['tables']??[] as $tableKey=>$table)
+@if($tableKey === 'community')
+@include('returns.partials.religious-affiliation', ['rows' => $data[$tableKey] ?? [], 'editable' => false])
+@else
+<h3>{{ $table['label'] }}</h3>@if(!empty($table['caption']))<h4 class="questionnaire-table-caption">{{ $table['caption'] }}</h4>@endif<div class="table-wrap"><table class="profile-values-table submitted-grid-table"><thead><tr><th>{{ $table['row_heading'] ?? 'No.' }}</th>
+@foreach($table['columns'] as $column)<th>{{ $column['display_label'] ?? $column['label'] }}</th>
 @endforeach</tr></thead><tbody>
 @forelse(($table['rows']??array_fill_keys(array_keys($data[$tableKey]??[]),'')) as $rowKey=>$label)<tr><th scope="row">{{ $label ?: $loop->iteration }}</th>
-@foreach($table['columns'] as $columnKey=>$column)<td class="{{ blank($data[$tableKey][$rowKey][$columnKey]??null) ? 'is-missing' : '' }}">{{ $display($data[$tableKey][$rowKey][$columnKey]??null) }}</td>
+@foreach($table['columns'] as $columnKey=>$column)<td class="{{ blank($data[$tableKey][$rowKey][$columnKey]??null) ? 'is-missing' : '' }}">{{ $display($data[$tableKey][$rowKey][$columnKey]??null) }}@if($columnKey === 'remarks' && isset($table['row_notes'][$rowKey]))<small class="questionnaire-source-note">{{ $table['row_notes'][$rowKey] }}</small>@endif</td>
 @endforeach</tr>
 @empty<tr><td colspan="{{ count($table['columns'])+1 }}">No entries recorded</td></tr>
 @endforelse</tbody></table></div>
+@endif
 @endforeach
 @endif
+@if(!empty($section['note']))<p class="questionnaire-source-note">{{ $section['note'] }}</p>@endif
 </div></section>
 @endforeach
+@if($reviewMode)
+<section class="review-submit-panel" aria-labelledby="review-submit-title"><h2 id="review-submit-title">Confirm your submission</h2><p>After submission, your form is locked for admin review. You can edit it again if it is returned for correction.</p>
+<form method="POST" action="{{ route('returns.transition',$return) }}" data-review-submit>@csrf<input type="hidden" name="action" value="submit"><input type="hidden" name="review_fingerprint" value="{{ $reviewFingerprint }}">
+<label class="review-acknowledgement"><input type="checkbox" name="acknowledged" value="1" required @checked(old('acknowledged'))><span>I acknowledge that I have reviewed this form and that the information provided is correct to the best of my knowledge.</span></label>
+@error('acknowledged')<p class="correction-field-error">{{ $message }}</p>@enderror
+<div class="form-actions"><a class="button" href="{{ route('returns.form.show',[$return,'studies']) }}">Back to edit</a><button type="submit" class="button button-primary" @disabled(count($qualityErrors)>0)>Submit form</button></div>
+@if($qualityErrors)<p class="muted">Correct the items listed above before submitting.</p>@endif
+<p data-review-submit-status role="status" hidden>Submitting your form...</p></form></section>
+@elseif($return->submitted_at)
+<section class="review-submission-receipt"><strong>Submission reference: MDES-{{ $return->id }}</strong><p>Submitted {{ $return->submitted_at->timezone('Africa/Kampala')->format('d F Y, H:i') }}. This submitted form is read-only.</p></section>
+@endif
 @if($adminReview ?? false)
 <section class="submitted-review-actions" aria-labelledby="submission-review-title">
 <header><div><span class="diocesan-eyebrow">School review</span><h2 id="submission-review-title">Review this submission</h2><p>The school answers above are read-only.</p></div><span class="review-status is-{{ $return->status }}">{{ $return->statusLabel() }}</span></header>

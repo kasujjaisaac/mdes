@@ -80,7 +80,7 @@ class SecurityAuditRegressionTest extends TestCase
         $reader->roles()->attach(Role::where('slug', 'headteacher')->firstOrFail());
         $this->assertFalse(Gate::forUser($reader)->allows('view', $school));
         $document = ManagedDocument::firstOrFail();
-        $this->actingAs($reader)->get(route('documents.index'))->assertOk()->assertViewHas('documents', fn ($documents) => ! $documents->contains('id', $document->id));
+        $this->actingAs($reader)->get(route('documents.index'))->assertForbidden();
         $this->get(route('documents.download', $document))->assertForbidden();
     }
 
@@ -137,8 +137,8 @@ class SecurityAuditRegressionTest extends TestCase
         $role->permissions()->sync(Permission::whereIn('slug', ['reports.view', 'reports.export', 'schools.view.assigned'])->pluck('id'));
         $user = User::factory()->create();
         $user->roles()->attach($role);
-        $export = app(ReportExportService::class)->generate($user, 'school registry', 'csv');
-        $this->assertStringNotContainsString($school->official_name, Storage::disk('local')->get($export->path));
+        $this->actingAs($user)->post(route('reports.export'), ['report_name'=>'school registry','format'=>'csv'])->assertForbidden();
+        $this->assertFalse($user->hasPermission('reports.export'));
     }
 
     public function test_reseeding_does_not_reset_an_existing_admin_password(): void

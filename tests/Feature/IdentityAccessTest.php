@@ -99,7 +99,7 @@ class IdentityAccessTest extends TestCase
         $this->actingAs($user)
             ->get('/dashboard')
             ->assertRedirect('/login')
-            ->assertSessionHasErrors('email');
+            ->assertSessionHasErrors('username');
 
         $this->assertGuest();
     }

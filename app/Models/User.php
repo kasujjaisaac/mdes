@@ -78,7 +78,23 @@ class User extends Authenticatable
 
     public function isSchoolRepresentative(): bool
     {
-        return ! $this->hasPermission('schools.view.all') && ($this->school_id !== null || $this->roles->contains(fn ($role) => in_array($role->slug, [Role::HEADTEACHER])));
+        return $this->school_id !== null || $this->hasRole(Role::HEADTEACHER);
+    }
+
+    public function isAdministrator(): bool
+    {
+        return $this->school_id === null && $this->roles->count() === 1 && $this->hasRole(Role::SUPER_ADMINISTRATOR);
+    }
+
+    public function scopeAdministrators(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Database\Eloquent\Builder
+    {
+        return $query->whereNull('school_id')->has('roles', '=', 1)
+            ->whereHas('roles', fn ($roles) => $roles->where('slug', Role::SUPER_ADMINISTRATOR));
+    }
+
+    public function hasValidPortalRole(): bool
+    {
+        return $this->isAdministrator() || ($this->roles->count() === 1 && $this->hasRole(Role::HEADTEACHER) && $this->school_id !== null);
     }
 
     public function roles(): BelongsToMany
@@ -113,8 +129,12 @@ class User extends Authenticatable
 
     public function hasPermission(string $permission): bool
     {
-        if ($this->hasRole(Role::SUPER_ADMINISTRATOR)) {
+        if ($this->isAdministrator()) {
             return true;
+        }
+        // School permissions are a ceiling: stray grants cannot turn a headteacher into an admin.
+        if (! $this->hasRole(Role::HEADTEACHER) || ! in_array($permission, Role::HEADTEACHER_PERMISSIONS, true)) {
+            return false;
         }
 
         $this->loadMissing('roles.permissions');

@@ -16,7 +16,7 @@ class AlertController extends Controller
 {
     public function composeSchool(Request $request, School $school)
     {
-        abort_unless(! $request->user()->isSchoolRepresentative() && $request->user()->hasPermission('returns.review'), 403);
+        abort_unless($request->user()->isAdministrator(), 403);
         Gate::authorize('view', $school);
 
         return view('alerts.message-school', ['title' => 'Message school', 'school' => $school->load('parish')]);
@@ -32,7 +32,7 @@ class AlertController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $canSend = ! $user->isSchoolRepresentative() && $user->hasPermission('returns.review');
+        $canSend = $user->isAdministrator();
         $selectedSchoolId = null;
         if ($canSend) {
             $request->validate(['school_id' => ['nullable', 'integer', 'exists:schools,id'], 'return_id' => ['nullable', 'integer', 'exists:school_returns,id']]);
@@ -66,7 +66,7 @@ class AlertController extends Controller
 
     public function store(Request $request)
     {
-        abort_unless(! $request->user()->isSchoolRepresentative() && $request->user()->hasPermission('returns.review'), 403);
+        abort_unless($request->user()->isAdministrator(), 403);
         $data = $request->validate(['school_id' => ['required_without:school_return_id', 'nullable', 'integer', 'exists:schools,id'], 'school_return_id' => ['nullable', 'integer', 'exists:school_returns,id'], 'subject' => ['required', 'string', 'max:180'], 'message' => ['required', 'string', 'max:5000']]);
         $return = isset($data['school_return_id']) ? SchoolReturn::findOrFail($data['school_return_id']) : null;
         $school = School::findOrFail($data['school_id'] ?? $return->school_id);

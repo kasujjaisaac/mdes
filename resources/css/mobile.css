@@ -609,7 +609,6 @@
  .mobile-bottom-navigation { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:10px; margin-top:10px; }
  .mobile-bottom-navigation > span { font-size:11px; color:#8395ab; text-align:center; }
  .mobile-bottom-navigation .button { justify-content:center; padding:9px 8px; min-height:44px; font-size:12px !important; }
- .mobile-portal .reference-form-page .mobile-completion-pending { display:none; }
  .system-theme .content .mobile-completion-note { font-size:12px; line-height:1.6; color:#788da7; padding:12px; border-left:2px solid #d4b878; background:#fffaf0; }
  .mobile-three-actions { display:grid; gap:8px; width:100%; }
  .mobile-three-actions .button { display:flex; justify-content:center; align-items:center; min-height:44px; padding:9px 6px; font-size:12px !important; white-space:nowrap; }
@@ -696,14 +695,14 @@
  .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table tbody tr > :is(th,td) { border-right:1px solid #829fc3; border-bottom:1px solid #a9bfdc; }
  .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table tbody tr > td:nth-child(odd),
 .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table tbody tr > th { border-right:2px solid #829fc3; }
- .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) { table-layout:auto; width:max-content; min-width:100%; }
- .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) tbody th[scope=row],
-.app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) thead tr:first-child > th:first-child { box-sizing:border-box; width:120px; min-width:120px; max-width:120px; white-space:normal; overflow-wrap:anywhere; font-size:11px; line-height:1.5; padding:9px 8px; }
- .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) tbody th[scope=row] { vertical-align:middle; }
- .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) td { min-width:92px; padding:7px; vertical-align:middle; border-right:1px solid #a8bdd8; border-bottom:1px solid #bdcfe4; }
- .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) td:has(textarea) { min-width:220px; width:220px; }
- .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) textarea { display:block; box-sizing:border-box; width:220px; min-width:220px; max-width:none; min-height:78px; padding:8px 10px; font-size:13px; line-height:1.5; resize:vertical; white-space:pre-wrap; overflow:auto; }
- .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) input[type=number] { width:76px; min-width:76px; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table):not(.facility-readable-table):not(.staff-entry-table):not(.study-entry-table) { table-layout:auto; width:max-content; min-width:100%; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table):not(.facility-readable-table):not(.staff-entry-table):not(.study-entry-table) tbody th[scope=row],
+.app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table):not(.facility-readable-table):not(.staff-entry-table):not(.study-entry-table) thead tr:first-child > th:first-child { box-sizing:border-box; width:120px; min-width:120px; max-width:120px; white-space:normal; overflow-wrap:anywhere; font-size:11px; line-height:1.5; padding:9px 8px; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table):not(.facility-readable-table):not(.staff-entry-table):not(.study-entry-table) tbody th[scope=row] { vertical-align:middle; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table):not(.facility-readable-table):not(.staff-entry-table):not(.study-entry-table) td { min-width:92px; padding:7px; vertical-align:middle; border-right:1px solid #a8bdd8; border-bottom:1px solid #bdcfe4; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table):not(.facility-readable-table):not(.staff-entry-table):not(.study-entry-table) td:has(textarea) { min-width:220px; width:220px; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table):not(.facility-readable-table):not(.staff-entry-table):not(.study-entry-table) textarea { display:block; box-sizing:border-box; width:220px; min-width:220px; max-width:none; min-height:78px; padding:8px 10px; font-size:13px; line-height:1.5; resize:vertical; white-space:pre-wrap; overflow:auto; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table):not(.facility-readable-table):not(.staff-entry-table):not(.study-entry-table) input[type=number] { width:76px; min-width:76px; }
  .app-body.system-theme.mobile-portal .app-shell .topbar:has(.client-header-menu[open]),
 .app-body.system-theme.mobile-portal .app-shell .topbar:has(.profile-menu.is-open) { position:relative; z-index:100; overflow:visible; }
  .app-body.system-theme.mobile-portal .app-shell .topbar .client-header-menu[open] { z-index:110; }
@@ -790,16 +789,11 @@
  .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table thead tr:nth-child(2) th,
  .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table thead th[rowspan],
  .app-body.system-theme.mobile-portal .reference-form-page .paper-enrolment-table tbody th[scope=row] { font-size:11px; letter-spacing:0; }
- .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) tbody th[scope=row],
- .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table) thead tr:first-child > th:first-child { width:128px; min-width:128px; max-width:128px; font-size:12px; }
- .app-body.system-theme.mobile-portal .reference-form-page [data-source-table=items] .source-data-table tbody th[scope=row],
- .app-body.system-theme.mobile-portal .reference-form-page [data-source-table=items] .source-data-table thead tr:first-child > th:first-child { width:144px; min-width:144px; max-width:144px; }
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table):not(.facility-readable-table):not(.staff-entry-table):not(.study-entry-table) tbody th[scope=row],
+ .app-body.system-theme.mobile-portal .reference-form-page .source-data-table:not(.paper-enrolment-table):not(.facility-readable-table):not(.staff-entry-table):not(.study-entry-table) thead tr:first-child > th:first-child { width:128px; min-width:128px; max-width:128px; font-size:12px; }
  .app-body.system-theme.mobile-portal .reference-form-page [data-source-table=members] .source-data-table tbody th[scope=row],
  .app-body.system-theme.mobile-portal .reference-form-page [data-source-table=members] .source-data-table thead tr:first-child > th:first-child { width:44px; min-width:44px; max-width:44px; }
  .app-body.system-theme.mobile-portal .reference-form-page .source-save-bar .mobile-three-actions .button { min-height:44px; padding:11px 12px; }
- .app-body.system-theme.mobile-portal .content .mobile-save-indicator { text-align:center; color:#6c829c; font-size:11px; margin:0 0 5px; }
- .app-body.system-theme.mobile-portal .content .mobile-save-indicator.is-dirty { color:#95681d; }
- .app-body.system-theme.mobile-portal .content .mobile-navigation-help { font-size:11px; color:#8193aa; text-align:center; margin:0 0 9px; line-height:1.5; }
  .mobile-readiness { display:block; padding-top:9px; font-size:12px; color:#976e2d; }
  .mobile-readiness.is-ready { color:#3c7c56; }
  .mobile-readiness-details { margin-top:4px; border-top:1px solid #e5ebf3; font-size:12px; }
@@ -905,3 +899,551 @@
 .app-body .content [data-autosave-status][data-state="saved"] { color:#26705b; }
 .app-body .content [data-autosave-status][data-state="error"] { color:#9b4c21; }
 .app-body .content .autosave-recovery-actions { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+
+/* Keep school capture labels aligned with their input text on every screen. */
+.app-body.system-theme .content .school-editor .school-fieldset,
+.app-body.system-theme .content .school-editor .school-fieldset legend,
+.app-body.system-theme .content .school-editor .school-fieldset > p,
+.app-body.system-theme .content .school-editor .school-field-grid > label,
+.app-body.system-theme .content .school-editor .school-capture-label,
+.app-body.system-theme .content .school-editor .school-field-grid :is(input,select,textarea,small) { text-align:left; }
+.app-body.system-theme .content .school-editor .school-field-grid > label { align-items:stretch; }
+.app-body.system-theme .content .school-editor .school-capture-label { align-self:stretch; justify-content:flex-start; }
+
+
+/* A compact, button-only navigation bar for the school form. */
+@media(max-width:820px) {
+ .app-body.system-theme.mobile-portal .content .reference-form-page .source-save-bar { padding:12px 0; border-top:1px solid #cfdef0; background:#fff; }
+ .app-body.system-theme.mobile-portal .content .reference-form-page .source-save-bar .mobile-three-actions { display:flex; gap:8px; align-items:stretch; }
+ .app-body.system-theme.mobile-portal .content .reference-form-page .source-save-bar .mobile-three-actions .button { flex:1 1 0; min-width:0; width:auto; min-height:44px; padding:10px 8px; border:1px solid #c7d9ee; border-radius:0; background:#f0f5fc; color:#24558c; font-weight:500; line-height:1.4; }
+ .app-body.system-theme.mobile-portal .content .reference-form-page .source-save-bar .mobile-three-actions .button[name=navigate][value=next] { background:#e4eefb; border-color:#b2ccec; color:#1e518d; }
+ .app-body.system-theme.mobile-portal .content .reference-form-page .source-save-bar .mobile-three-actions .button-primary { background:#265b99; border-color:#265b99; color:#fff; font-weight:600; }
+ .app-body.system-theme.mobile-portal .content .reference-form-page .source-save-bar .mobile-three-actions .button:hover { filter:brightness(.96); }
+}
+.app-body.system-theme .content .form-action-error { margin:12px 0 0; padding:11px 13px; background:#fff4f2; border:1px solid #edc9c2; border-left:3px solid #b94c43; color:#964138; font-size:12px; line-height:1.7; }
+.app-body.system-theme .content .form-action-error[hidden] { display:none; }
+.app-body.system-theme .content .source-save-bar [aria-busy="true"] { opacity:.7; cursor:wait; }
+
+/* Statistical entry: grouped details with a consistent, compact field rhythm. */
+.app-body.system-theme .content .statistical-entry-refined .source-form-heading { margin-bottom:8px; }
+.app-body.system-theme .content .statistical-entry-refined .source-form-heading h2 { font-size:19px; line-height:1.5; font-weight:600; color:#234f80; }
+.app-body.system-theme .content .statistical-entry-refined .reference-form-header { padding:13px 16px; background:#24558e; border:0; border-bottom:1px solid #1d487b; align-items:center; gap:12px; }
+.app-body.system-theme .content .statistical-entry-refined .reference-form-header h2 { margin:0; color:#fff; font-size:15px; font-weight:600; line-height:1.6; letter-spacing:.15px; }
+.app-body.system-theme .content .statistical-entry-refined .reference-form-header > span { flex-shrink:0; font-size:10px; font-weight:400; line-height:1.6; color:#d9e8fa; }
+.app-body.system-theme .content .statistical-entry-refined .source-form { padding:12px; gap:10px; }
+.app-body.system-theme .content .statistical-entry-refined .form-autosave-status { display:flex; align-items:center; gap:7px; margin:0; padding:2px 0; min-height:16px; border:0; background:transparent; font-size:11px; line-height:1.5; }
+.app-body.system-theme .content .statistical-entry-refined .form-autosave-status::before { content:""; width:6px; height:6px; flex-shrink:0; border-radius:50%; background:#8fa7c3; }
+.app-body.system-theme .content .statistical-entry-refined .form-autosave-status[data-state=saved]::before { background:#328366; }
+.app-body.system-theme .content .statistical-entry-refined .form-autosave-status[data-state=error]::before { background:#b3603a; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-group { min-width:0; margin:0; padding:10px 12px; border:1px solid #dae5f2; background:#fff; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-group legend { padding:6px 10px; border:1px solid #cbdcf0; background:#edf4fd; color:#28578e; font-size:12px; font-weight:600; line-height:1.6; }
+.app-body.system-theme .content .statistical-entry-refined .form-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px 14px; }
+.app-body.system-theme .content .statistical-entry-refined .source-field { display:flex; flex-direction:column; align-items:stretch; gap:4px; min-width:0; padding:0; border:0; grid-column:auto; text-align:left; }
+.app-body.system-theme .content .statistical-entry-refined .source-field > label { margin:0; color:#607a99; font-size:11px; font-weight:500; line-height:1.5; text-transform:none; text-align:left; }
+.app-body.system-theme .content .statistical-entry-refined .source-field :is(input:not([type=checkbox]),select,textarea) { box-sizing:border-box; width:100%; min-width:0; min-height:34px; height:auto; margin:0; padding:6px 9px; border:1px solid #cbdbee; border-radius:0; background:#fcfdff; color:#234b79; font-size:12px; font-weight:400; line-height:1.5; text-align:left; }
+.app-body.system-theme .content .statistical-entry-refined .source-field input:disabled { padding:6px 9px; border:1px solid #e0e8f2; background:#f2f6fb; color:#436486; font-size:12px; font-weight:500; -webkit-text-fill-color:#436486; opacity:1; }
+.app-body.system-theme .content .statistical-entry-refined .source-field :is(input,select,textarea):focus-visible { outline:2px solid #a9c8ec; outline-offset:1px; border-color:#598ac4; }
+.app-body.system-theme .content .statistical-entry-refined [data-source-table] > h3 { margin:3px 0 10px; padding:9px 11px; border-left:3px solid #3269aa; background:#eef4fc; color:#28578e; font-size:13px; font-weight:600; line-height:1.65; overflow-wrap:anywhere; }
+.app-body.system-theme .content .statistical-entry-refined .source-data-table th { background:#f0f5fc; color:#456a96; font-size:11px; line-height:1.5; }
+.app-body.system-theme .content .statistical-entry-refined .source-data-table td { border-color:#dfe8f3; }
+@media(max-width:820px) {
+ .app-body.system-theme .content .statistical-entry-refined .source-form { padding:10px; gap:10px; }
+ .app-body.system-theme .content .statistical-entry-refined .source-form-heading h2 { font-size:16px; }
+ .app-body.system-theme .content .statistical-entry-refined .reference-form-header { flex-direction:column; align-items:flex-start; padding:11px 12px; gap:3px; }
+ .app-body.system-theme .content .statistical-entry-refined .reference-form-header h2 { font-size:13px; }
+ .app-body.system-theme .content .statistical-entry-refined .source-field-group { padding:9px 10px; }
+ .app-body.system-theme .content .statistical-entry-refined .form-grid { grid-template-columns:1fr; gap:9px; }
+ .app-body.system-theme .content .statistical-entry-refined .source-field :is(input:not([type=checkbox]),select,textarea) { min-height:44px; font-size:16px; padding:10px 11px; }
+ .app-body.system-theme .content .statistical-entry-refined .source-field input:disabled { font-size:13px; }
+}
+
+@media(min-width:821px) {
+ .app-body.system-theme .content .reference-form-page .source-save-bar { justify-content:center; padding:14px 0 0; border-top:1px solid #d5e2f2; background:#fff; }
+ .app-body.system-theme .content .reference-form-page .source-save-bar .mobile-three-actions { display:flex; align-items:center; justify-content:center; gap:9px; }
+ .app-body.system-theme .content .reference-form-page .source-save-bar .mobile-three-actions .button { display:inline-flex; align-items:center; justify-content:center; min-width:100px; min-height:40px; padding:9px 16px; border-radius:0; border:1px solid #c7d9ee; background:#f0f5fc; color:#24558c; font-size:12px; font-weight:500; line-height:1.5; }
+ .app-body.system-theme .content .reference-form-page .source-save-bar .mobile-three-actions .button[value=next] { background:#e4eefb; border-color:#b2ccec; }
+ .app-body.system-theme .content .reference-form-page .source-save-bar .mobile-three-actions .button-primary { color:#fff; background:#265b99; border-color:#265b99; font-weight:600; }
+}
+
+.app-body.system-theme .content .statistical-entry-refined .source-entry-layout { gap:10px; }
+.app-body.system-theme .content .statistical-entry-refined .source-form-tabs a { min-height:38px; padding:6px 8px; font-size:11px; line-height:1.5; }
+.app-body.system-theme .content .statistical-entry-refined .reference-progress-caption { padding-top:4px; }
+.app-body.system-theme .content .statistical-entry-refined .source-save-bar { margin-top:4px; padding-top:10px; }
+@media(min-width:821px) {
+ .app-body.system-theme .content .statistical-entry-refined .source-data-table :is(th,td) { padding:6px 8px; }
+}
+
+/* Compact, centred form actions with comfortable mobile tap areas. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-save-bar { display:flex; align-items:center; justify-content:center; margin-top:4px; padding:10px 0 2px; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-save-bar > .mobile-form-bottom-actions { flex:0 1 auto; width:auto; max-width:100%; margin:0 auto; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-save-bar .mobile-three-actions { display:flex; align-items:center; justify-content:center; gap:7px; width:auto; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-save-bar .mobile-three-actions .button { flex:0 0 auto; width:auto; min-width:78px; min-height:34px; padding:7px 12px; margin:0; font-size:11px !important; line-height:1.5; }
+@media(max-width:820px) {
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-save-bar .mobile-three-actions { gap:6px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-save-bar .mobile-three-actions .button { min-width:68px; min-height:40px; padding:8px 10px; font-size:11px !important; }
+}
+
+.field-required-mark { display:inline; color:#b64a56; font-size:inherit; font-weight:600; margin-left:2px; }
+.visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+/* Enrolment runs down the page, with a readable row for each class. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table { width:100%; min-width:0; table-layout:fixed; border-collapse:collapse; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table thead th { background:#24558e; color:#fff; padding:10px 12px; font-size:11px; font-weight:500; text-align:center; border-color:#3d6da5; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table thead th[rowspan]:first-child { width:32%; text-align:left; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table thead .field-required-mark { color:#ffd8d8; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table tbody th { background:#f5f8fd; color:#355f90; font-size:12px; font-weight:500; text-align:left; padding:8px 12px; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table tbody td { padding:6px 10px; text-align:center; border:1px solid #dae5f2; background:#fff; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table input[type=number] { box-sizing:border-box; width:100%; min-width:0; max-width:none; min-height:36px; padding:7px 9px; margin:0; border:1px solid #ccdbed; background:#fcfdff; font-size:12px; text-align:center; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table .source-total { background:#f0f6fc; color:#285789; font-size:13px; font-weight:600; font-variant-numeric:tabular-nums; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table tfoot :is(th,td) { padding:10px 12px; background:#e9f1fc; color:#24558e; font-size:12px; font-weight:600; text-align:center; border-top:2px solid #b9cfe9; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table tfoot th { text-align:left; }
+@media(max-width:820px) {
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table :is(th,td) { padding:6px 4px; font-size:10px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table tbody th { padding:6px; font-size:11px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table input[type=number] { min-height:40px; padding:6px 3px; font-size:16px; }
+}
+
+/* Religious affiliation: totals only, sized to fit without sideways scrolling. */
+.app-body.system-theme.mobile-portal .content :is(.statistical-entry-refined,.submitted-record-page) .religion-entry-section { min-width:0; }
+.app-body.system-theme.mobile-portal .content :is(.statistical-entry-refined,.submitted-record-page) .religion-entry-table { width:100%; min-width:0; table-layout:fixed; border-collapse:collapse; }
+.app-body.system-theme.mobile-portal .content :is(.statistical-entry-refined,.submitted-record-page) .religion-entry-table :is(th,td) { box-sizing:border-box; min-width:0; padding:7px 6px; text-align:center; white-space:normal; overflow-wrap:anywhere; font-size:11px; }
+.app-body.system-theme.mobile-portal .content :is(.statistical-entry-refined,.submitted-record-page) .religion-entry-table tr > :first-child { width:27%; text-align:left; }
+.app-body.system-theme.mobile-portal .content :is(.statistical-entry-refined,.submitted-record-page) .religion-entry-table thead th { background:#24558e; color:#fff; font-weight:500; line-height:1.5; }
+.app-body.system-theme.mobile-portal .content :is(.statistical-entry-refined,.submitted-record-page) .religion-entry-table tbody th { background:#f4f8fd; color:#355f90; font-weight:500; }
+.app-body.system-theme.mobile-portal .content :is(.statistical-entry-refined,.submitted-record-page) .religion-entry-table input[type=number] { box-sizing:border-box; width:100%; min-width:0; max-width:none; min-height:36px; padding:6px 3px; margin:0; border:1px solid #ccdcee; background:#fcfdff; color:#285786; font-size:13px; text-align:center; }
+.app-body.system-theme.mobile-portal .content :is(.statistical-entry-refined,.submitted-record-page) .religion-entry-table .source-total,
+.app-body.system-theme.mobile-portal .content :is(.statistical-entry-refined,.submitted-record-page) .religion-entry-table tfoot :is(th,td) { background:#eaf2fc; color:#285786; font-weight:600; }
+@media(max-width:820px) {
+ .app-body.system-theme.mobile-portal .content :is(.statistical-entry-refined,.submitted-record-page) .religion-entry-table :is(th,td) { padding:6px 2px; font-size:10px; }
+ .app-body.system-theme.mobile-portal .content :is(.statistical-entry-refined,.submitted-record-page) .religion-entry-table tbody th { padding-left:5px; }
+ .app-body.system-theme.mobile-portal .content :is(.statistical-entry-refined,.submitted-record-page) .religion-entry-table input[type=number] { min-height:40px; padding:5px 1px; font-size:16px; }
+}
+
+/* Original questionnaire text is kept intact, with responsive document spacing. */
+.app-body.system-theme .content .questionnaire-introduction { max-width:900px; margin:0 auto; background:#fff; border:1px solid #d3e0f0; border-top:3px solid #285b98; }
+.app-body.system-theme .content .questionnaire-introduction > header { padding:24px 28px 18px; text-align:center; border-bottom:1px solid #dde6f2; }
+.app-body.system-theme .content .questionnaire-introduction > header small { display:block; text-align:right; color:#7187a1; font-size:11px; }
+.app-body.system-theme .content .questionnaire-introduction h1 { margin:14px 0 8px; font-size:19px; line-height:1.5; font-weight:600; }
+.app-body.system-theme .content .questionnaire-introduction header p { font-size:12px; line-height:1.8; margin:0; color:#5b7696; }
+.app-body.system-theme .content .questionnaire-introduction h2 { font-size:18px; line-height:1.6; margin:22px 0 0; font-weight:600; }
+.app-body.system-theme .content .questionnaire-introduction-body { padding:22px 28px; font-size:13px; line-height:1.9; color:#385b83; }
+.app-body.system-theme .content .questionnaire-introduction-body > p { margin:0 0 15px; }
+.app-body.system-theme .content .questionnaire-introduction h3 { margin:0 0 8px; font-size:13px; font-weight:600; }
+.app-body.system-theme .content .questionnaire-introduction .questionnaire-objective { padding-left:18px; }
+.app-body.system-theme .content .questionnaire-introduction > footer { display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:10px; padding:16px 24px; border-top:1px solid #dde6f2; }
+.app-body.system-theme .content .questionnaire-introduction .button { min-height:40px; padding:10px 15px; font-size:12px; }
+.app-body.system-theme .content .questionnaire-source-description { margin:0 0 10px; font-size:12px; line-height:1.8; color:#44688f; }
+.app-body.system-theme .content .questionnaire-source-note { display:block; margin:7px 0; font-size:11px; line-height:1.7; color:#617d9e; }
+.app-body.system-theme .content .questionnaire-table-caption { margin:0; padding:8px 10px; border:1px solid #d1def0; border-bottom:0; background:#edf4fd; color:#285789; text-align:center; font-size:12px; font-weight:600; }
+.app-body.system-theme .content .questionnaire-introduction-link { display:inline-block; margin-bottom:7px; font-size:11px; font-weight:500; color:#5e7da1; text-decoration:none; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-group legend { max-width:100%; white-space:normal; }
+@media(max-width:600px) {
+ .app-body.system-theme .content .questionnaire-introduction > header { padding:18px 15px; }
+ .app-body.system-theme .content .questionnaire-introduction h1 { font-size:16px; }
+ .app-body.system-theme .content .questionnaire-introduction h2 { font-size:15px; }
+ .app-body.system-theme .content .questionnaire-introduction-body { padding:18px 15px; font-size:12px; }
+ .app-body.system-theme .content .questionnaire-introduction > footer { padding:13px; }
+ .app-body.system-theme .content .statistical-entry-refined .reference-form-header h2 { overflow-wrap:anywhere; }
+}
+
+/* The original questionnaire headings share one blue hierarchy in entry and review. */
+.app-body.system-theme .content .statistical-entry-refined .source-form-tabs a[aria-current=page] { background:#24558e; color:#fff; border-color:#24558e; }
+.app-body.system-theme .content .statistical-entry-refined .source-form-tabs a[aria-current=page] .reference-saved-check { color:#b5edcb; }
+.app-body.system-theme .content .statistical-entry-refined .questionnaire-table-caption { padding:7px 10px; background:#f6f9fd; color:#4c6f96; font-size:11px; font-weight:500; letter-spacing:.15px; line-height:1.6; }
+.app-body.system-theme .content .submitted-record-page .submitted-section-heading { background:#24558e; border-color:#1d487b; padding:12px 16px; }
+.app-body.system-theme .content .submitted-record-page .submitted-section-heading h2 { margin:0; color:#fff; font-size:14px; font-weight:600; line-height:1.6; }
+.app-body.system-theme .content .submitted-record-page .submitted-section-heading > span { background:#ffffff14; color:#dfebfa; border-color:#ffffff30; }
+.app-body.system-theme .content .questionnaire-introduction > header h2 { padding:12px 8px; border-top:1px solid #d7e3f2; border-bottom:1px solid #d7e3f2; color:#24558e; }
+@media(max-width:820px) {
+ .app-body.system-theme .content .statistical-entry-refined [data-source-table] > h3 { padding:8px 9px; font-size:12px; }
+ .app-body.system-theme .content .statistical-entry-refined .source-field-group legend { font-size:11px; padding:5px 8px; }
+ .app-body.system-theme .content .submitted-record-page .submitted-section-heading { padding:10px 12px; }
+ .app-body.system-theme .content .submitted-record-page .submitted-section-heading h2 { font-size:12px; }
+}
+
+/* Form typography: a consistent Poppins scale without altering source wording. */
+.app-body.system-theme .content :is(.statistical-entry-refined,.submitted-record-page,.questionnaire-introduction) { font-family:"Poppins",sans-serif; font-size:13px; font-weight:400; line-height:1.7; text-rendering:optimizeLegibility; }
+.app-body.system-theme .content .statistical-entry-refined .source-form-heading h2 { font-size:20px; font-weight:600; line-height:1.45; letter-spacing:-.2px; }
+.app-body.system-theme .content .statistical-entry-refined .reference-form-header h2 { font-size:15px; font-weight:600; line-height:1.65; letter-spacing:.1px; }
+.app-body.system-theme .content .statistical-entry-refined .source-field > label { font-size:12px; font-weight:500; line-height:1.65; color:#486989; }
+.app-body.system-theme .content .statistical-entry-refined .source-field :is(input:not([type=checkbox]),select,textarea) { font-family:inherit; font-size:13px; font-weight:400; line-height:1.6; letter-spacing:normal; }
+.app-body.system-theme .content .statistical-entry-refined .source-field input:disabled { font-size:13px; font-weight:500; }
+.app-body.system-theme .content .statistical-entry-refined .source-checkboxes label { font-size:12px; font-weight:400; line-height:1.65; color:#3f6288; }
+.app-body.system-theme .content .statistical-entry-refined .source-data-table :is(th,td) { font-family:inherit; line-height:1.65; }
+.app-body.system-theme .content .statistical-entry-refined .source-data-table thead th { font-weight:500; letter-spacing:.1px; }
+.app-body.system-theme .content .statistical-entry-refined .source-data-table tbody th { font-size:12px; font-weight:500; }
+.app-body.system-theme .content .statistical-entry-refined .source-data-table :is(input,select,textarea) { font-family:inherit; font-weight:400; line-height:1.5; font-variant-numeric:tabular-nums; }
+.app-body.system-theme .content :is(.statistical-entry-refined,.submitted-record-page) :is(.source-total,tfoot td) { font-variant-numeric:tabular-nums; font-weight:600; }
+.app-body.system-theme .content :is(.statistical-entry-refined,.submitted-record-page) .questionnaire-source-description { font-size:12px; font-weight:400; line-height:1.85; color:#4f6e90; }
+.app-body.system-theme .content :is(.statistical-entry-refined,.submitted-record-page) .questionnaire-source-note { font-size:11px; font-weight:400; line-height:1.8; color:#657d98; }
+.app-body.system-theme .content .submitted-record-page .submitted-field-table :is(th,td) { font-size:12px; line-height:1.75; }
+.app-body.system-theme .content .submitted-record-page .submitted-field-table th { font-weight:500; }
+.app-body.system-theme .content .questionnaire-introduction-body { font-size:13px; line-height:1.95; }
+@media(max-width:820px) {
+ .app-body.system-theme .content .statistical-entry-refined .source-form-heading h2 { font-size:17px; }
+ .app-body.system-theme .content .statistical-entry-refined .reference-form-header h2 { font-size:13px; line-height:1.65; }
+ .app-body.system-theme .content .statistical-entry-refined .source-field > label { font-size:12px; }
+ .app-body.system-theme .content .statistical-entry-refined .source-field :is(input:not([type=checkbox]),select,textarea) { font-size:16px; }
+ .app-body.system-theme .content .statistical-entry-refined .source-field input:disabled { font-size:13px; }
+ .app-body.system-theme .content .statistical-entry-refined .religion-entry-table tbody th { font-size:10px; }
+ .app-body.system-theme .content .questionnaire-introduction-body { font-size:12px; line-height:1.9; }
+}
+
+/* Classification answers sit alongside their question labels. */
+.app-body.system-theme .content .statistical-entry-refined .school-classification-fields .source-field { display:grid; grid-template-columns:130px minmax(0,1fr); align-items:center; gap:10px; }
+.app-body.system-theme .content .statistical-entry-refined .school-classification-fields .source-field > label { margin:0; }
+@media(max-width:820px) {
+ .app-body.system-theme .content .statistical-entry-refined .school-classification-fields .form-grid { grid-template-columns:1fr; }
+ .app-body.system-theme .content .statistical-entry-refined .school-classification-fields .source-field { grid-template-columns:105px minmax(0,1fr); gap:8px; }
+ .app-body.system-theme .content .statistical-entry-refined .school-classification-fields .source-field > label { font-size:11px; line-height:1.6; }
+}
+@media(max-width:360px) {
+ .app-body.system-theme .content .statistical-entry-refined .school-classification-fields .source-field { grid-template-columns:90px minmax(0,1fr); gap:6px; }
+}
+
+/* Balanced classification rows, including the required marker. */
+.app-body.system-theme .content .statistical-entry-refined .school-classification-fields { padding:12px; border-color:#d4e2f2; background:#fbfcff; }
+.app-body.system-theme .content .statistical-entry-refined .school-classification-fields .form-grid { gap:8px 18px; }
+.app-body.system-theme .content .statistical-entry-refined .school-classification-fields .source-field { grid-template-columns:145px minmax(0,1fr); gap:12px; padding:5px 0; }
+.app-body.system-theme .content .statistical-entry-refined .school-classification-fields .source-field > label { display:flex; align-items:baseline; gap:3px; min-width:0; font-size:12px; font-weight:500; color:#41668f; }
+.app-body.system-theme .content .statistical-entry-refined .school-classification-fields .source-question-text { min-width:0; line-height:1.55; }
+.app-body.system-theme .content .statistical-entry-refined .school-classification-fields .field-required-mark { flex:0 0 auto; margin:0; }
+.app-body.system-theme .content .statistical-entry-refined .school-classification-fields select { min-height:38px; background:#fff; border-color:#c7d9ee; box-shadow:0 1px 2px #244e7d04; }
+@media(max-width:820px) {
+ .app-body.system-theme .content .statistical-entry-refined .school-classification-fields { padding:10px; }
+ .app-body.system-theme .content .statistical-entry-refined .school-classification-fields .source-field { grid-template-columns:112px minmax(0,1fr); gap:8px; padding:4px 0; }
+ .app-body.system-theme .content .statistical-entry-refined .school-classification-fields .form-grid { gap:5px; }
+ .app-body.system-theme .content .statistical-entry-refined .school-classification-fields .source-field > label { font-size:11px; gap:2px; }
+ .app-body.system-theme .content .statistical-entry-refined .school-classification-fields select { min-height:42px; padding:8px; }
+}
+@media(max-width:360px) {
+ .app-body.system-theme .content .statistical-entry-refined .school-classification-fields .source-field { grid-template-columns:100px minmax(0,1fr); gap:6px; }
+ .app-body.system-theme .content .statistical-entry-refined .school-classification-fields .source-field > label { font-size:10px; }
+}
+
+.app-body.system-theme .content .statistical-entry-refined .form-autosave-status[hidden] { display:none; }
+
+/* This short table flows with the page; sticky cells must not overlap its two-row header. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-section > .table-wrap { width:100%; max-width:100%; max-height:none; height:auto; overflow:visible; border:1px solid #d2e0f0; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table :is(thead th,tbody th,tfoot th,tfoot td) { position:static; top:auto; left:auto; z-index:auto; box-shadow:none; vertical-align:middle; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table thead th { height:auto; padding:8px 10px; line-height:1.5; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table thead th[rowspan]:first-child { width:auto; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table .enrolment-class-col { width:30%; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table .enrolment-gender-col { width:28%; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table .enrolment-total-col { width:14%; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table tbody :is(th,td) { height:auto; padding:6px 10px; vertical-align:middle; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table input[type=number] { display:block; max-width:180px; min-height:34px; margin:0 auto; padding:6px 8px; appearance:textfield; -moz-appearance:textfield; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table input[type=number]::-webkit-inner-spin-button,
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+@media(max-width:820px) {
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table .enrolment-class-col { width:32%; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table .enrolment-gender-col { width:24%; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table .enrolment-total-col { width:20%; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table :is(thead th,tbody th,tbody td) { padding:6px 4px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined .enrolment-entry-table input[type=number] { max-width:none; min-height:40px; padding:6px 3px; }
+}
+
+/* Cleaner questionnaire tables: subtle row separators instead of boxed cells. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-form .table-wrap { border:0; box-shadow:none; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-data-table { border:0; border-collapse:collapse; box-shadow:none; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-data-table :is(th,td) { border:0; box-shadow:none; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-data-table tbody tr { border-bottom:1px solid #e0e8f2; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-data-table thead tr + tr { border-top:1px solid #ffffff20; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-data-table tfoot tr { border-top:1px solid #cfdded; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-data-table :is(input:not([type=checkbox]),select,textarea) { border:1px solid transparent; background:#f4f7fc; box-shadow:none; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-data-table :is(input,select,textarea):hover { border-color:#d5e1ef; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-data-table :is(input,select,textarea):focus-visible { border-color:#588ac5; outline:2px solid #bad2ef; outline-offset:1px; background:#fff; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-data-table [aria-invalid=true] { border-color:#ba5963; background:#fff6f6; }
+
+/* Two water-source choices per row, with room for longer option labels. */
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px 12px; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes > label { display:flex; align-items:flex-start; gap:7px; min-width:0; margin:0; padding:7px 0; text-align:left; font-size:12px; line-height:1.6; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes input[type=checkbox] { flex:0 0 15px; width:15px; height:15px; min-height:15px; margin:3px 0 0; padding:0; }
+@media(max-width:820px) {
+ .app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes { gap:5px 10px; }
+ .app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes > label { font-size:11px; }
+}
+
+/* Water options are compact selectable tiles with a visible selected state. */
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes { gap:8px; padding:9px; border:1px solid #dce6f3; background:#f8fafd; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes > label { align-items:center; gap:8px; min-height:46px; padding:9px; border:1px solid #d9e4f2; background:#fff; box-sizing:border-box; cursor:pointer; transition:background-color .15s,border-color .15s; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes > label:last-child:nth-child(odd) { grid-column:1/-1; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes .source-option-text { min-width:0; color:#476990; font-size:12px; line-height:1.6; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes input[type=checkbox] { margin:0; accent-color:#285c9a; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes > label:hover { border-color:#a9c3e4; background:#f4f8fe; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes > label:has(input:checked) { border-color:#7fa9d8; background:#eaf2fc; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes > label:has(input:checked) .source-option-text { color:#24558c; font-weight:500; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes > label:focus-within { outline:2px solid #a6c7ec; outline-offset:1px; }
+@media(max-width:820px) {
+ .app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes { padding:7px; gap:7px; }
+ .app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes > label { padding:8px; gap:7px; }
+ .app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes .source-option-text { font-size:11px; }
+}
+
+/* Water reliability has two explicit answers and a conditional explanation. */
+.app-body.system-theme .content .statistical-entry-refined .source-field[hidden] { display:none; }
+.app-body.system-theme .content .statistical-entry-refined .source-yes-no { display:flex; gap:9px; align-items:center; }
+.app-body.system-theme .content .statistical-entry-refined .source-yes-no label { display:flex; align-items:center; gap:8px; min-width:84px; min-height:42px; box-sizing:border-box; padding:9px 13px; margin:0; border:1px solid #d0dff0; background:#fff; color:#3d638d; font-size:12px; cursor:pointer; }
+.app-body.system-theme .content .statistical-entry-refined .source-yes-no input[type=radio] { appearance:auto; flex:0 0 16px; width:16px; height:16px; min-width:16px; min-height:16px; margin:0; padding:0; accent-color:#285b98; }
+.app-body.system-theme .content .statistical-entry-refined .source-yes-no label:has(input:checked) { border-color:#84acd9; background:#eaf2fc; color:#24558e; font-weight:500; }
+.app-body.system-theme .content .statistical-entry-refined .source-yes-no label:focus-within { outline:2px solid #a9c7eb; outline-offset:1px; }
+
+/* Unboxed utility choices; retain keyboard focus and native selection controls. */
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes { border:0; background:transparent; padding:0; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes > label,
+.app-body.system-theme .content .statistical-entry-refined .source-yes-no label { border:0; box-shadow:none; background:transparent; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes > label:hover,
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes > label:has(input:checked),
+.app-body.system-theme .content .statistical-entry-refined .source-yes-no label:has(input:checked) { background:transparent; border:0; }
+.app-body.system-theme .content .statistical-entry-refined .source-field-water_sources .source-checkboxes > label:focus-within,
+.app-body.system-theme .content .statistical-entry-refined .source-yes-no label:focus-within { outline:none; }
+.app-body.system-theme .content .statistical-entry-refined :is(.source-checkboxes,.source-yes-no) input:focus-visible { outline:2px solid #8fb3de; outline-offset:3px; }
+
+/* Keep facilities in three columns, with readable content and visible entry areas. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=items] > .table-wrap { max-height:none; height:auto; overflow-x:auto; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table { display:table; width:100%; min-width:0; table-layout:fixed; border-collapse:collapse; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table :is(th,td) { box-sizing:border-box; min-width:0; max-width:none; padding:9px 8px; vertical-align:middle; white-space:normal; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table thead th { position:static; width:auto; font-size:11px; font-weight:500; line-height:1.6; padding:9px 8px; text-transform:none; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table thead th:first-child,
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table tbody th[scope=row] { width:44%; min-width:0; max-width:none; position:static; left:auto; box-shadow:none; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table thead th:nth-child(2) { width:16%; text-align:center; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table thead th:nth-child(3) { width:40%; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table tbody th[scope=row] { background:#f4f8fd; color:#355b83; font-size:13px; font-weight:400; line-height:1.75; padding:11px 10px; text-align:left; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table tbody tr { border-bottom:1px solid #d7e3f1; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table :is(input[type=number],textarea) { box-sizing:border-box; width:100%; min-width:0; max-width:100%; padding:8px 5px; border:0; border-bottom:1px solid #a9bfd9; background:#edf3fa; color:#234e7e; font-family:inherit; font-size:13px; line-height:1.6; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table input[type=number] { min-height:40px; height:auto; text-align:center; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table textarea { min-height:78px; resize:vertical; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table :is(input,textarea):focus-visible { background:#fff; outline:2px solid #86addd; outline-offset:1px; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table .questionnaire-source-note { font-size:10px; line-height:1.7; color:#607996; }
+@media(max-width:820px) {
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table :is(th,td) { padding:7px 4px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table thead th { padding:8px 5px; font-size:10px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table tbody th[scope=row] { padding:10px 7px; font-size:12px; line-height:1.75; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table :is(input[type=number],textarea) { font-size:16px; padding:7px 3px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table input[type=number] { min-height:44px; }
+}
+
+/* Facilities use full-width alternating rows rather than separately shaded cells. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table tbody tr:nth-child(odd) { background:#edf3fb; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table tbody tr:nth-child(even) { background:#fff; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table tbody tr > :is(th,td),
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table tbody :is(input[type=number],textarea) { background:transparent; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table tbody :is(input[type=number],textarea):hover { background:#ffffff45; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .facility-readable-table tbody :is(input[type=number],textarea):focus-visible { background:#fff; }
+
+/* Every cell follows the row stripe, including previously shaded row headings. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.facility-readable-table tbody tr:nth-child(n) > th[scope=row],
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.facility-readable-table tbody tr:nth-child(n) > td { background:inherit; vertical-align:middle; box-shadow:none; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.facility-readable-table tbody tr:nth-child(n) :is(input[type=number],textarea) { background:transparent; border:0; box-shadow:none; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.facility-readable-table tbody tr:nth-child(n) :is(input,textarea):focus-visible { background:#ffffff80; outline:2px solid #86addb; outline-offset:1px; }
+
+/* Subtle column dividers retain the continuous row shading. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.facility-readable-table tbody tr:nth-child(n) > :is(th,td):not(:last-child) { border-right:1px solid #cbd9ea; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.facility-readable-table thead tr > th:not(:last-child) { border-right:1px solid #cbd9ea; }
+
+/* Staff rows use the same uniform stripes and column dividers as facilities. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] .source-data-table tbody tr:nth-child(odd) { background:#edf3fb; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] .source-data-table tbody tr:nth-child(even) { background:#fff; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table tbody tr:nth-child(n) > th[scope=row],
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table tbody tr:nth-child(n) > td { background:inherit; vertical-align:middle; box-shadow:none; border-bottom:1px solid #d7e3f1; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table tbody tr:nth-child(n) > :is(th,td):not(:last-child),
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table thead tr > th:not(:last-child) { border-right:1px solid #cbd9ea; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table tbody tr:nth-child(n) :is(input,select,textarea) { background:transparent; border:0; box-shadow:none; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table tbody tr:nth-child(n) :is(input,select,textarea):focus-visible { background:#ffffff80; outline:2px solid #86addb; outline-offset:1px; }
+
+/* Staff row numbers need only a narrow, neutral column. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table thead tr:first-child > th:first-child,
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table tbody tr > th[scope=row] { box-sizing:border-box; width:36px; min-width:36px; max-width:36px; padding:7px 4px; text-align:center; font-size:11px; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table thead tr:first-child > th:first-child { background:#f0f5fc; color:#456a96; font-weight:500; }
+
+/* Give staff names room while keeping the gender choice compact. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table .source-col-name { width:220px; min-width:220px; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table .source-col-name input { width:100%; min-width:200px; }
+.staff-gender-short { display:none; }
+@media(max-width:820px) {
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table .source-col-name { width:180px; min-width:180px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table .source-col-name input { width:100%; min-width:160px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table .source-col-gender { width:62px; min-width:62px; max-width:62px; padding-left:4px; padding-right:4px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table .source-col-gender select { width:54px; min-width:54px; max-width:54px; padding:7px 3px; font-size:13px; }
+ .staff-gender-full { display:none; }
+ .staff-gender-short { display:inline; }
+}
+
+/* Staff age is a compact numeric column. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table .source-col-age { box-sizing:border-box; width:58px; min-width:58px; max-width:58px; padding-left:4px; padding-right:4px; text-align:center; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.source-data-table .source-col-age input[type=number] { box-sizing:border-box; width:48px; min-width:48px; max-width:48px; padding:7px 3px; text-align:center; appearance:textfield; -moz-appearance:textfield; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] .source-col-age input::-webkit-inner-spin-button,
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] .source-col-age input::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
+
+/* Staff capture tables: balanced widths, consistent headers and clean entry rows. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] > .table-wrap { max-height:none; overflow:auto; scrollbar-width:thin; scrollbar-color:#afc5df #f2f6fc; border:0; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table { width:100%; min-width:1140px; table-layout:fixed; border-collapse:collapse; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table thead th { position:static; top:auto; left:auto; height:auto; padding:10px 9px; background:#eaf1fb; color:#375f90; font-size:11px; font-weight:500; line-height:1.6; text-transform:none; vertical-align:middle; white-space:normal; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table tbody tr:nth-child(n) > :is(th,td) { box-sizing:border-box; height:48px; padding:5px 7px; line-height:1.5; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table thead th:first-child,
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table tbody th[scope=row] { position:static; width:36px; min-width:36px; max-width:36px; padding:5px 3px; font-size:10px; text-align:center; color:#647f9f; box-shadow:none; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table thead .source-col-name { width:220px; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table thead .source-col-gender { width:90px; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table thead .source-col-payroll { width:115px; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table thead .source-col-age { width:58px; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table thead .source-col-qualification { width:170px; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table thead .source-col-license_number { width:145px; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table thead .source-col-religion { width:115px; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table thead .source-col-responsibility { width:180px; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table thead th:last-child { width:84px; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table tbody tr:nth-child(n) :is(input,select) { box-sizing:border-box; width:100%; min-width:0; max-width:100%; min-height:36px; height:36px; padding:7px 6px; font-size:12px; line-height:1.5; color:#335a87; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table tbody .source-col-age input { width:44px; min-width:44px; max-width:44px; margin:0 auto; display:block; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table .source-col-name input { font-weight:500; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table [data-remove-source-row] { min-width:0; min-height:32px; padding:6px 8px; border:0; background:transparent; color:#a25d66; font-size:10px; font-weight:500; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table [data-remove-source-row]:hover { background:#fceef0; color:#953947; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] > [data-add-source-row] { margin-top:10px; min-height:36px; padding:8px 13px; border:1px solid #c3d6ec; background:#edf4fd; color:#285b94; font-size:11px; }
+@media(max-width:820px) {
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table { min-width:1020px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table thead .source-col-name { width:180px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table thead .source-col-gender { width:62px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table thead th { padding:8px 7px; font-size:10px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table tbody tr:nth-child(n) > :is(th,td) { padding:5px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table tbody tr:nth-child(n) :is(input,select) { min-height:42px; height:42px; }
+}
+
+/* Keep wide staff grids inside the form rather than widening the whole page. */
+.app-body.system-theme .content:has(.statistical-entry-refined),
+.app-body.system-theme .statistical-entry-refined,
+.app-body.system-theme .statistical-entry-refined :is(.source-entry-layout,.source-entry-main,.source-form,[data-source-table=members]) { min-width:0; max-width:100%; }
+.app-body.system-theme .statistical-entry-refined [data-source-table=members] > .table-wrap { display:block; width:100%; max-width:100%; min-width:0; overflow-x:auto; box-sizing:border-box; }
+.app-body.system-theme .statistical-entry-refined table.staff-entry-table { width:100%; min-width:1140px; table-layout:fixed; }
+
+/* Alternate staff rows from a white first row beneath the blue header. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table tbody tr:nth-child(odd) { background:#fff; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table tbody tr:nth-child(even) { background:#edf3fb; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table tbody tr:nth-child(n) > :is(th[scope=row],td) { background:inherit; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.staff-entry-table tbody tr:nth-child(n) :is(input,select,textarea) { background:transparent; }
+
+/* Study programmes share the staff tables' full-row striping. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] table thead tr > th { background:#eaf1fb; color:#375f90; box-shadow:none; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] table tbody tr:nth-child(odd) { background:#fff; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] table tbody tr:nth-child(even) { background:#edf3fb; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] table tbody tr:nth-child(n) > :is(th[scope=row],td) { background:inherit; border-right:1px solid #cbd9ea; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] table tbody tr:nth-child(n) :is(input,select,textarea) { background:transparent; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] table thead tr > th:first-child,
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] table tbody th[scope=row] { width:36px; min-width:36px; max-width:36px; padding:5px 3px; text-align:center; font-size:10px; }
+
+/* Compact remove action for repeatable form rows. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table] table [data-remove-source-row] { display:inline-flex; align-items:center; justify-content:center; min-width:0; min-height:28px; padding:5px 9px; border:1px solid #eccdd1; border-radius:4px; background:#fff2f3; color:#a44350; font-size:10px; font-weight:500; line-height:1.4; cursor:pointer; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table] table [data-remove-source-row]:hover { background:#fbe1e5; border-color:#dca5af; color:#8c2f3e; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table] table [data-remove-source-row]:focus-visible { outline:2px solid #a44350; outline-offset:2px; }
+
+/* Explicit cell colours override older table striping in both staff tables. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.staff-entry-table tbody tr:nth-child(odd) > :is(th[scope=row],td) { background:#fff; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.staff-entry-table tbody tr:nth-child(even) > :is(th[scope=row],td) { background:#edf3fb; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=members] table.staff-entry-table tbody tr:nth-child(n) :is(input,select,textarea) { background:transparent; }
+
+/* Reserve only enough space for the study programme row number. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] table.source-data-table thead tr:first-child > th:first-child,
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] table.source-data-table tbody tr:nth-child(n) > th[scope=row] { box-sizing:border-box; width:30px; min-width:30px; max-width:30px; padding:5px 3px; font-size:10px; text-align:center; white-space:nowrap; }
+
+/* Fixed tracks prevent auto layout from distributing spare width to No. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] table.source-data-table { table-layout:fixed; width:646px; min-width:646px; max-width:none; }
+@media(min-width:821px) {
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] table.source-data-table { width:100%; min-width:646px; }
+}
+
+/* Study programme entries use the same compact capture style as staff. */
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] { min-width:0; max-width:100%; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] > .table-wrap { width:100%; min-width:0; max-width:100%; overflow-x:auto; border:0; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.study-entry-table thead tr > th { position:static; padding:9px 7px; font-size:11px; font-weight:500; line-height:1.5; text-transform:none; border-right:1px solid #cbd9ea; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.study-entry-table tbody tr:nth-child(n) > :is(th[scope=row],td) { height:48px; padding:5px 7px; vertical-align:middle; border-right:1px solid #cbd9ea; border-bottom:1px solid #d5e1f0; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] table.study-entry-table tbody tr:nth-child(odd) > :is(th[scope=row],td) { background:#fff; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] table.study-entry-table tbody tr:nth-child(even) > :is(th[scope=row],td) { background:#edf3fb; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined table.study-entry-table tbody input { box-sizing:border-box; width:100%; min-width:0; max-width:100%; height:36px; padding:7px 6px; background:transparent; font-size:12px; color:#335a87; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined [data-source-table=programmes] > [data-add-source-row] { margin-top:10px; min-height:36px; padding:8px 13px; border:1px solid #c3d6ec; background:#edf4fd; color:#285b94; font-size:11px; }
+@media(max-width:820px) {
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined table.study-entry-table thead tr > th { font-size:10px; }
+ .app-body.system-theme.mobile-portal .content .statistical-entry-refined table.study-entry-table tbody input { height:42px; }
+}
+
+/* Final school review: readable data with clear correction and submission actions. */
+.form-review-intro,.review-submit-panel,.review-submission-receipt { padding:20px; margin-bottom:16px; background:#fff; border:1px solid #d5e1f0; border-top:3px solid #2b5e9c; }
+.form-review-intro h1 { margin:5px 0 8px; font-size:24px; color:#183e6b; }
+.form-review-intro p,.review-submit-panel p { font-size:13px; line-height:1.7; }
+.review-completeness { margin-top:16px; padding:14px; background:#edf6f1; color:#236b50; }
+.review-completeness h2,.review-submit-panel h2 { margin:0 0 8px; font-size:17px; }
+.review-completeness.has-issues { background:#fff6ec; color:#835327; }
+.review-completeness ul { margin:0; padding-left:20px; }
+.review-completeness li { margin:7px 0; font-size:13px; }
+.review-completeness a { color:inherit; }
+.review-edit-section { margin-left:auto; flex-shrink:0; padding:6px 10px; font-size:11px; }
+.review-acknowledgement { display:flex; align-items:flex-start; gap:10px; margin:18px 0; padding:14px; background:#f1f5fc; color:#244b7b; font-size:13px; line-height:1.7; cursor:pointer; }
+.review-acknowledgement input { flex:0 0 18px; width:18px; height:18px; margin:3px 0 0; accent-color:#2b5e9c; }
+.review-submit-panel .form-actions { display:flex; justify-content:center; gap:10px; }
+.review-submit-panel button:disabled { opacity:.55; cursor:not-allowed; }
+@media(max-width:820px) {
+ .form-review-intro,.review-submit-panel,.review-submission-receipt { padding:14px; margin-bottom:10px; }
+ .form-review-intro h1 { font-size:20px; }
+ .submitted-section-heading:has(.review-edit-section) { flex-wrap:wrap; gap:8px; }
+ .review-edit-section { padding:5px 8px; font-size:10px; }
+ .review-acknowledgement { padding:10px; font-size:12px; }
+}
+
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-save-bar .mobile-three-actions button.review-confirm-button[name=navigate] { background:#285b98; border-color:#285b98; color:#fff; font-weight:600; }
+.app-body.system-theme.mobile-portal .content .statistical-entry-refined .source-save-bar .mobile-three-actions button.review-confirm-button[name=navigate]:hover { background:#1e497d; border-color:#1e497d; color:#fff; }
+
+/* Shared school portal header: school context and useful status on every page. */
+.app-body.system-theme.mobile-portal.representative-client .app-shell .topbar.school-portal-topbar { display:grid; grid-template-columns:auto minmax(0,1fr) auto; grid-template-rows:auto; align-items:center; gap:10px 22px; height:auto; min-height:76px; padding:12px 20px; background:#0d2b54; color:#fff; }
+.app-body.system-theme.mobile-portal.representative-client .app-shell .topbar.school-portal-topbar > .reference-brand { grid-column:1; grid-row:1; width:auto; min-width:0; height:auto; padding:0; margin:0; background:transparent; }
+.school-portal-context { grid-column:2; grid-row:1; display:flex; align-items:center; justify-content:space-between; gap:20px; min-width:0; }
+.school-portal-identity { min-width:0; }
+.school-portal-identity > span { display:block; margin-bottom:3px; color:#a6c4e8; font-size:10px; font-weight:500; letter-spacing:1.2px; text-transform:uppercase; }
+.school-portal-identity > strong { display:block; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#fff; font-size:17px; font-weight:600; line-height:1.5; }
+.school-portal-badges { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+.school-reporting-badge,.school-form-status { display:inline-flex; align-items:center; gap:7px; padding:7px 10px; border:1px solid #ffffff24; color:#e5effc; background:#ffffff08; font-size:11px; line-height:1.4; white-space:nowrap; text-decoration:none; }
+.school-reporting-badge svg { width:14px; height:14px; }
+.school-form-status > span { width:6px; height:6px; background:#a9bfd9; border-radius:50%; flex-shrink:0; }
+.school-form-status.is-draft { color:#d6e8ff; }
+.school-form-status.is-draft > span { background:#8cbaff; }
+.school-form-status:is(.is-locked,.is-submitted,.is-certified) { background:#2d568e; color:#fff; }
+.school-form-status:is(.is-locked,.is-submitted,.is-certified) > span { background:#b9d8ff; }
+.school-form-status.is-approved { background:#174c49; color:#c9f4e0; }
+.school-form-status.is-approved > span { background:#70d9a7; }
+.school-form-status.is-returned_for_correction { background:#654d2f; color:#ffe6b6; }
+.school-form-status.is-returned_for_correction > span { background:#ffd27e; }
+.school-form-status:hover { border-color:#b5d3f4; color:#fff; text-decoration:none; }
+.school-form-status:focus-visible { outline:2px solid #b5d3f4; outline-offset:3px; }
+.app-body.system-theme.mobile-portal.representative-client .app-shell .topbar.school-portal-topbar > .topbar-actions { grid-column:3; grid-row:1; display:flex; align-items:center; gap:8px; margin:0; position:static; }
+.school-portal-page-tools { grid-column:2/-1; grid-row:2; min-width:0; }
+.school-portal-page-tools:empty { display:none; }
+@media(max-width:1100px) and (min-width:821px) {
+ .school-portal-context { gap:10px; }
+ .school-portal-identity > strong { font-size:14px; }
+ .school-portal-badges { flex-direction:column; align-items:flex-end; gap:4px; }
+ .school-reporting-badge,.school-form-status { padding:4px 7px; font-size:10px; }
+}
+/* Keep the mobile school identity and account controls on a single line. */
+@media(max-width:820px) {
+ .app-body.system-theme.mobile-portal.representative-client .app-shell .topbar.school-portal-topbar { grid-template-columns:22px auto minmax(0,1fr) auto; gap:6px; padding:9px 10px; }
+ .app-body.system-theme.mobile-portal.representative-client .app-shell .topbar.school-portal-topbar .client-header-menu > summary { width:22px; height:32px; min-height:32px; }
+ .app-body.system-theme.mobile-portal.representative-client .app-shell .topbar.school-portal-topbar > .reference-brand { grid-column:2; grid-row:1; height:32px; }
+ .app-body.system-theme.mobile-portal.representative-client .app-shell .topbar.school-portal-topbar > .reference-brand .system-logo { width:24px; height:28px; }
+ .app-body.system-theme.mobile-portal.representative-client .app-shell .topbar.school-portal-topbar > .reference-brand > span { display:none; }
+ .app-body.system-theme.mobile-portal.representative-client .app-shell .topbar.school-portal-topbar > .school-portal-context { grid-column:3; grid-row:1; min-width:0; padding:0; border:0; display:flex; flex-direction:column; align-items:flex-start; gap:3px; }
+ .school-portal-topbar .school-portal-identity { width:100%; }
+ .school-portal-topbar .school-portal-identity > span { display:none; }
+ .school-portal-topbar .school-portal-identity > strong { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-size:10px; line-height:1.5; }
+ .school-portal-topbar .school-portal-badges { flex-direction:row; flex-wrap:nowrap; align-items:center; gap:5px; max-width:100%; min-width:0; }
+ .school-portal-topbar .school-reporting-badge,.school-portal-topbar .school-form-status { padding:0; border:0; background:transparent; font-size:8px; gap:3px; }
+ .school-portal-topbar .school-reporting-badge svg { display:none; }
+ .school-portal-topbar .school-form-status { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+ .app-body.system-theme.mobile-portal.representative-client .app-shell .topbar.school-portal-topbar > .topbar-actions { grid-column:4; grid-row:1; gap:4px; min-width:0; }
+ .app-body.system-theme.mobile-portal.representative-client .app-shell .topbar.school-portal-topbar .topbar-actions :is(.topbar-alert-link,.profile-icon-button) { width:30px; min-width:30px; height:32px; min-height:32px; padding:7px; }
+ .school-portal-page-tools { grid-column:1/-1; grid-row:2; }
+ .app-body.system-theme.mobile-portal.representative-client .app-shell .topbar.school-portal-topbar > .client-mobile-announcement { grid-row:3; margin:0 -10px -9px; }
+}
+
+@media(max-width:820px) {
+ .school-portal-page-tools .profile-topbar-actions { display:none; }
+ .app-body.system-theme.mobile-portal.representative-client .school-portal-page-tools .school-overview-toolbar { padding:0; }
+}
+@media(prefers-reduced-motion:reduce) {
+ .representative-client .window-strip-loop { animation:none; }
+ .representative-client *, .representative-client *::before, .representative-client *::after { scroll-behavior:auto; }
+}

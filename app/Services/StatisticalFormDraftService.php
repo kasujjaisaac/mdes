@@ -15,7 +15,7 @@ class StatisticalFormDraftService
         if ($section === 'identity') {
             $data = [...$data, ...($return->profile_snapshot ?? [])];
         }
-        $schema = StatisticalForm::sections()[$section];
+        $schema = $section === 'religion' ? StatisticalForm::sections()['religion'] : StatisticalForm::sectionsForReturn($return)[$section];
         $validator = Validator::make(['data' => $data], StatisticalForm::rules($schema));
         $valid = $validator->passes();
         $clean = StatisticalForm::clean($data, $schema);
@@ -30,7 +30,18 @@ class StatisticalFormDraftService
         $drafts[$section] = ['data' => $data, 'revision' => $revision + 1, 'saved_at' => now()->toIso8601String(), 'valid' => $valid];
         $return->forceFill(['statistical_form_drafts' => $drafts]);
         if ($valid) {
-            $return->forceFill(['statistical_form' => [...($return->statistical_form ?? []), $section => $clean]]);
+            $return->forceFill(['statistical_form' => [...($return->statistical_form ?? []), ...StatisticalForm::sectionPayloads($section, $clean, array_key_exists('community', $data))]]);
+            if ($section === 'enrolment' && array_key_exists('community', $data)) {
+                $drafts['religion'] = ['revision' => (int) ($drafts['religion']['revision'] ?? 0) + 1, 'saved_at' => now()->toIso8601String(), 'valid' => true];
+                $return->forceFill(['statistical_form_drafts' => $drafts]);
+            }
+        }
+        if ($section === 'religion' && isset($drafts['enrolment'])) {
+            $drafts['enrolment']['revision'] = (int) ($drafts['enrolment']['revision'] ?? 0) + 1;
+            if (isset($drafts['enrolment']['data'])) {
+                $drafts['enrolment']['data']['community'] = $data['community'] ?? [];
+            }
+            $return->forceFill(['statistical_form_drafts' => $drafts]);
         }
         $return->save();
         if ($valid) {

@@ -15,7 +15,7 @@
         <strong class="registration-success-school">{{ session('registered_school_name') }}</strong>
         <p id="registration-success-description">Your school is registered. Your sign-in credentials are:</p>
         <dl class="registration-success-credentials">
-            <div><dt>Username / MOE Reg No</dt><dd><code>{{ session('registered_username') }}</code></dd></div>
+            <div><dt>Username / Registration number</dt><dd><code>{{ session('registered_username') }}</code></dd></div>
             <div><dt>Password</dt><dd><code>mdes123</code></dd></div>
         </dl>
         <p class="registration-success-note">Keep these details. You can change your password later in Settings.</p>

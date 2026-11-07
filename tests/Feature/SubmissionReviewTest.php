@@ -107,7 +107,7 @@ class SubmissionReviewTest extends TestCase
         $role->permissions()->sync(Permission::whereIn('slug', ['returns.view', 'returns.review', 'schools.view.assigned'])->pluck('id'));
         $reviewer = User::factory()->create();
         $reviewer->roles()->attach($role);
-        $this->actingAs($reviewer)->get(route('returns.index'))->assertOk()->assertViewHas('returns', fn ($rows) => $rows->total() === 0);
+        $this->actingAs($reviewer)->get(route('returns.index'))->assertForbidden();
         $this->post(route('returns.transition', $return), ['action' => 'approve'])->assertForbidden();
         $this->post(route('returns.transition', $return), ['action' => 'return_for_correction', 'reason' => 'No scope'])->assertForbidden();
         $this->get(route('returns.show', $return))->assertForbidden();

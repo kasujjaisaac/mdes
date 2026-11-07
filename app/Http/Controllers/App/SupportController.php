@@ -13,7 +13,7 @@ class SupportController extends Controller
 {
     private function manages($user): bool
     {
-        return ! $user->isSchoolRepresentative() && $user->hasPermission('returns.review');
+        return $user->isAdministrator();
     }
 
     public function index(Request $request)

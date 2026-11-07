@@ -56,7 +56,7 @@ class UserAccountSecurityTest extends TestCase
         $role->permissions()->sync(Permission::whereIn('slug', ['users.view', 'users.manage'])->pluck('id'));
         $manager = User::factory()->create();
         $manager->roles()->attach($role);
-        $this->actingAs($manager)->post(route('administration.users.store'), $this->payload(['role_ids' => [Role::where('slug', Role::SUPER_ADMINISTRATOR)->first()->id]]))->assertSessionHasErrors('role_ids');
+        $this->actingAs($manager)->post(route('administration.users.store'), $this->payload(['role_ids' => [Role::where('slug', Role::SUPER_ADMINISTRATOR)->first()->id]]))->assertForbidden();
         $this->get(route('administration.users.edit', $admin))->assertForbidden();
         $this->put(route('administration.users.update', $admin), $this->payload(['email' => $admin->email, 'role_ids' => [Role::where('slug', Role::SUPER_ADMINISTRATOR)->firstOrFail()->id]]))->assertForbidden();
         $this->assertTrue($admin->fresh()->hasRole(Role::SUPER_ADMINISTRATOR));

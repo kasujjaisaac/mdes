@@ -65,11 +65,11 @@ class AdminPanelAuditTest extends TestCase
         $other->save();
         $period->schools()->attach($other);
         SchoolReturn::create(['school_id' => $other->id, 'reporting_period_id' => $period->id, 'status' => 'draft']);
-        $this->actingAs($head)->get(route('schools.index'))->assertRedirect(route('representative.profile'));
+        $this->actingAs($head)->get(route('schools.index'))->assertForbidden();
         foreach (['administration.users.index', 'administration.users.create', 'parishes.index', 'announcements.create', 'reporting-periods.create'] as $route) {
             $this->get(route($route))->assertForbidden();
         }
-        $this->get(route('reporting-periods.index'))->assertOk()->assertViewHas('periods', fn ($rows) => $rows->first()->schools_count === 1 && $rows->first()->school_returns_count === 1);
+        $this->get(route('reporting-periods.index'))->assertForbidden();
     }
 
     public function test_users_search_filters_and_malformed_list_filters_are_validated(): void

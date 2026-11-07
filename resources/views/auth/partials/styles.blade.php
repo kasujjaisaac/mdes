@@ -27,4 +27,5 @@
         .password-eye svg { width:18px; height:18px; }
         .password-eye .eye-slash { display:none; }
         .password-eye[aria-pressed=true] .eye-slash { display:block; }
-    </style>
+    .field-required-mark { display:inline; color:#b64a56; font-size:inherit; font-weight:600; margin-left:2px; } .visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+</style>

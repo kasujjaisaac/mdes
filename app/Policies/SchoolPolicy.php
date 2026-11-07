@@ -15,19 +15,8 @@ class SchoolPolicy
 
     public function view(User $user, School $school): bool
     {
-        if ($user->hasPermission('schools.view.all')) {
-            return true;
-        }
-
-        if (! $user->hasPermission('schools.view.assigned')) {
-            return false;
-        }
-
-        if ($user->isSchoolRepresentative()) return $user->school_id === $school->id;
-
-        return $user->activeJurisdictionAssignments()
-            ->where('parish_id', $school->parish_id)
-            ->exists();
+        return $user->isAdministrator() || ($user->isSchoolRepresentative()
+            && $user->hasPermission('schools.view.assigned') && $user->school_id === $school->id);
     }
 
     public function create(User $user): bool

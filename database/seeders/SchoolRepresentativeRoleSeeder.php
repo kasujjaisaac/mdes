@@ -12,6 +12,6 @@ class SchoolRepresentativeRoleSeeder extends Seeder
     public function run(): void
     {
         $role = Role::updateOrCreate(['slug' => 'headteacher'], ['name' => 'School Headteacher', 'description' => 'Headteacher account for one assigned school.']);
-        $role->permissions()->sync(Permission::whereIn('slug', ['dashboard.view', 'schools.view.assigned', 'returns.view', 'returns.manage.assigned', 'reporting-periods.view', 'documents.view'])->pluck('id'));
+        $role->permissions()->sync(Permission::whereIn('slug', Role::HEADTEACHER_PERMISSIONS)->pluck('id'));
     }
 }

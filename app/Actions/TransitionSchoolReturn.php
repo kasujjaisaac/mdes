@@ -36,6 +36,10 @@ class TransitionSchoolReturn
                 'locked_at' => now(),
                 'submitted_by' => $user->id,
                 'submitted_at' => now(),
+                'statistical_form' => $return->statistical_form === null ? null : [
+                    ...$return->statistical_form,
+                    'declaration' => ['acknowledged' => true, 'acknowledged_by' => $user->id, 'acknowledged_at' => now()->toIso8601String()],
+                ],
                 'correction_reason' => null,
                 'approved_by' => null,
                 'approved_at' => null,

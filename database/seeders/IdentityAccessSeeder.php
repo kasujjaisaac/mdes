@@ -21,13 +21,13 @@ class IdentityAccessSeeder extends Seeder
         'diocesan-structure.view' => 'View diocesan structure',
         'diocesan-structure.manage' => 'Manage diocesan structure',
         'schools.view.all' => 'View all schools',
-        'schools.view.assigned' => 'View assigned parish schools',
+        'schools.view.assigned' => 'View own registered school',
         'schools.manage' => 'Manage school registry',
         'reporting-periods.view' => 'View reporting periods',
         'reporting-periods.manage' => 'Manage reporting periods',
         'returns.view' => 'View school returns',
         'returns.manage.all' => 'Manage all school returns',
-        'returns.manage.assigned' => 'Manage assigned school returns',
+        'returns.manage.assigned' => 'Manage own school returns',
         'returns.review' => 'Return submitted school data for correction',
         'documents.view' => 'View protected documents',
         'documents.manage' => 'Manage protected documents',
@@ -77,7 +77,7 @@ class IdentityAccessSeeder extends Seeder
             if ($slug === Role::SUPER_ADMINISTRATOR) {
                 $role->permissions()->sync($permissions->pluck('id')->all());
             } else {
-                $role->permissions()->sync($permissions->only(['dashboard.view', 'schools.view.assigned', 'returns.view', 'returns.manage.assigned', 'reporting-periods.view', 'documents.view'])->pluck('id')->all());
+                $role->permissions()->sync($permissions->only(Role::HEADTEACHER_PERMISSIONS)->pluck('id')->all());
             }
         }
     }

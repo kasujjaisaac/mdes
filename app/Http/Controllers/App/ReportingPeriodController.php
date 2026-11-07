@@ -25,7 +25,7 @@ class ReportingPeriodController extends Controller
             'title' => 'Submission Windows',
             'breadcrumbs' => [['label' => 'school statistics'], ['label' => 'reporting periods']],
             'actions' => [['label' => 'create reporting period', 'url' => route('reporting-periods.create')]],
-            'periods' => ReportingPeriod::query()->when(auth()->user()->isSchoolRepresentative(), fn ($q) => $q->whereHas('schools', fn ($s) => $s->visibleTo(auth()->user())))->withCount(['schools' => fn ($q) => $q->visibleTo(auth()->user()), 'schoolReturns' => fn ($q) => $q->whereHas('school', fn ($s) => $s->visibleTo(auth()->user())), 'schoolReturns as submitted_count' => fn ($q) => $q->whereNotNull('submitted_at')->whereHas('school', fn ($s) => $s->visibleTo(auth()->user()))])->when($request->filled('search'), fn ($q) => $q->where('title', 'like', '%'.$request->string('search')->toString().'%'))->when(in_array($request->input('status'), ['draft', 'open', 'closed', 'locked']), fn ($q) => $q->where('status', $request->input('status')))->when($request->filled('year'), fn ($q) => $q->where('year', $request->integer('year')))->latest()->paginate(15)->withQueryString(),
+            'periods' => ReportingPeriod::query()->withCount(['schools' => fn ($q) => $q->visibleTo(auth()->user()), 'schoolReturns' => fn ($q) => $q->whereHas('school', fn ($s) => $s->visibleTo(auth()->user())), 'schoolReturns as submitted_count' => fn ($q) => $q->whereNotNull('submitted_at')->whereHas('school', fn ($s) => $s->visibleTo(auth()->user()))])->when($request->filled('search'), fn ($q) => $q->where('title', 'like', '%'.$request->string('search')->toString().'%'))->when(in_array($request->input('status'), ['draft', 'open', 'closed', 'locked']), fn ($q) => $q->where('status', $request->input('status')))->when($request->filled('year'), fn ($q) => $q->where('year', $request->integer('year')))->latest()->paginate(15)->withQueryString(),
             'years' => ReportingPeriod::whereHas('schools', fn ($q) => $q->visibleTo(auth()->user()))->distinct()->orderByDesc('year')->pluck('year'),
         ]);
     }
@@ -90,9 +90,6 @@ class ReportingPeriodController extends Controller
 
     public function show(ReportingPeriod $reportingPeriod): View
     {
-        if (auth()->user()->isSchoolRepresentative()) {
-            abort_unless($reportingPeriod->schools()->where('schools.id', auth()->user()->school_id)->exists(), 403);
-        }
         $visibleIds = School::visibleTo(auth()->user())->pluck('id');
         $returns = $reportingPeriod->schoolReturns()->whereIn('school_id', $visibleIds)->with('school')->latest()->get();
 

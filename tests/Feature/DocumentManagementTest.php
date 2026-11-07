@@ -60,10 +60,7 @@ class DocumentManagementTest extends TestCase
 
     private function userWithDocumentPermissions(): User
     {
-        $view = Permission::query()->create(['name' => 'View documents', 'slug' => 'documents.view']);
-        $manage = Permission::query()->create(['name' => 'Manage documents', 'slug' => 'documents.manage']);
-        $role = Role::query()->create(['name' => 'Document manager', 'slug' => 'document-manager']);
-        $role->permissions()->sync([$view->id, $manage->id]);
+        $role = Role::firstOrCreate(['slug' => Role::SUPER_ADMINISTRATOR], ['name' => 'Admin']);
         $user = User::factory()->create();
         $user->roles()->attach($role);
 

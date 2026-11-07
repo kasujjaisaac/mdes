@@ -23,10 +23,11 @@ class EnsureUserIsActive
             $request->session()->regenerateToken();
 
             return redirect()->route('login')
-                ->withErrors(['email' => 'This account is not active. Contact the system administrator.']);
+                ->withErrors(['username' => 'This account is not active. Contact the system administrator.']);
         }
 
         if ($user) {
+            abort_unless($user->hasValidPortalRole() || $request->routeIs('profile.show', 'profile.password.*'), 403, 'Your account role or school assignment needs administrator correction.');
             $key = 'auth_session_version.'.$user->id;
             if (Auth::viaRemember() && ! $request->session()->has($key)) {
                 $request->session()->put($key, (int) $user->session_version);

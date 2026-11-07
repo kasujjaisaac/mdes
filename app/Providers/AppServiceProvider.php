@@ -5,7 +5,6 @@ namespace App\Providers;
 use App\Models\ManagedDocument;
 use App\Models\Parish;
 use App\Models\ReportingPeriod;
-use App\Models\Role;
 use App\Models\School;
 use App\Models\SchoolReturn;
 use App\Models\User;
@@ -37,7 +36,7 @@ class AppServiceProvider extends ServiceProvider
                 return null;
             }
 
-            return $user->hasRole(Role::SUPER_ADMINISTRATOR) ? true : null;
+            return $user->isAdministrator() ? true : null;
         });
 
         Gate::define('dashboard.view', fn (User $user): bool => $user->hasPermission('dashboard.view'));

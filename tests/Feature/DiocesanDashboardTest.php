@@ -175,7 +175,6 @@ class DiocesanDashboardTest extends TestCase
         $reader->roles()->attach($role);
         JurisdictionAssignment::create(['user_id' => $reader->id, 'parish_id' => $visible->school->parish_id, 'assignment_type' => 'parish_coordinator', 'effective_from' => '2020-01-01', 'is_active' => true]);
         $response = $this->actingAs($reader)->get(route('dashboard.details', ['year' => 2026, 'metric' => 'learners']));
-        $response->assertOk()->assertViewHas('detailTotal', 20)->assertSee('Visible school')->assertDontSee('Hidden school');
-        $this->assertSame(1, $response->viewData('detailRows')->total());
+        $response->assertForbidden();
     }
 }

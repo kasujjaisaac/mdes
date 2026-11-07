@@ -9,16 +9,16 @@ class ReportingPeriodPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->hasPermission('reporting-periods.view');
+        return ! $user->isSchoolRepresentative() && $user->hasPermission('reporting-periods.view');
     }
 
     public function create(User $user): bool
     {
-        return $user->hasPermission('reporting-periods.manage');
+        return ! $user->isSchoolRepresentative() && $user->hasPermission('reporting-periods.manage');
     }
 
     public function update(User $user, ReportingPeriod $period): bool
     {
-        return $user->hasPermission('reporting-periods.manage');
+        return ! $user->isSchoolRepresentative() && $user->hasPermission('reporting-periods.manage');
     }
 }

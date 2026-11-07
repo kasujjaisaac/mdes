@@ -85,11 +85,11 @@ Route::middleware(['auth', 'active'])->group(function (): void {
         ->middleware('can:diocesan-structure.manage')
         ->name('diocesan-structure.assignments.store');
     Route::resource('/administration/schools', SchoolController::class)
-        ->middleware('can:schools.view')
+        ->middleware(['can:schools.view', \App\Http\Middleware\EnsureAdministrator::class])
         ->names('schools')
         ->except(['destroy']);
     Route::resource('/school-statistics/reporting-periods', ReportingPeriodController::class)
-        ->middleware('can:reporting-periods.view')
+        ->middleware(['can:reporting-periods.view', \App\Http\Middleware\EnsureAdministrator::class])
         ->names('reporting-periods')
         ->only(['index', 'create', 'store', 'show']);
     Route::get('/support',[\App\Http\Controllers\App\SupportController::class,'index'])->name('support.index');
@@ -105,8 +105,8 @@ Route::middleware(['auth', 'active'])->group(function (): void {
     Route::post('/administration/schools/{school}/message',[\App\Http\Controllers\App\AlertController::class,'storeSchool'])->middleware('throttle:20,1')->name('schools.message.store');
     Route::post('/alerts',[\App\Http\Controllers\App\AlertController::class,'store'])->middleware('throttle:20,1')->name('alerts.store');
     Route::post('/alerts/{alert}/read',[\App\Http\Controllers\App\AlertController::class,'read'])->name('alerts.read');
-    Route::get('/school-statistics/reporting-periods/{reportingPeriod}/edit',[ReportingPeriodController::class,'edit'])->middleware('can:reporting-periods.manage')->name('reporting-periods.edit');
-    Route::put('/school-statistics/reporting-periods/{reportingPeriod}',[ReportingPeriodController::class,'update'])->middleware('can:reporting-periods.manage')->name('reporting-periods.update');
+    Route::get('/school-statistics/reporting-periods/{reportingPeriod}/edit',[ReportingPeriodController::class,'edit'])->middleware(['can:reporting-periods.manage', \App\Http\Middleware\EnsureAdministrator::class])->name('reporting-periods.edit');
+    Route::put('/school-statistics/reporting-periods/{reportingPeriod}',[ReportingPeriodController::class,'update'])->middleware(['can:reporting-periods.manage', \App\Http\Middleware\EnsureAdministrator::class])->name('reporting-periods.update');
     Route::get('/my-school/profile/edit',[\App\Http\Controllers\App\RepresentativeController::class,'editProfile'])->name('representative.profile.edit');
     Route::put('/my-school/profile',[\App\Http\Controllers\App\RepresentativeController::class,'updateProfile'])->name('representative.profile.update');
     Route::get('/my-school/profile', [\App\Http\Controllers\App\RepresentativeController::class,'profile'])->name('representative.profile');
@@ -126,6 +126,8 @@ Route::middleware(['auth', 'active'])->group(function (): void {
         ->middleware('can:returns.view')
         ->name('returns.transition');
     Route::get('/school-statistics/returns/{return}/statistical-form/{section?}', [\App\Http\Controllers\App\StatisticalFormController::class, 'show'])->middleware('can:returns.view')->name('returns.form.show');
+    Route::get('/school-statistics/returns/{return}/introduction', [\App\Http\Controllers\App\StatisticalFormController::class, 'introduction'])->middleware('can:returns.view')->name('returns.form.introduction');
+    Route::get('/school-statistics/returns/{return}/questionnaire', [\App\Http\Controllers\App\StatisticalFormController::class, 'source'])->middleware('can:returns.view')->name('returns.form.source');
     Route::post('/school-statistics/returns/{return}/draft/{section}', [\App\Http\Controllers\App\StatisticalFormController::class, 'autosave'])->middleware(['can:returns.view', 'throttle:120,1'])->name('returns.form.autosave');
     Route::post('/school-statistics/returns/{return}/statistical-form/{section}', [\App\Http\Controllers\App\StatisticalFormController::class, 'save'])->middleware('can:returns.view')->name('returns.form.save');
     Route::get('/documents', [DocumentController::class, 'index'])

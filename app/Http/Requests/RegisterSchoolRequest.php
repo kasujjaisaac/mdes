@@ -21,7 +21,7 @@ class RegisterSchoolRequest extends FormRequest
 
     public function messages(): array
     {
-        return ['ministry_registration_number.required' => 'MOE Reg No is required.', 'ministry_registration_number.unique' => 'This MOE Reg No is already registered. Sign in to the existing account or contact the Secretariat.'];
+        return ['ministry_registration_number.required' => 'Registration number is required.', 'ministry_registration_number.unique' => 'This registration number is already registered. Sign in to the existing account or contact the Secretariat.'];
     }
 
     public function rules(): array

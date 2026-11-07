@@ -82,17 +82,14 @@ class School extends Model
 
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
-        if ($user->hasPermission('schools.view.all')) {
+        if ($user->isAdministrator()) {
             return $query;
         }
-
-        if ($user->isSchoolRepresentative()) {
+        if ($user->hasPermission('schools.view.assigned') && $user->isSchoolRepresentative()) {
             return $query->whereKey($user->school_id ?? -1);
         }
 
-        $parishIds = $user->activeJurisdictionAssignments()->pluck('parish_id')->filter()->all();
-
-        return $query->whereIn('parish_id', $parishIds ?: [-1]);
+        return $query->whereRaw('1 = 0');
     }
 
     public function diocese(): BelongsTo

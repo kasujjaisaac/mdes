@@ -39,7 +39,7 @@ class ProductionReadinessService
         }
         try {
             $checks['Demo identities removed'] = ! User::where('email', 'like', '%@mdsiss.test')->exists();
-            $administrators = User::where('status', 'active')->whereHas('roles', fn ($q) => $q->where('slug', 'system-super-administrator'))->get();
+            $administrators = User::administrators()->where('status', 'active')->get();
             $checks['Active administrator provisioned'] = $administrators->isNotEmpty();
             $checks['Privileged accounts use non-default passwords'] = ! $administrators->contains(fn ($u) => Hash::check('password', $u->password));
         } catch (Throwable) {

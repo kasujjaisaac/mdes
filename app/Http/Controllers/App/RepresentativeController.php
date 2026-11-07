@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class RepresentativeController extends Controller
 {
@@ -62,7 +63,7 @@ class RepresentativeController extends Controller
         abort_unless($school, 403);
         Gate::authorize('view', $school);
 
-        return view('representative.edit-profile', ['title' => 'Edit School Profile', 'school' => $school, 'parishes' => Parish::orderBy('name')->get(), 'districts' => District::orderBy('name')->get()]);
+        return view('representative.edit-profile', ['title' => 'Edit School Profile', 'school' => $school, 'parishes' => $this->profileParishes($school)->orderBy('name')->get(), 'districts' => District::where('is_active', true)->orWhereKey($school->district_id)->orderBy('name')->get()]);
     }
 
     public function updateProfile(Request $request)
@@ -75,7 +76,7 @@ class RepresentativeController extends Controller
         $data = $request->validate([
             'headteacher_name' => ['nullable', 'string', 'max:255'], 'headteacher_phone' => ['nullable', 'string', 'max:40'], 'headteacher_email' => ['nullable', 'email', 'max:255'],
             'contact' => ['sometimes', 'array:telephone,email'], 'contact.telephone' => ['nullable', 'string', 'max:40'], 'contact.email' => ['nullable', 'email', 'max:255'],
-            'parish_id' => ['required', 'exists:parishes,id'], 'district_id' => ['required', 'exists:districts,id'],
+            'parish_id' => ['required', 'integer', Rule::in($this->profileParishes($school)->pluck('id')->all())], 'district_id' => ['required', 'integer', Rule::exists('districts', 'id')->where(fn ($q) => $q->where('is_active', true)->orWhere('id', $school->district_id))],
             'ministry_registration_number' => ['required', 'string', 'max:80', ...($school->ministry_registration_number ? [Rule::in([$school->ministry_registration_number])] : []), Rule::unique('schools')->ignore($school->id), Rule::unique('users', 'username')->ignore($request->user()->id)],
             'emis_number' => ['nullable', 'string', 'max:60', ...($school->emis_number ? ['required', Rule::in([$school->emis_number])] : []), Rule::unique('schools')->ignore($school->id)],
             'school_level' => ['required', 'in:nursery,primary,secondary,vocational_technical,tertiary'],
@@ -84,6 +85,7 @@ class RepresentativeController extends Controller
         ]);
         DB::transaction(function () use ($request, $school, $data) {
             $locked = School::whereKey($school->id)->lockForUpdate()->firstOrFail();
+            $this->assertIdentifiersUnchanged($locked, $data);
             $before = $locked->toArray();
             $locked->update([...array_diff_key($data, array_flip(['headteacher_name', 'headteacher_phone', 'headteacher_email', 'contact'])), 'diocese_id' => Parish::findOrFail($data['parish_id'])->diocese_id, 'updated_by' => $request->user()->id]);
             app(SchoolProfileContactService::class)->sync($locked, $data);
@@ -103,7 +105,8 @@ class RepresentativeController extends Controller
             return redirect()->route('returns.form.show', $return);
         }
 
-        return view('representative.confirm', ['title' => 'Confirm School Profile', 'return' => $return, 'school' => $return->school, 'parishes' => Parish::orderBy('name')->get(), 'districts' => District::orderBy('name')->get()]);
+        $school = $return->school;
+        return view('representative.confirm', ['title' => 'Confirm School Profile', 'return' => $return, 'school' => $return->school, 'parishes' => $this->profileParishes($school)->orderBy('name')->get(), 'districts' => District::where('is_active', true)->orWhereKey($school->district_id)->orderBy('name')->get()]);
     }
 
     public function saveConfirmation(Request $request, SchoolReturn $return)
@@ -113,7 +116,7 @@ class RepresentativeController extends Controller
         $school = $return->school;
         $request->merge(['ministry_registration_number' => is_string($request->input('ministry_registration_number')) ? School::normalizeMoeNumber($request->input('ministry_registration_number')) : $request->input('ministry_registration_number')]);
         $data = $request->validate([
-            'confirmed' => ['accepted'], 'parish_id' => ['required', 'exists:parishes,id'], 'district_id' => ['required', 'exists:districts,id'],
+            'confirmed' => ['accepted'], 'parish_id' => ['required', 'integer', Rule::in($this->profileParishes($school)->pluck('id')->all())], 'district_id' => ['required', 'integer', Rule::exists('districts', 'id')->where(fn ($q) => $q->where('is_active', true)->orWhere('id', $school->district_id))],
             'ministry_registration_number' => ['required', 'string', 'max:80', ...($school->ministry_registration_number ? [Rule::in([$school->ministry_registration_number])] : []), Rule::unique('schools')->ignore($school->id), Rule::unique('users', 'username')->ignore($request->user()->id)],
             'emis_number' => ['nullable', 'string', 'max:60', ...($school->emis_number ? ['required', Rule::in([$school->emis_number])] : []), Rule::unique('schools')->ignore($school->id)],
             'school_level' => ['required', 'in:nursery,primary,secondary,vocational_technical,tertiary'],
@@ -121,7 +124,8 @@ class RepresentativeController extends Controller
             'boarding_status' => ['required', 'in:Day,Boarding,Both day and boarding'],
         ]);
         DB::transaction(function () use ($request, $return, $data, $school) {
-            School::whereKey($school->id)->lockForUpdate()->firstOrFail();
+            $school = School::whereKey($school->id)->lockForUpdate()->firstOrFail();
+            $this->assertIdentifiersUnchanged($school, $data);
             $locked = SchoolReturn::whereKey($return->id)->lockForUpdate()->firstOrFail();
             Gate::authorize('update', $locked);
             if ($locked->profile_confirmed_at) {
@@ -142,5 +146,19 @@ class RepresentativeController extends Controller
         });
 
         return redirect()->route('returns.form.show', $return)->with('status', 'School profile confirmed. Continue with the form sections.');
+    }
+    private function profileParishes(School $school): \Illuminate\Database\Eloquent\Builder
+    {
+        return Parish::where(fn ($query) => $query->whereKey($school->parish_id)
+            ->orWhere(fn ($active) => $active->where('is_active', true)->whereHas('diocese', fn ($diocese) => $diocese->where('code', 'MD'))));
+    }
+
+    private function assertIdentifiersUnchanged(School $school, array $data): void
+    {
+        foreach (['ministry_registration_number', 'emis_number'] as $key) {
+            if (filled($school->$key) && ($data[$key] ?? null) !== $school->$key) {
+                throw ValidationException::withMessages([$key => 'The school identifiers changed. Reload the profile and contact the Secretariat for corrections.']);
+            }
+        }
     }
 }

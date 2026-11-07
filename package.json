@@ -4,6 +4,7 @@
     "type": "module",
     "scripts": {
         "build": "vite build",
+        "test:autosave": "node tests/JavaScript/form-autosave.test.mjs",
         "dev": "vite"
     },
     "devDependencies": {

@@ -20,18 +20,21 @@
         @vite(['resources/css/app.css', 'resources/css/system-theme.css', 'resources/css/mobile.css', 'resources/js/app.js'])
     @endif
 </head>
-<body class="app-body system-theme mobile-portal {{ auth()->user()->hasRole(\App\Models\Role::SUPER_ADMINISTRATOR) ? 'admin-interface' : '' }} {{ auth()->user()->isSchoolRepresentative() ? 'representative-client' : '' }}">
+<body class="app-body system-theme mobile-portal {{ auth()->user()->isAdministrator() ? 'admin-interface' : '' }} {{ auth()->user()->isSchoolRepresentative() ? 'representative-client' : '' }}">
     @php($navigationGroups = \App\Support\Navigation::groups())
-    @php($unreadAlerts = \App\Models\NotificationRecord::where('user_id',auth()->id())->whereNull('read_at')->count())
+    @php($unreadAlerts = \App\Models\NotificationRecord::where('user_id',auth()->id())->whereNull('read_at')->when(auth()->user()->isSchoolRepresentative(), fn($q) => $q->where(fn($schoolScope) => $schoolScope->whereNull('school_id')->orWhere('school_id',auth()->user()->school_id ?? -1)))->count())
 
     <a class="portal-skip-link" href="#main-content">Skip to main content</a>
     <div class="app-shell" data-shell>
 
-        <header class="topbar">
+        <header class="topbar {{ auth()->user()->isSchoolRepresentative() ? 'school-portal-topbar' : '' }}">
             @include('components.layouts.client-navigation')
 
 
                 <a class="reference-brand" href="{{ route('dashboard') }}"><img class="system-logo" src="{{ asset('images/system-logo.jpg') }}" alt="Masaka Diocese crest" width="44" height="38"><span><strong>MDES</strong><small>{{ config('mdsiss.name') }}</small></span></a>
+            @if(auth()->user()->isSchoolRepresentative())
+                @include('components.layouts.school-portal-context')
+            @else
             <div class="topbar-left">
                 <div class="topbar-title">
                     <span>{{ config('mdsiss.name') }}</span>
@@ -39,25 +42,26 @@
                 </div>
             </div>
 
+            @endif
             @if(auth()->user()->isSchoolRepresentative())
             <div class="client-mobile-announcement">@include('representative.window-strip')</div>
             @endif
             @isset($topbarFilters)
-                {{ $topbarFilters }}
+                @if(auth()->user()->isSchoolRepresentative())<div class="school-portal-page-tools">{{ $topbarFilters }}</div>@else{{ $topbarFilters }}@endif
             @endisset
             <div class="topbar-actions"><a class="topbar-alert-link" href="{{ route(auth()->user()->isSchoolRepresentative() ? 'announcements.index' : 'alerts.index') }}" aria-label="Inbox: {{ $unreadAlerts }} unread"><x-ui.nav-icon name="bell"/>@if($unreadAlerts)<span>{{ $unreadAlerts }}</span>@endif</a>
-                <span class="topbar-date">{{ now()->timezone(config('app.timezone'))->format('l, d M Y') }}</span>
+                @unless(auth()->user()->isSchoolRepresentative())<span class="topbar-date">{{ now()->timezone(config('app.timezone'))->format('l, d M Y') }}</span>@endunless
                 <div class="profile-menu" data-menu>
                     <button class="profile-button profile-icon-button" type="button" data-menu-toggle aria-expanded="false" aria-haspopup="true" aria-controls="profile-menu-panel" aria-label="Open profile menu" title="Profile menu">
                         <svg class="profile-person-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg>
                         <svg class="profile-chevron" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m4 6 4 4 4-4"/></svg>
                     </button>
                     <div class="profile-dropdown" data-menu-panel id="profile-menu-panel">
-                        <a href="{{ route('profile.show') }}">profile</a>
+                        @if(auth()->user()->isSchoolRepresentative())<a href="{{ route('representative.profile.edit') }}">School profile</a><a href="{{ route('profile.password.edit') }}">Change password</a>@else<a href="{{ route('profile.show') }}">Profile</a>@endif
                         @can('settings.view')<a href="{{ route('settings.index') }}">settings</a>@endcan
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit">sign out</button>
+                            <button type="submit">Sign Out</button>
                         </form>
                     </div>
                 </div>
@@ -110,7 +114,7 @@
                 @endunless
 
                 @if (session('status'))
-                    <x-ui.alert tone="success" :message="session('status')" />
+                    <x-ui.alert tone="success" :message="session('status')" :data-auto-dismiss="request()->routeIs('returns.form.show') ? '4000' : null" />
                 @endif
 
                 @if($errors->any() && request()->routeIs('schools.index','parishes.index','reporting-periods.index','administration.users.index','dashboard','returns.index'))

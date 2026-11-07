@@ -13,6 +13,8 @@ class Role extends Model
 
     public const HEADTEACHER = 'headteacher';
 
+    public const HEADTEACHER_PERMISSIONS = ['dashboard.view', 'schools.view.assigned', 'returns.view', 'returns.manage.assigned', 'documents.view'];
+
     public const ACCOUNT_ROLES = [self::SUPER_ADMINISTRATOR, self::HEADTEACHER];
 
     public function permissions(): BelongsToMany

@@ -123,14 +123,14 @@ class StatisticalFormTest extends TestCase
         $return->reportingPeriod->schools()->sync([$return->school_id,$other->id]);
         $this->actingAs($rep)->get(route('dashboard'))->assertRedirect(route('representative.home'));
         $this->get(route('representative.home'))->assertOk()->assertSee('Form School')->assertDontSee('Other private school');
-        $this->get(route('schools.index'))->assertRedirect(route('representative.profile'));
+        $this->get(route('schools.index'))->assertForbidden();
         $this->get(route('schools.show',$other))->assertForbidden();
         $this->get(route('returns.show',$otherReturn))->assertForbidden();
         $this->get(route('returns.form.show',[$otherReturn,'identity']))->assertForbidden();
         $this->post(route('returns.form.save',[$otherReturn,'identity']),['data'=>['headteacher_name'=>'Changed']])->assertForbidden();
         $this->get(route('representative.confirm',$otherReturn))->assertForbidden();
         $this->post(route('returns.start',[$return->reportingPeriod,$other]))->assertForbidden();
-        $this->get(route('reporting-periods.show',$return->reportingPeriod))->assertOk()->assertDontSee('Other private school');
+        $this->get(route('reporting-periods.show',$return->reportingPeriod))->assertForbidden();
         $this->get(route('administration.users.index'))->assertForbidden();
     }
 
@@ -257,7 +257,7 @@ class StatisticalFormTest extends TestCase
         $form['enrolment'] = ['classes'=>['year_1'=>['boys'=>12,'girls'=>14]]];
         $form['declaration'] = ['headteacher_name'=>'Headteacher','priest_name'=>'Father'];
         $return->forceFill(['statistical_form'=>$form,'profile_confirmed_at'=>now(),'profile_confirmed_by'=>$rep->id])->save();
-        $this->actingAs($rep)->post(route('returns.transition',$return),['action'=>'submit','acknowledged'=>1])->assertSessionHasNoErrors();
+        $this->actingAs($rep)->post(route('returns.transition',$return),['action'=>'submit','acknowledged'=>1,'review_fingerprint'=>StatisticalForm::reviewFingerprint($return->fresh())])->assertSessionHasNoErrors();
         $this->assertSame('locked', $return->fresh()->status);
         $this->assertNotNull($return->fresh()->locked_at);
         $this->post(route('returns.form.save',[$return,'enrolment']),['data'=>[]])->assertForbidden();
@@ -273,7 +273,7 @@ class StatisticalFormTest extends TestCase
         $return->reportingPeriod->update(['status'=>'closed','closing_date'=>now()->subDay()]);
         $this->actingAs($rep)->get(route('representative.home'))->assertOk()->assertSee('Continue corrections');
         $this->post(route('returns.form.save',[$return,'enrolment']),['data'=>['classes'=>['year_1'=>['boys'=>13,'girls'=>14]]]])->assertSessionHasNoErrors();
-        $this->post(route('returns.transition',$return),['action'=>'submit','acknowledged'=>1])->assertSessionHasNoErrors();
+        $this->post(route('returns.transition',$return),['action'=>'submit','acknowledged'=>1,'review_fingerprint'=>StatisticalForm::reviewFingerprint($return->fresh())])->assertSessionHasNoErrors();
         $this->assertSame('locked', $return->fresh()->status);
         $this->assertNull($return->fresh()->correction_reason);
         $this->actingAs($admin)->get(route('dashboard',['year'=>2026]))->assertOk()->assertViewHas('boys',13);
@@ -299,7 +299,7 @@ class StatisticalFormTest extends TestCase
         $this->assertSame('Form School',$return->fresh()->statistical_form['identity']['school_name']);
         $this->assertSame('draft',$return->fresh()->status);
         $this->post(route('returns.transition',$return),['action'=>'submit'])->assertSessionHasErrors('acknowledged');
-        $this->post(route('returns.transition',$return),['action'=>'submit','acknowledged'=>1])->assertSessionHasNoErrors();
+        $this->post(route('returns.transition',$return),['action'=>'submit','acknowledged'=>1,'review_fingerprint'=>StatisticalForm::reviewFingerprint($return->fresh())])->assertSessionHasNoErrors();
         $this->get(route('returns.show',$return))->assertOk()->assertSee('annual submission')->assertSee('Submitted value');
         $this->post(route('returns.form.save',[$return,'enrolment']),['data'=>[]])->assertForbidden();
         $this->assertSame('locked',$return->fresh()->status);
@@ -367,7 +367,7 @@ class StatisticalFormTest extends TestCase
         $user=$this->representativeFor($return->school);
         $return->forceFill(['profile_confirmed_at'=>now(),'profile_confirmed_by'=>$user->id])->save();
         foreach (StatisticalForm::sections() as $key => $schema) {
-            $this->actingAs($user)->get(route('returns.form.show', [$return,$key]))->assertOk()->assertSee('Save this section');
+            $this->actingAs($user)->get(route('returns.form.show', [$return,$key]))->assertOk()->assertSee('Save draft');
         }
         $this->post(route('returns.form.save',[$return,'identity']), ['data'=>['school_name'=>'Form School','level'=>'Primary']])->assertSessionHasNoErrors()->assertRedirect();
         $this->post(route('returns.form.save',[$return,'utilities']), ['data'=>['water_sources'=>['Borehole','Surface tank'],'water_reliable'=>'No','water_explanation'=>'Seasonal']])->assertSessionHasNoErrors();
@@ -442,7 +442,7 @@ class StatisticalFormTest extends TestCase
     {
         [$user,$return] = $this->context();
         $return->update(['status'=>'locked']);
-        $this->actingAs($user)->get(route('returns.form.show',[$return,'teaching']))->assertOk()->assertDontSee('Save this section');
+        $this->actingAs($user)->get(route('returns.form.show',[$return,'teaching']))->assertOk()->assertDontSee('type="submit">Save draft</button>', false);
         $this->post(route('returns.form.save',[$return,'teaching']),['data'=>[]])->assertForbidden();
         $this->actingAs(User::factory()->create())->get(route('returns.form.show',[$return,'teaching']))->assertForbidden();
     }
@@ -452,7 +452,7 @@ class StatisticalFormTest extends TestCase
         [$admin, $return] = $this->context();
         $rep = $this->representativeFor($return->school);
         $return->forceFill(['profile_confirmed_at'=>now(), 'profile_confirmed_by'=>$rep->id, 'profile_snapshot'=>[]])->save();
-        $keys = array_keys(StatisticalForm::sections());
+        $keys = array_keys(StatisticalForm::sectionsForReturn($return));
         $index = array_search('enrolment', $keys, true);
         $this->actingAs($rep)->post(route('returns.form.save', [$return,'enrolment']), [
             'navigate'=>'next', 'data'=>['classes'=>['year_1'=>['boys'=>3,'girls'=>4]]],
@@ -475,11 +475,115 @@ class StatisticalFormTest extends TestCase
         $form = array_fill_keys(array_keys(StatisticalForm::sections()), []);
         $return->forceFill(['profile_confirmed_at'=>now(), 'profile_confirmed_by'=>$rep->id, 'statistical_form'=>$form])->save();
         $this->actingAs($rep)->get(route('returns.form.show', [$return,'enrolment']))
-            ->assertOk()->assertSee('100%')->assertSee('Further checks needed before submission')->assertSee('School particulars:');
+            ->assertOk()->assertSee('100%')->assertDontSee('Draft in progress')->assertDontSee('aria-labelledby="mobile-readiness-error-title"', false);
         $form['identity'] = ['date'=>'2026-11-03','school_name'=>'Form School','level'=>'Primary','funding'=>'Private','gender'=>'Mixed','boarding'=>'Day','headteacher_name'=>'Teacher'];
         $form['enrolment'] = ['classes'=>['year_1'=>['boys'=>0,'girls'=>0]]];
         $form['declaration'] = ['headteacher_name'=>'Teacher','priest_name'=>'Priest'];
         $return->forceFill(['statistical_form'=>$form])->save();
-        $this->get(route('returns.form.show', [$return,'declaration']))->assertOk()->assertSee('Ready for final review');
+        $this->get(route('returns.form.show', [$return,'declaration']))->assertOk()->assertSee('Ready to submit');
+    }
+
+    public function test_final_review_shows_full_form_and_links_missing_sections(): void
+    {
+        [$admin,$return] = $this->context();
+        $rep = $this->representativeFor($return->school);
+        $return->forceFill(['profile_confirmed_at'=>now(), 'statistical_form'=>['identity'=>['school_name'=>'Review school']]])->save();
+        $this->actingAs($rep)->get(route('returns.form.show',[$return,'declaration']))
+            ->assertOk()->assertSee('Review and submit')->assertSee('Review school')
+            ->assertSee('School portal')->assertSee('2026 reporting')->assertSee('Form status: Draft')
+            ->assertSee(route('profile.password.edit'))->assertSee('School profile')
+            ->assertSee('items needing attention')->assertSee('Edit section')
+            ->assertSee(route('returns.form.show',[$return,'enrolment']))
+            ->assertSee('I acknowledge that I have reviewed this form')
+            ->assertDontSee('Fr. in charge of schools')->assertDontSee('School stamp:');
+        $this->post(route('returns.transition',$return),['action'=>'submit','acknowledged'=>1,'review_fingerprint'=>StatisticalForm::reviewFingerprint($return->fresh())])->assertSessionHasErrors('return');
+        $this->assertSame('draft',$return->fresh()->status);
+    }
+
+    public function test_review_submission_requires_acknowledgement_and_records_it_without_old_signatures(): void
+    {
+        [$admin,$return] = $this->context();
+        $rep = $this->representativeFor($return->school);
+        $return->reportingPeriod->update(['opening_date'=>now()->subDay(),'closing_date'=>now()->addDay()]);
+        $return->reportingPeriod->schools()->sync([$return->school_id]);
+        $form = array_fill_keys(array_diff(array_keys(StatisticalForm::sections()),['declaration']),[]);
+        $form['identity'] = ['date'=>now()->toDateString(),'school_name'=>'Form School','level'=>'Primary','funding'=>'Government','gender'=>'Mixed','boarding'=>'Day','headteacher_name'=>'Headteacher'];
+        $form['enrolment'] = ['classes'=>['year_1'=>['boys'=>0,'girls'=>0]]];
+        $return->forceFill(['profile_confirmed_at'=>now(),'statistical_form'=>$form])->save();
+        $this->actingAs($rep)->get(route('returns.form.show',[$return,'declaration']))->assertOk()->assertSee('Ready to submit')->assertDontSee('items needing attention');
+        $this->post(route('returns.transition',$return),['action'=>'submit'])->assertSessionHasErrors('acknowledged');
+        $this->post(route('returns.transition',$return),['action'=>'submit','acknowledged'=>1,'review_fingerprint'=>StatisticalForm::reviewFingerprint($return->fresh())])->assertSessionHasNoErrors()->assertRedirect(route('returns.show',$return));
+        $return->refresh();
+        $this->assertSame('locked',$return->status);
+        $this->assertTrue($return->statistical_form['declaration']['acknowledged']);
+        $this->assertSame($rep->id,$return->statistical_form['declaration']['acknowledged_by']);
+        $this->assertNotEmpty($return->statistical_form['declaration']['acknowledged_at']);
+        $this->get(route('returns.show',$return))->assertOk()->assertSee('Submission reference: MDES-'.$return->id);
+        $this->post(route('returns.transition',$return),['action'=>'submit','acknowledged'=>1,'review_fingerprint'=>StatisticalForm::reviewFingerprint($return->fresh())])->assertForbidden();
+    }
+
+    public function test_changed_answers_require_another_review_before_submission(): void
+    {
+        [$admin,$return] = $this->context();
+        $rep = $this->representativeFor($return->school);
+        $return->forceFill(['profile_confirmed_at'=>now(),'statistical_form'=>['identity'=>['school_name'=>'Original']]])->save();
+        $fingerprint = StatisticalForm::reviewFingerprint($return->fresh());
+        $return->update(['statistical_form'=>['identity'=>['school_name'=>'Changed in another tab']]]);
+        $this->actingAs($rep)->from(route('returns.form.show',[$return,'declaration']))
+            ->post(route('returns.transition',$return),['action'=>'submit','acknowledged'=>1,'review_fingerprint'=>$fingerprint])
+            ->assertSessionHasErrors('return');
+        $this->assertSame('draft',$return->fresh()->status);
+        $this->get(route('returns.form.show',[$return,'declaration']))->assertOk()->assertSee('Changed in another tab');
+    }
+
+    public function test_saved_form_schema_and_water_explanation_are_checked_before_submission(): void
+    {
+        [$admin,$return] = $this->context();
+        $form = array_fill_keys(array_keys(StatisticalForm::sections()),[]);
+        $form['identity'] = ['date'=>'2026-11-07','school_name'=>'Form School','level'=>'Primary','funding'=>'Private','gender'=>'Mixed','boarding'=>'Day','headteacher_name'=>'Teacher'];
+        $form['enrolment'] = ['classes'=>['year_1'=>['boys'=>-1,'girls'=>0]]];
+        $form['utilities'] = ['water_reliable'=>'No'];
+        $return->update(['statistical_form'=>$form]);
+        $errors = app(\App\Services\StatisticalFormQualityService::class)->errors($return->fresh());
+        $this->assertArrayHasKey('enrolment',$errors);
+        $this->assertArrayHasKey('utilities_water_explanation',$errors);
+    }
+
+    public function test_historical_form_tables_use_the_confirmed_school_level(): void
+    {
+        [$admin,$return] = $this->context();
+        $return->forceFill(['status'=>'locked','submitted_at'=>now(),'profile_snapshot'=>['level'=>'Secondary'],
+            'statistical_form'=>['identity'=>['level'=>'Secondary'],'academic'=>['uce_scores'=>[]]]])->save();
+        $this->assertFalse(StatisticalForm::allowsNursery($return));
+        $this->assertSame(['uce_scores','uce_results','uace'],StatisticalForm::academicTables($return));
+        $this->actingAs($admin)->get(route('returns.show',$return))->assertOk()->assertDontSee('3(b) Enrolment in the Nursery section');
+    }
+
+    public function test_profile_changes_cannot_move_school_to_an_unrelated_diocese(): void
+    {
+        [$admin,$return] = $this->context();
+        $school = $return->school;
+        $rep = $this->representativeFor($school);
+        $diocese = Diocese::create(['code'=>'OUT','name'=>'Outside Diocese','is_active'=>true]);
+        $outside = Parish::create(['diocese_id'=>$diocese->id,'name'=>'Outside Parish','code'=>'OUT-P','is_active'=>true]);
+        $payload = ['parish_id'=>$outside->id,'district_id'=>$school->district_id,'school_level'=>'primary','funding_classification'=>'Private','gender_classification'=>'Mixed','boarding_status'=>'Day','ministry_registration_number'=>'PROFILE-ONE'];
+        $this->actingAs($rep)->get(route('representative.profile.edit'))->assertOk()->assertDontSee('Outside Parish');
+        $this->put(route('representative.profile.update'),$payload)->assertSessionHasErrors('parish_id');
+        $this->assertSame($school->parish_id,$school->fresh()->parish_id);
+    }
+
+    public function test_school_submission_page_has_no_admin_toolbar_or_window_management_access(): void
+    {
+        [$admin,$return] = $this->context();
+        $rep = $this->representativeFor($return->school);
+        $this->actingAs($rep)->get(route('returns.index'))->assertOk()
+            ->assertDontSee('Find a school')->assertDontSee('All windows')
+            ->assertDontSee('Submission windows')->assertDontSee('<form class="registry-filters topbar-filters window-topbar-filters submission-topbar-filters"',false);
+        // Legacy permissions must not restore access to administrative window pages.
+        $rep->roles()->first()->permissions()->syncWithoutDetaching(\App\Models\Permission::where('slug','reporting-periods.view')->pluck('id'));
+        foreach (['reporting-periods.index','reporting-periods.create'] as $route) $this->get(route($route))->assertForbidden();
+        $this->get(route('reporting-periods.show',$return->reportingPeriod))->assertForbidden();
+        $this->get(route('reporting-periods.edit',$return->reportingPeriod))->assertForbidden();
+        $this->actingAs($admin)->get(route('reporting-periods.index'))->assertOk();
     }
 }

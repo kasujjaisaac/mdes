@@ -22,8 +22,8 @@ class ChangePasswordController extends Controller
     {
         $passwordRule = $request->user()->isSchoolRepresentative() ? Password::min(12)->mixedCase()->numbers()->symbols() : Password::min(12);
         $data = $request->validate([
-            'current_password' => ['required', 'current_password'],
-            'password' => ['required', 'confirmed', 'different:current_password', $passwordRule],
+            'current_password' => ['required', 'string', 'max:4096', 'current_password'],
+            'password' => ['required', 'string', 'max:4096', 'confirmed', 'different:current_password', $passwordRule],
         ]);
         $expectedVersion = (int) $request->user()->session_version;
         $updated = DB::transaction(function () use ($request, $data, $audit, $expectedVersion) {

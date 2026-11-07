@@ -91,7 +91,7 @@ class SchoolRegistryTest extends TestCase
         $visibleSchool = $this->makeSchool(['parish_id' => $assignedParish->id, 'diocesan_code' => 'VISIBLE']);
         $hiddenSchool = $this->makeSchool(['parish_id' => $otherParish->id, 'diocesan_code' => 'HIDDEN']);
 
-        $this->actingAs($coordinator)->get('/administration/schools/'.$visibleSchool->id)->assertOk();
+        $this->actingAs($coordinator)->get('/administration/schools/'.$visibleSchool->id)->assertForbidden();
         $this->actingAs($coordinator)->get('/administration/schools/'.$hiddenSchool->id)->assertForbidden();
     }
 

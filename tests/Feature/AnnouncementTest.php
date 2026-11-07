@@ -154,7 +154,7 @@ class AnnouncementTest extends TestCase
         $role->permissions()->sync(Permission::where('slug', 'communications.manage')->pluck('id'));
         $publisher = User::factory()->create();
         $publisher->roles()->attach($role);
-        $this->actingAs($publisher)->post(route('announcements.preview'), ['title' => 'Test', 'body' => 'Test', 'school_ids' => [$schools[0]->id]])->assertSessionHasErrors('school_ids.0');
+        $this->actingAs($publisher)->post(route('announcements.preview'), ['title' => 'Test', 'body' => 'Test', 'school_ids' => [$schools[0]->id]])->assertForbidden();
         $this->assertDatabaseCount('announcements', 0);
     }
 

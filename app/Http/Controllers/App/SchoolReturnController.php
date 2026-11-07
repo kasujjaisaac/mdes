@@ -96,7 +96,7 @@ class SchoolReturnController extends Controller
             return back()->withErrors(['return' => $exception->getMessage()]);
         }
 
-        return redirect()->route($request->user()->isSchoolRepresentative() ? 'representative.confirm' : 'returns.show', $return);
+        return redirect()->route('returns.form.introduction', $return);
     }
 
     public function show(SchoolReturn $return): View|RedirectResponse
@@ -133,7 +133,7 @@ class SchoolReturnController extends Controller
         Gate::authorize(in_array($request->input('action'), ['certify', 'approve', 'lock', 'return_for_correction']) ? 'review' : 'update', $return);
 
         if ($request->input('action') === 'submit' && $request->user()->isSchoolRepresentative()) {
-            $request->validate(['acknowledged' => ['accepted']]);
+            $request->validate(['acknowledged' => ['accepted'], 'review_fingerprint' => ['required', 'string', 'size:64']]);
         }
 
         $request->validate(['action' => ['required', 'in:submit,approve,return_for_correction'], 'reason' => ['required_if:action,return_for_correction', 'nullable', 'string', 'max:3000']]);
@@ -142,6 +142,10 @@ class SchoolReturnController extends Controller
                 School::whereKey($return->school_id)->lockForUpdate()->firstOrFail();
                 $locked = SchoolReturn::whereKey($return->id)->lockForUpdate()->firstOrFail();
                 Gate::authorize(in_array($request->input('action'), ['certify', 'approve', 'lock', 'return_for_correction']) ? 'review' : 'update', $locked);
+                if ($request->input('action') === 'submit' && $request->user()->isSchoolRepresentative()
+                    && ! hash_equals(\App\Support\StatisticalForm::reviewFingerprint($locked), $request->string('review_fingerprint')->toString())) {
+                    throw new DomainException('This form changed after you opened the review. Review the updated answers and acknowledge them again before submitting.');
+                }
                 $oldStatus = $locked->status;
                 match ($request->input('action')) {
                     'submit' => $transition->submit($locked, $request->user()),
@@ -158,9 +162,14 @@ class SchoolReturnController extends Controller
                 app(RecordAuditEvent::class)->handle($request, 'submission.'.$request->input('action'), $locked, ['status' => $oldStatus], ['status' => $locked->fresh()->status], $request->input('reason'));
             });
         } catch (DomainException $exception) {
-            return back()->withErrors(['return' => $exception->getMessage()]);
+            $response = back()->withErrors(['return' => $exception->getMessage()]);
+            if ($request->input('action') === 'submit') {
+                $response->with('submission_checks_for', $return->id);
+            }
+
+            return $response;
         }
 
-        return redirect()->route('returns.show', $return)->with('status', 'return updated.');
+        return redirect()->route('returns.show', $return)->with('status', $request->input('action') === 'submit' ? 'Your form has been submitted successfully. Reference: MDES-'.$return->id.'.' : 'Return updated.');
     }
 }

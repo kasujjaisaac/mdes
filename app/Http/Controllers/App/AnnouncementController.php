@@ -6,7 +6,6 @@ use App\Actions\RecordAuditEvent;
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
 use App\Models\NotificationRecord;
-use App\Models\Role;
 use App\Models\School;
 use App\Services\AnnouncementAudienceService;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -21,16 +20,16 @@ class AnnouncementController extends Controller
 {
     private function authorizePublisher(Request $request): void
     {
-        abort_unless(! $request->user()->isSchoolRepresentative() && ($request->user()->hasPermission('communications.manage') || $request->user()->hasPermission('returns.review')), 403);
+        abort_unless($request->user()->isAdministrator(), 403);
     }
 
     public function index(Request $request)
     {
-        if ($request->user()->isSchoolRepresentative() || (! $request->user()->hasPermission('communications.manage') && ! $request->user()->hasPermission('returns.review'))) {
+        if (! $request->user()->isAdministrator()) {
             return app(AlertController::class)->index($request);
         }
 
-        $announcements = Announcement::when(! $request->user()->hasRole(Role::SUPER_ADMINISTRATOR), fn ($q) => $q->where('created_by', $request->user()->id))->with(['deliveries.school', 'creator'])->withCount('deliveries')->latest()->paginate(15);
+        $announcements = Announcement::with(['deliveries.school', 'creator'])->withCount('deliveries')->latest()->paginate(15);
         $schoolIds = $announcements->getCollection()->flatMap(fn ($announcement) => $announcement->target_filters['school_ids'] ?? [])->unique();
         $audienceSchools = School::whereIn('id', $schoolIds)->get()->keyBy('id');
 
